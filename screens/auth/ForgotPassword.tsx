@@ -1,10 +1,19 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, Dimensions, TextInput, TouchableOpacity} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Auth, API, graphqlOperation } from 'aws-amplify';
 
 const ForgotPassword = ({navigation} : any) => {
 
     const [email, setEmail] = useState('');
+
+    const handleForgotPassword = () => {
+        Auth.forgotPassword(
+            email,
+        )
+        .then(navigation.navigate('ForgotPasswordCon', {email: email}))
+        .catch(err => console.log(err));
+      }
 
     return (
         <View style={styles.container}>
@@ -31,7 +40,7 @@ const ForgotPassword = ({navigation} : any) => {
                     </View>
                 </View>
 
-                <TouchableOpacity onPress={() => navigation.navigate('ForgotPasswordCon', {email: email})}>
+                <TouchableOpacity onPress={handleForgotPassword}>
                     <View style={styles.button}>
                         <Text style={styles.buttontext}>
                             Send Reset Code
@@ -39,8 +48,8 @@ const ForgotPassword = ({navigation} : any) => {
                     </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => navigation.navigate('SignIn') }>
-                    <Text style={{ color: '#fff', alignSelf: 'center', margin: 20}}>
+                <TouchableOpacity onPress={() => navigation.goBack() }>
+                    <Text style={{ fontSize: 14, color: '#fff', alignSelf: 'center', marginTop: 30}}>
                         Go Back
                     </Text>
                 </TouchableOpacity>
@@ -70,7 +79,7 @@ const styles = StyleSheet.create({
     },
     inputfield: {
         width: '90%',
-        height: 50,
+        height: 40,
         backgroundColor: '#363636a5',
         padding: 10,
         borderRadius: 10,

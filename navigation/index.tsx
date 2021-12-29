@@ -1,8 +1,11 @@
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useContext} from 'react';
 import { ColorSchemeName, Appearance } from 'react-native';
+import { AppContext } from '../AppContext';
+
+import RedirectScreen from '../screens/auth/RedirectScreen';
 
 import RecordAudioScreen from '../screens/RecordAudioScreen';
 import AudioPlayer from '../screens/AudioPlayer';
@@ -35,7 +38,7 @@ export default function Navigation(
   { colorScheme }: { colorScheme: ColorSchemeName }
   ) {
 
-
+  const { userID } = useContext(AppContext);
 
   return (
     <NavigationContainer
@@ -78,7 +81,7 @@ function RootNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false, 
     //cardStyle: {opacity: 1, backgroundColor: 'transparent'} , cardOverlayEnabled: false,
-    }} initialRouteName={isLoggedIn === true ? 'Root' : 'SignIn'}>
+    }} initialRouteName="Redirect">
       <Stack.Screen name="Root" component={BottomTabNavigator} />
       <Stack.Screen name="RecordAudio" component={RecordAudioScreen} options={{ title: 'Oops!' }} />
       <Stack.Screen name="UploadAudio" component={UploadAudio} options={{ title: 'Oops!' }} />
@@ -90,6 +93,7 @@ function RootNavigator() {
       <Stack.Screen name="ConfirmEmail" component={ConfirmEmailScreen} options={{ title: 'Oops!' }} />
      
       <Stack.Screen name="AudioPlayer" component={AudioPlayer} options={{ title: 'Oops!' }} />
+      <Stack.Screen name="Redirect" component={RedirectScreen} />
       {/* <Stack.Screen name="Drawer" component={DrawerNavigator} options={{ title: 'Oops!' }} /> */}
 
     </Stack.Navigator>
@@ -106,9 +110,8 @@ function DrawerNavigator() {
   return (
     <Drawer.Navigator 
       screenOptions={{ }}
-      // drawerContent={props => <DrawerContent { ...props} />}
-      // drawerPosition='left'
       drawerType='front'
+      //initialRouteName='Redirect'
       overlayColor="transparent"
       drawerStyle={{ width: '80%', height: '50%'}}
       sceneContainerStyle={{backgroundColor: 'transparent'}}

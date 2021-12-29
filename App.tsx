@@ -36,10 +36,12 @@ export default function App() {
       //get authenticated user from Auth
       const userInfo = await Auth.currentAuthenticatedUser(
         { bypassCache: true }
-      );
+      )
+      .catch(err=>err)
       //console.log(userInfo.attributes.sub);
 
       if (!userInfo) {
+        setUserID(null)
         return;
       }
 
@@ -52,29 +54,31 @@ export default function App() {
             }
           )
         )
-        setUserID(userInfo.attributes.sub);
 
 
         if (userData.data.getUser) {
-          console.log("User is already registered in database");
+          console.log(userData.data.getUser);
+          setUserID(userData.data.getUser)
           return;
-        };
-
-        const newUser = {
-          id: userInfo.attributes.sub,
-          name: userInfo.attributes.name,
-          imageUri: userInfo.attributes.imageUri,
-          email: userInfo.attributes.email,
-          bio: userInfo.attributes.bio,
+        } else {
+          setUserID(null);
         }
 
+        // const newUser = {
+        //   id: userInfo.attributes.sub,
+        //   name: userInfo.attributes.name,
+        //   imageUri: 'https://hieumobile.com/wp-content/uploads/avatar-among-us-2.jpg',
+        //   email: userInfo.attributes.email,
+        //   status: '',
+        // }
+
       //if there is no user in DB with the id, then create one
-        await API.graphql(
-          graphqlOperation(
-            createUser,
-            { input: newUser }
-          )
-        )
+        // await API.graphql(
+        //   graphqlOperation(
+        //     createUser,
+        //     { input: newUser }
+        //   )
+        // )
       }
     }
     fetchUser();
@@ -90,8 +94,10 @@ export default function App() {
         <AppContext.Provider value={{
           storyID,
           setStoryID: (id: string) => setStoryID(id),
+          // userID,
+          // setUserID: (id: string) => setUserID(id),
           userID,
-          setUserID: (id: string) => setUserID(id),
+          setUserID: (user: {}) => setUserID(user),
 
         }}>
           <Navigation 

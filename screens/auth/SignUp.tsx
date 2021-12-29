@@ -1,57 +1,27 @@
 import React, {useState, useEffect} from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, TextInput, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import Feather from 'react-native-vector-icons/Feather';
 
 import {Auth, graphqlOperation, API} from 'aws-amplify';
 import { getUser } from '../../src/graphql/queries';
 import { createUser } from '../../src/graphql/mutations';
 
-const CreateUser = async () => {
-    const userInfo = await Auth.currentAuthenticatedUser(
-        { bypassCache: true }
-      );
-      console.log(userInfo.attributes.sub);
-
-      if (!userInfo) {
-        return;
-      }
-
-      if (userInfo) {
-      //get the user from Backend with the user SUB from Auth
-        const userData = await API.graphql(
-          graphqlOperation(
-            getUser, 
-            { id: userInfo.attributes.sub,
-            }
-          )
-        )
-
-
-        if (userData.data.getUser) {
-          console.log("User is already registered in database");
-          return;
-        };
-
-        const newUser = {
-          id: userInfo.attributes.sub,
-          name: userInfo.attributes.name,
-          imageUri: userInfo.attributes.imageUri,
-          email: userInfo.attributes.email,
-          bio: userInfo.attributes.bio,
-        }
-
-      //if there is no user in DB with the id, then create one
-        await API.graphql(
-          graphqlOperation(
-            createUser,
-            { input: newUser }
-          )
-        )
-      }
-    }
-
-
 const SignUp = ({navigation} : any) => {
+
+    const [isErr, setIsErr] = useState(false);
+
+    const [noMatch, setNoMatch] = useState(false);
+
+    const [shortPass, setShortPass] = useState(false);
+
+    const [userExist, setUserExist] = useState(false);
+
+    const [seePass, setSeePass] = useState(false);
+
+    const [seeConPass, setSeeConPass] = useState(false);
+
+    const [signingUp, setSigningUp] = useState(false);
 
     const [data, setData] = useState({
         username: '',
@@ -62,6 +32,32 @@ const SignUp = ({navigation} : any) => {
         secureTextEntry: true,
         confirm_secureTextEntry: true,
     });
+
+const CreateUser = async () => {
+
+    const { password, confirm_password, name, username } = data;
+
+    setSigningUp(true);
+
+        try {
+            const { user } = await Auth.signUp({
+                username,
+                password,
+                attributes: {
+                    name
+                }
+            });
+            console.log(user);
+
+            if (user) {
+                navigation.navigate('ConfirmEmail', {username, password})
+            }
+        } catch (error) {
+            console.log('error signing up:', error);
+            error.code === 'UsernameExistsException' ? setUserExist(true) : setIsErr(true)
+        }
+        setSigningUp(false);
+}
 
     const textInputChange = (val : any) => {
         if( val.length !== 0 ) {
@@ -114,39 +110,34 @@ const SignUp = ({navigation} : any) => {
     }
 
     const handleSignUp = () => {
-        const { password, confirm_password, name, username } = data;
-        // Make sure passwords match
-        if (password === confirm_password) {
-          Auth.signUp({
-            password,
-            username,
-            attributes: 
-                { name },
-          })
-          .then (CreateUser)
-          .then(() => navigation.navigate('ConfirmEmail', {username, password}))
-            // On failure, display error in console
-            .catch(err => console.log(err));
-        } else {
-          alert('Passwords do not match.');
-        }
-      }
 
-    // const handleSignUp = () => {
-    //     const { password, confirm_password, name, username } = data;
-    //     // Make sure passwords match
-    //     if (password === confirm_password) {
-    //       signUp(
-    //       password,
-    //         name,
-    //         username,
-    //         )
-    //         // On failure, display error in console
-    //         .catch(err => console.log(err));
-    //     } else {
-    //       alert('Passwords do not match.');
-    //     }
-    //   }
+        const { password, confirm_password, name, username } = data;
+
+        if (password.length < 6) {
+            setNoMatch(false);
+            setIsErr(false);
+            setShortPass(true);
+            setUserExist(false);
+            return;
+        }
+
+        if (password !== confirm_password && password.length > 5) {
+            setShortPass(false);
+            setIsErr(false);
+            setNoMatch(true);
+            setUserExist(false);
+            return;
+        }
+        // Make sure passwords match
+        if (password === confirm_password && password.length > 5) {
+            setSigningUp(true);
+            setShortPass(false);
+            setNoMatch(false);
+            CreateUser()
+        } else {
+            setIsErr(true);
+        }
+    }
 
     return (
         <View style={{ flex: 1 }}>
@@ -157,13 +148,41 @@ const SignUp = ({navigation} : any) => {
                 end={{ x: 1, y: 1 }}
             >
                 <View style={{ margin: 20, paddingTop: 70}}>
+                    {userExist ? (
+                            <View style={{ alignItems: 'center', justifyContent: 'center', margin: 10}}>
+                                <Text style={{borderRadius: 15, backgroundColor: '#ffffff', paddingHorizontal: 20, paddingVertical: 10, color: 'red', fontSize: 13, }}>
+                                    User already exists. Please log in.
+                                </Text>
+                            </View>
+                        ) : null}
+                    {isErr ? (
+                        <View style={{ alignItems: 'center', justifyContent: 'center', margin: 10}}>
+                            <Text style={{borderRadius: 15, backgroundColor: '#ffffff', paddingHorizontal: 20, paddingVertical: 10, color: 'red', fontSize: 13, }}>
+                                Error signing up. Please try again.
+                            </Text>
+                        </View>
+                    ) : null}
+                    {noMatch ? (
+                        <View style={{ alignItems: 'center', justifyContent: 'center', margin: 10}}>
+                            <Text style={{borderRadius: 15, backgroundColor: '#ffffff', paddingHorizontal: 20, paddingVertical: 10, color: 'red', fontSize: 13, }}>
+                                Passwords do no match. Try again.
+                            </Text>
+                        </View>
+                    ) : null}
+                    {shortPass ? (
+                        <View style={{ alignItems: 'center', justifyContent: 'center', margin: 10}}>
+                            <Text style={{borderRadius: 15, backgroundColor: '#ffffff', paddingHorizontal: 20, paddingVertical: 10, color: 'red', fontSize: 13, }}>
+                                Password must be at least 6 characters.
+                            </Text>
+                        </View>
+                    ) : null}
                     <View>
                         <Text style={styles.header}>
-                            Pseudonym
+                            Name
                         </Text>
                         <View style={styles.inputfield}>
                             <TextInput 
-                                placeholder='Use your real name or pen name'
+                                placeholder='...'
                                 placeholderTextColor='#ffffffa5'
                                 style={styles.textInputTitle}
                                 maxLength={30}
@@ -183,6 +202,7 @@ const SignUp = ({navigation} : any) => {
                                 style={styles.textInputTitle}
                                 maxLength={30}
                                 onChangeText={(val) => textInputChange(val)}
+                                autoCapitalize='none'
                             />
                         </View>
                     </View>
@@ -195,15 +215,22 @@ const SignUp = ({navigation} : any) => {
                         <Text style={styles.header}>
                             Password
                         </Text>
-                        <View style={styles.inputfield}>
+                        <View style={[styles.inputfield, {flexDirection: 'row', justifyContent: 'space-between'}]}>
                             <TextInput 
                                 placeholder='....'
                                 placeholderTextColor='#ffffffa5'
                                 style={styles.textInputTitle}
                                 maxLength={20}
                                 autoCapitalize='none'
-                                secureTextEntry={data.secureTextEntry ? true : false }
+                                secureTextEntry={seePass === true ? true : false }
                                 onChangeText={(val) => handlePasswordChange(val)}
+                            />
+                            <Feather 
+                                name={seePass === true ? 'eye' : 'eye-off'}
+                                color='#fff'
+                                size={18}
+                                style={{marginRight: 10}}
+                                onPress={() => setSeePass(!seePass)}
                             />
                         </View>
                     </View>
@@ -212,15 +239,22 @@ const SignUp = ({navigation} : any) => {
                         <Text style={styles.header}>
                             Confirm Password
                         </Text>
-                        <View style={styles.inputfield}>
+                        <View style={[styles.inputfield, {flexDirection: 'row', justifyContent: 'space-between'}]}>
                             <TextInput 
                                 placeholder='....'
                                 placeholderTextColor='#ffffffa5'
                                 style={styles.textInputTitle}
                                 maxLength={20}
                                 autoCapitalize='none'
-                                secureTextEntry={data.confirm_secureTextEntry ? true : false }
+                                secureTextEntry={seeConPass === true ? true : false }
                                 onChangeText={(val) => handleConfirmPasswordChange(val)}
+                            />
+                            <Feather 
+                                name={seeConPass === true ? 'eye' : 'eye-off'}
+                                color='#fff'
+                                size={18}
+                                style={{marginRight: 10}}
+                                onPress={() => setSeeConPass(!seeConPass)}
                             />
                         </View>
                     </View>
@@ -229,14 +263,18 @@ const SignUp = ({navigation} : any) => {
 
                 <TouchableOpacity onPress={handleSignUp}>
                     <View style={styles.button}>
-                        <Text style={styles.buttontext}>
-                            Create Account
-                        </Text>
+                        {signingUp === true ? (
+                            <ActivityIndicator size="small" color="#155843"/>
+                        ) : (
+                            <Text style={styles.buttontext}>
+                                Create Account
+                            </Text>
+                        )}
                     </View>
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => navigation.navigate('SignIn') }>
-                    <Text style={{ color: '#fff', alignSelf: 'center', margin: 20}}>
+                    <Text style={{ fontSize: 14, color: '#fff', alignSelf: 'center', marginTop: 40}}>
                         I already have an account.
                     </Text>
                 </TouchableOpacity>

@@ -1,13 +1,14 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, Dimensions, TextInput, TouchableOpacity} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import {Auth} from '@aws-amplify/auth'
 
-import {useNavigation} from '@react-navigation/native'
+//import {useNavigation} from '@react-navigation/native'
 //import {Auth} from '@aws-amplify/auth'
 
-const ForgotPassword = ({email} : any) => {
+const ForgotPassword = ({navigation, route} : {navigation : any, route : any}) => {
 
-    const navigation = useNavigation();
+    const {email} = route.params
 
     const [updatePass, setUpdatePass] = useState({
         username: email,
@@ -21,17 +22,19 @@ const ForgotPassword = ({email} : any) => {
 
         if(password === confirmPass) {
 
-        // try {
-        //     console.log(username, code, password);
-        //     let result = await Auth.forgotPasswordSubmit(username, code, password);
+        try {
+            console.log(username, code, password);
+            let result = await Auth.forgotPasswordSubmit(username, code, password)
 
-        //     if(result !== null) {
-        //         () => navigation.navigate('SignIn');
-        //     }
-        // } catch (e) {
-        //     console.log(Error);
-        // }} else {
-        //     () => alert('Passwords do not match')
+            console.log(result);
+
+            if(result !== null) {
+                navigation.navigate('SignIn');
+            }
+        } catch (e) {
+            console.log(Error);
+        }} else {
+            alert('Passwords do not match')
         }
     }
 
@@ -44,7 +47,7 @@ const ForgotPassword = ({email} : any) => {
                 end={{ x: 1, y: 1 }}
             >
 
-                <View style={{ margin: 20}}>
+<View style={{ margin: 20}}>
                     <View>
                         <Text style={styles.header}>
                             Confirmation Code
@@ -55,6 +58,7 @@ const ForgotPassword = ({email} : any) => {
                                 placeholderTextColor='#ffffffa5'
                                 style={styles.textInputTitle}
                                 maxLength={30}
+                                autoCapitalize='none'
                                 onChangeText={val => setUpdatePass({...updatePass, code: val})}
                             />
                         </View>
@@ -68,10 +72,11 @@ const ForgotPassword = ({email} : any) => {
                         </Text>
                         <View style={styles.inputfield}>
                             <TextInput 
-                                placeholder='Create a new password'
+                                placeholder='...'
                                 placeholderTextColor='#ffffffa5'
                                 style={styles.textInputTitle}
                                 maxLength={30}
+                                autoCapitalize='none'
                                 onChangeText={val => setUpdatePass({...updatePass, password: val})}
                             />
                         </View>
@@ -85,10 +90,11 @@ const ForgotPassword = ({email} : any) => {
                         </Text>
                         <View style={styles.inputfield}>
                             <TextInput 
-                                placeholder='Confirm new password'
+                                placeholder='...'
                                 placeholderTextColor='#ffffffa5'
                                 style={styles.textInputTitle}
                                 maxLength={30}
+                                autoCapitalize='none'
                                 onChangeText={val => setUpdatePass({...updatePass, confirmPass: val})}
                             />
                         </View>
@@ -103,8 +109,8 @@ const ForgotPassword = ({email} : any) => {
                     </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => navigation.navigate('SignIn') }>
-                    <Text style={{ color: '#fff', alignSelf: 'center', margin: 5}}>
+                <TouchableOpacity onPress={() => navigation.goBack() }>
+                    <Text style={{fontSize: 14, color: '#fff', alignSelf: 'center', margin: 5}}>
                         Go Back
                     </Text>
                 </TouchableOpacity>
@@ -134,7 +140,7 @@ const styles = StyleSheet.create({
     },
     inputfield: {
         width: '90%',
-        height: 50,
+        height: 40,
         backgroundColor: '#363636a5',
         padding: 10,
         borderRadius: 10,
