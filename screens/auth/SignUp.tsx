@@ -2,53 +2,53 @@ import React, {useState, useEffect} from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, TextInput } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-//import {Auth, graphqlOperation, API} from 'aws-amplify';
-//import { getUser } from '../../src/graphql/queries';
-//import { createUser } from '../../src/graphql/mutations';
+import {Auth, graphqlOperation, API} from 'aws-amplify';
+import { getUser } from '../../src/graphql/queries';
+import { createUser } from '../../src/graphql/mutations';
 
-// const CreateUser = async () => {
-//     const userInfo = await Auth.currentAuthenticatedUser(
-//         { bypassCache: true }
-//       );
-//       console.log(userInfo.attributes.sub);
+const CreateUser = async () => {
+    const userInfo = await Auth.currentAuthenticatedUser(
+        { bypassCache: true }
+      );
+      console.log(userInfo.attributes.sub);
 
-//       if (!userInfo) {
-//         return;
-//       }
+      if (!userInfo) {
+        return;
+      }
 
-//       if (userInfo) {
-//       //get the user from Backend with the user SUB from Auth
-//         const userData = await API.graphql(
-//           graphqlOperation(
-//             getUser, 
-//             { id: userInfo.attributes.sub,
-//             }
-//           )
-//         )
+      if (userInfo) {
+      //get the user from Backend with the user SUB from Auth
+        const userData = await API.graphql(
+          graphqlOperation(
+            getUser, 
+            { id: userInfo.attributes.sub,
+            }
+          )
+        )
 
 
-//         if (userData.data.getUser) {
-//           console.log("User is already registered in database");
-//           return;
-//         };
+        if (userData.data.getUser) {
+          console.log("User is already registered in database");
+          return;
+        };
 
-//         const newUser = {
-//           id: userInfo.attributes.sub,
-//           name: userInfo.attributes.name,
-//           imageUri: userInfo.attributes.imageUri,
-//           email: userInfo.attributes.email,
-//           bio: userInfo.attributes.bio,
-//         }
+        const newUser = {
+          id: userInfo.attributes.sub,
+          name: userInfo.attributes.name,
+          imageUri: userInfo.attributes.imageUri,
+          email: userInfo.attributes.email,
+          bio: userInfo.attributes.bio,
+        }
 
-//       //if there is no user in DB with the id, then create one
-//         await API.graphql(
-//           graphqlOperation(
-//             createUser,
-//             { input: newUser }
-//           )
-//         )
-//       }
-//     }
+      //if there is no user in DB with the id, then create one
+        await API.graphql(
+          graphqlOperation(
+            createUser,
+            { input: newUser }
+          )
+        )
+      }
+    }
 
 
 const SignUp = ({navigation} : any) => {
@@ -114,22 +114,22 @@ const SignUp = ({navigation} : any) => {
     }
 
     const handleSignUp = () => {
-        // const { password, confirm_password, name, username } = data;
-        // // Make sure passwords match
-        // if (password === confirm_password) {
-        //   Auth.signUp({
-        //     password,
-        //     username,
-        //     attributes: 
-        //         { name },
-        //   })
-        //   .then (CreateUser)
-        //   .then(() => navigation.navigate('ConfirmEmail', {username, password}))
-        //     // On failure, display error in console
-        //     .catch(err => console.log(err));
-        // } else {
-        //   alert('Passwords do not match.');
-        // }
+        const { password, confirm_password, name, username } = data;
+        // Make sure passwords match
+        if (password === confirm_password) {
+          Auth.signUp({
+            password,
+            username,
+            attributes: 
+                { name },
+          })
+          .then (CreateUser)
+          .then(() => navigation.navigate('ConfirmEmail', {username, password}))
+            // On failure, display error in console
+            .catch(err => console.log(err));
+        } else {
+          alert('Passwords do not match.');
+        }
       }
 
     // const handleSignUp = () => {

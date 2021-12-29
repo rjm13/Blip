@@ -22,8 +22,6 @@ import BrowseNarrator from '../screens/BrowseNarrator';
 import GenreHome from '../screens/GenreHome';
 import SearchScreen from '../screens/SearchScreen';
 
-import AudioPlayerTest from '../screens/AudioPlayerTest';
-
 
 import { BottomTabParamList, TabOneParamList, TabTwoParamList, TabThreeParamList } from '../types';
 
@@ -35,9 +33,9 @@ export default function BottomTabNavigator() {
   return (
     <BottomTab.Navigator
       initialRouteName="Home"
-      tabBarOptions={{ 
-          activeTintColor: Colors[colorScheme].tint,
-          style: {
+      screenOptions={{ 
+          tabBarActiveTintColor: Colors[colorScheme].tint,
+          tabBarStyle: {
             //backgroundColor: '#000',
             height: 55,
             paddingBottom: 4
@@ -48,6 +46,7 @@ export default function BottomTabNavigator() {
         component={HomeNavigator}
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="home-sharp" color={color}/>,
+          headerShown: false
         }}
       />
       <BottomTab.Screen
@@ -55,6 +54,7 @@ export default function BottomTabNavigator() {
         component={StoriesNavigator}
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="library-sharp" color={color} />,
+          headerShown: false,
         }}
       />
       <BottomTab.Screen
@@ -62,6 +62,7 @@ export default function BottomTabNavigator() {
         component={PlaylistNavigator}
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="disc" color={color} />,
+          headerShown: false,
         }}
       />
       

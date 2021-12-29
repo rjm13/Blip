@@ -4,9 +4,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
-//import { Auth, graphqlOperation, API } from 'aws-amplify';
-//import { getUser } from '../../src/graphql/queries';
-//import { createUser } from '../../src/graphql/mutations';
+import { Auth, graphqlOperation, API } from 'aws-amplify';
+import { getUser } from '../../src/graphql/queries';
+import { createUser } from '../../src/graphql/mutations';
 import { useRoute } from '@react-navigation/native';
 
 const ConfirmEmail = ({navigation} : any) => {
@@ -25,67 +25,67 @@ const ConfirmEmail = ({navigation} : any) => {
 
         const {username, code, password} = data;
         
-        // try {
-        // console.log(username, code, password);
-        //   let result = await Auth.confirmSignUp(username, code);
+        try {
+        console.log(username, code, password);
+          let result = await Auth.confirmSignUp(username, code);
 
-        //   if (result) {
-        //     await Auth.signIn (username, password)
+          if (result) {
+            await Auth.signIn (username, password)
 
-        //     const userInfo = await Auth.currentAuthenticatedUser({ bypassCache: true })
+            const userInfo = await Auth.currentAuthenticatedUser({ bypassCache: true })
 
-        //     if (userInfo) {
-        //         //get the user from Backend with the user SUB from Auth
-        //           const userData = await API.graphql(
-        //             graphqlOperation(
-        //               getUser, 
-        //               { id: userInfo.attributes.sub,
-        //               }
-        //             )
-        //           )
+            if (userInfo) {
+                //get the user from Backend with the user SUB from Auth
+                  const userData = await API.graphql(
+                    graphqlOperation(
+                      getUser, 
+                      { id: userInfo.attributes.sub,
+                      }
+                    )
+                  )
           
           
-        //           if (userData.data.getUser) {
-        //             console.log("User is already registered in database");
-        //             return;
-        //           };
+                  if (userData.data.getUser) {
+                    console.log("User is already registered in database");
+                    return;
+                  };
           
-        //           const newUser = {
-        //             id: userInfo.attributes.sub,
-        //             name: userInfo.attributes.name,
-        //             imageUri: userInfo.attributes.imageUri,
-        //             email: userInfo.attributes.email,
-        //             bio: userInfo.attributes.bio,
-        //           }
+                  const newUser = {
+                    id: userInfo.attributes.sub,
+                    name: userInfo.attributes.name,
+                    imageUri: userInfo.attributes.imageUri,
+                    email: userInfo.attributes.email,
+                    bio: userInfo.attributes.bio,
+                  }
           
-        //         //if there is no user in DB with the id, then create one
-        //           await API.graphql(
-        //             graphqlOperation(
-        //               createUser,
-        //               { input: newUser }
-        //             )
-        //           )
+                //if there is no user in DB with the id, then create one
+                  await API.graphql(
+                    graphqlOperation(
+                      createUser,
+                      { input: newUser }
+                    )
+                  )
                 
-        //         } 
-        //       navigation.navigate('Root', {screen: 'HomeScreen'})  
-        //       }
-        //        return;
-        //    }
-        //     // On failure, display error in console      
-        // catch (error) {
-        //     console.log('error confirming sign up', error);
-        //     alert('Error confirming account. Please try again.')
-        // }
+                } 
+              navigation.navigate('Root', {screen: 'HomeScreen'})  
+              }
+               return;
+           }
+            // On failure, display error in console      
+        catch (error) {
+            console.log('error confirming sign up', error);
+            alert('Error confirming account. Please try again.')
+        }
     }
 
     async function resendConfirmationCode() {
         const {username} = data;
-        // try {
-        //     await Auth.resendSignUp(username);
-        //     console.log('code resent successfully');
-        // } catch (err) {
-        //     console.log('error resending code: ', err);
-        // }
+        try {
+            await Auth.resendSignUp(username);
+            console.log('code resent successfully');
+        } catch (err) {
+            console.log('error resending code: ', err);
+        }
     }
 
     const handleCode = (val : any) => {
@@ -95,13 +95,13 @@ const ConfirmEmail = ({navigation} : any) => {
         });
     }
 
-    // useEffect(() => {
-    //     const UserName = route.params;
-    //     setData({
-    //         ...data,
-    //         username: UserName
-    //     })
-    // })
+    useEffect(() => {
+        const UserName = route.params;
+        setData({
+            ...data,
+            username: UserName
+        })
+    })
 
 
     return (

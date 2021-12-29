@@ -10,6 +10,11 @@
       "StackName": "amplify-blip-dev-115532",
       "StackId": "arn:aws:cloudformation:us-east-2:904548764347:stack/amplify-blip-dev-115532/32499880-673e-11ec-82c9-02dba6ea5a04",
       "AmplifyAppId": "d1lrzn0wa5d5qt"
+    },
+    "categories": {
+      "auth": {
+        "blipb8c8434a": {}
+      }
     }
   }
 }

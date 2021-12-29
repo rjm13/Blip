@@ -8,12 +8,12 @@ import useColorScheme from './hooks/useColorScheme';
 //import Navigation from '/Users/rjm/ShortStories/navigation';
 import Navigation from './navigation'
 
-//import Amplify from '@aws-amplify/core';
-//import config from './src/aws-exports';
-//Amplify.configure(config);
-//import { Auth, API, graphqlOperation } from 'aws-amplify';
-//import { getUser } from './src/graphql/queries';
-//import { createUser } from './src/graphql/mutations';
+import Amplify from '@aws-amplify/core';
+import config from './src/aws-exports';
+Amplify.configure(config);
+import { Auth, API, graphqlOperation } from 'aws-amplify';
+import { getUser } from './src/graphql/queries';
+import { createUser } from './src/graphql/mutations';
 
 import { AppContext } from './AppContext';
 
@@ -31,55 +31,55 @@ export default function App() {
   const [userID, setUserID] = useState<string|null>(null);
 
 
-  // useEffect(() => {
-  //   const fetchUser = async () => {
-  //     //get authenticated user from Auth
-  //     const userInfo = await Auth.currentAuthenticatedUser(
-  //       { bypassCache: true }
-  //     );
-  //     //console.log(userInfo.attributes.sub);
+  useEffect(() => {
+    const fetchUser = async () => {
+      //get authenticated user from Auth
+      const userInfo = await Auth.currentAuthenticatedUser(
+        { bypassCache: true }
+      );
+      //console.log(userInfo.attributes.sub);
 
-  //     if (!userInfo) {
-  //       return;
-  //     }
+      if (!userInfo) {
+        return;
+      }
 
-  //     if (userInfo) {
-  //     //get the user from Backend with the user SUB from Auth
-  //       const userData = await API.graphql(
-  //         graphqlOperation(
-  //           getUser, 
-  //           { id: userInfo.attributes.sub,
-  //           }
-  //         )
-  //       )
-  //       setUserID(userInfo.attributes.sub);
+      if (userInfo) {
+      //get the user from Backend with the user SUB from Auth
+        const userData = await API.graphql(
+          graphqlOperation(
+            getUser, 
+            { id: userInfo.attributes.sub,
+            }
+          )
+        )
+        setUserID(userInfo.attributes.sub);
 
 
-  //       if (userData.data.getUser) {
-  //         console.log("User is already registered in database");
-  //         return;
-  //       };
+        if (userData.data.getUser) {
+          console.log("User is already registered in database");
+          return;
+        };
 
-  //       const newUser = {
-  //         id: userInfo.attributes.sub,
-  //         name: userInfo.attributes.name,
-  //         imageUri: userInfo.attributes.imageUri,
-  //         email: userInfo.attributes.email,
-  //         bio: userInfo.attributes.bio,
-  //       }
+        const newUser = {
+          id: userInfo.attributes.sub,
+          name: userInfo.attributes.name,
+          imageUri: userInfo.attributes.imageUri,
+          email: userInfo.attributes.email,
+          bio: userInfo.attributes.bio,
+        }
 
-  //     //if there is no user in DB with the id, then create one
-  //       await API.graphql(
-  //         graphqlOperation(
-  //           createUser,
-  //           { input: newUser }
-  //         )
-  //       )
-  //     }
-  //   }
-  //   fetchUser();
+      //if there is no user in DB with the id, then create one
+        await API.graphql(
+          graphqlOperation(
+            createUser,
+            { input: newUser }
+          )
+        )
+      }
+    }
+    fetchUser();
 
-  // }, [])
+  }, [])
 
   if (!isLoadingComplete) {
     return null;
