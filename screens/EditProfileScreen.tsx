@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, TouchableWithoutFeedback, TextInput, Platform, ActivityIndicator } from 'react-native';
-//import { getUser } from '../graphql/queries';
+import { getUser } from '../src/graphql/queries';
 //import { API, graphqlOperation, Auth } from "aws-amplify";
 //import { updateUser } from '../graphql/mutations';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,8 +9,8 @@ import { StatusBar } from 'expo-status-bar';
 import { Modal, Portal, Button, Provider } from 'react-native-paper';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
-//import { API, graphqlOperation, Auth, Storage } from "aws-amplify";
-//import { updateUser } from '../src/graphql/mutations';
+import { API, graphqlOperation, Auth, Storage } from "aws-amplify";
+import { updateUser } from '../src/graphql/mutations';
 
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
@@ -49,9 +49,39 @@ const EditProfile = ({navigation} : any) => {
 
     //const navigation = useNavigation();
 
-    const route = useRoute();
+    const [user, setUser] = useState({})
 
-    const {user} = route.params
+    const route = useRoute();
+    const {User} = route.params
+
+    const [update, didUpdate] = useState(false);
+
+    useEffect(() => {
+        setUser(User);
+    }, [])
+
+    useEffect(() => {
+        const fetchUser = async () => {
+          const userInfo = await Auth.currentAuthenticatedUser();
+            if (!userInfo) {
+              return;
+            }
+          try {
+            const userData = await API.graphql(graphqlOperation(
+              getUser, {id: userInfo.attributes.sub}))
+              if (userData) {
+                setUser(userData.data.getUser);
+              }
+              console.log(userData.data.getUser);
+          } catch (e) {
+            console.log(e);
+          }
+        }
+        fetchUser();
+      }, [update])
+
+    
+    
 
     async function signOut() {
         try {
@@ -189,6 +219,7 @@ const handleUpdateBio = async () => {
           graphqlOperation(updateUser, { input: updatedUser }))
       console.log(result);
       hideBioModal();
+      didUpdate(!update);
       }
   }
 }

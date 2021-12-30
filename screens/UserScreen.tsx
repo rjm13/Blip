@@ -11,34 +11,34 @@ import AudioListByAuthor from '../components/AudioListByAuthor';
 
 import {useRoute} from '@react-navigation/native'
 
-//import { API, graphqlOperation, Auth } from "aws-amplify";
-//import { getUser } from '../src/graphql/queries';
-//import { updateUser } from '../src/graphql/mutations';
+import { API, graphqlOperation, Auth } from "aws-amplify";
+import { getUser } from '../src/graphql/queries';
+import { updateUser } from '../src/graphql/mutations';
 //import { createFollowingID, deleteFollowingID } from '../src/graphql/mutations';
 
 
 const UserScreen = ({navigation} : any) => {
 
-    // const [User, setUser] = useState(null);
+    const [User, setUser] = useState(null);
 
-    // const route = useRoute();
-    // const {userID} = route.params
+    const route = useRoute();
+    const {userID} = route.params
 
-    // useEffect(() => {
-    //     const fetchUser = async () => {
-    //         try {
-    //             const userData = await API.graphql(graphqlOperation(
-    //               getUser, {id: userID}))
-    //               if (userData) {
-    //                 setUser(userData.data.getUser);
-    //               }
-    //               console.log(userData.data.getUser);
-    //         } catch (e) {
-    //             console.log(e);
-    //           }  
-    //     }
-    //     fetchUser();   
-    //   }, [])
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const userData = await API.graphql(graphqlOperation(
+                  getUser, {id: userID}))
+                  if (userData) {
+                    setUser(userData.data.getUser);
+                  }
+                  console.log(userData.data.getUser);
+            } catch (e) {
+                console.log(e);
+              }  
+        }
+        fetchUser();   
+      }, [])
 
 
 

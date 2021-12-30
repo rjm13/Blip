@@ -5,8 +5,8 @@ import {StatusBar} from 'expo-status-bar';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
-//import { API, graphqlOperation, Auth } from "aws-amplify";
-//import { getUser } from '../src/graphql/queries';
+import { API, graphqlOperation, Auth } from "aws-amplify";
+import { getUser } from '../src/graphql/queries';
 
 import { useNavigation } from '@react-navigation/native';
 
@@ -17,25 +17,25 @@ const ProfileScreen = ({navigation} : any) => {
 
     const [user, setUser] = useState();
 
-    // useEffect(() => {
-    //   const fetchUser = async () => {
-    //     const userInfo = await Auth.currentAuthenticatedUser();
-    //       if (!userInfo) {
-    //         return;
-    //       }
-    //     try {
-    //       const userData = await API.graphql(graphqlOperation(
-    //         getUser, {id: userInfo.attributes.sub}))
-    //         if (userData) {
-    //           setUser(userData.data.getUser);
-    //         }
-    //         console.log(userData.data.getUser);
-    //     } catch (e) {
-    //       console.log(e);
-    //     }
-    //   }
-    //   fetchUser();
-    // }, [])
+    useEffect(() => {
+      const fetchUser = async () => {
+        const userInfo = await Auth.currentAuthenticatedUser();
+          if (!userInfo) {
+            return;
+          }
+        try {
+          const userData = await API.graphql(graphqlOperation(
+            getUser, {id: userInfo.attributes.sub}))
+            if (userData) {
+              setUser(userData.data.getUser);
+            }
+            console.log(userData.data.getUser);
+        } catch (e) {
+          console.log(e);
+        }
+      }
+      fetchUser();
+    }, [])
 
     return (
         <View>
