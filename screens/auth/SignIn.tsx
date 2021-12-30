@@ -172,7 +172,7 @@ const SignIn = ({navigation} : any) => {
                             </View>
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={() => navigation.navigate('HomeDrawer')}>
+                        <TouchableOpacity onPress={() => navigation.navigate('Root')}>
                             <View style={{ }}>
                                 <Text style={{ fontSize: 14, color: '#ffffffa5', alignSelf: 'center'}}>
                                     Continue logged out
@@ -197,7 +197,7 @@ const SignIn = ({navigation} : any) => {
                 <TouchableOpacity onPress={signIn}>
                     <View style={styles.button}>
                         {signingIn === true ? (
-                            <ActivityIndicator size="small" color="#155843"/>
+                            <ActivityIndicator size="small" color="cyan"/>
                         ) : (
                             <Text style={styles.buttontext}>
                                 Sign In
@@ -206,7 +206,7 @@ const SignIn = ({navigation} : any) => {
                     </View>
                 </TouchableOpacity>
             </LinearGradient>
-            {/* <StatusBar style="light" backgroundColor ='#155843' /> */}
+            <StatusBar style="light" backgroundColor ='transparent' />
         </View>
     );
 }

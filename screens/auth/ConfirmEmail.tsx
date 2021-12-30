@@ -59,8 +59,8 @@ const ConfirmEmail = ({navigation, route} : {navigation: any, route : any}) => {
                     name: userInfo.attributes.name,
                     imageUri: userInfo.attributes.imageUri,
                     email: userInfo.attributes.email,
-                    status: userInfo.attributes.status,
-                    isLiked: [],
+                    //status: userInfo.attributes.status,
+                    //isLiked: [],
                 }
           
                 //if there is no user in DB with the id, then create one
@@ -133,7 +133,7 @@ const ConfirmEmail = ({navigation, route} : {navigation: any, route : any}) => {
                 <TouchableOpacity onPress={confirmSignUp}>
                     <View style={styles.button}>
                         {loggingIn === true ? (
-                            <ActivityIndicator size='small' color='#155843'/>
+                            <ActivityIndicator size='small' color='cyan'/>
                         ) : (
                             <Text style={styles.buttontext}>
                                 Confirm Account

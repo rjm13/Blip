@@ -38,7 +38,7 @@ const Redirect = ({route, navigation} : any) => {
                     setUserID(userData.data.getUser);
                     navigation.reset({
                         //index: 0,
-                        routes: [{ name: 'HomeDrawer' }],
+                        routes: [{ name: 'Root' }],
                     });
                     //navigation.navigate('HomeDrawer')
                     
@@ -46,7 +46,7 @@ const Redirect = ({route, navigation} : any) => {
                     setUserID(null);
                     navigation.reset({
                         //index: 0,
-                        routes: [{ name: 'HomeDrawer' }],
+                        routes: [{ name: 'SignIn' }],
                     });
                     //navigation.navigate('HomeDrawer')
                 }
@@ -81,7 +81,7 @@ const Redirect = ({route, navigation} : any) => {
     return (
         <View style={{alignContent: 'center', justifyContent: 'center', width: SCREEN_WIDTH, height: SCREEN_HEIGHT, backgroundColor: '#fff'}}>
             <ActivityIndicator size="large" color="cyan" />
-            <StatusBar style='light' backgroundColor="#155843"/>
+            <StatusBar style='light' backgroundColor="transparent"/>
         </View>
         
     );
