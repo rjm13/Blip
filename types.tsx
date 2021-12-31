@@ -29,6 +29,8 @@ export type TabOneParamList = {
   Narrations: undefined;
   History: undefined;
   Following: undefined;
+  AboutScreen: undefined;
+  PlanScreen: undefined;
 };
 
 export type TabTwoParamList = {

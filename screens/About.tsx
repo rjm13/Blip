@@ -13,29 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const ProfileScreen = ({navigation} : any) => {
 
-    //const navigation = useNavigation();
-
-    const [user, setUser] = useState();
-
-    useEffect(() => {
-      const fetchUser = async () => {
-        const userInfo = await Auth.currentAuthenticatedUser();
-          if (!userInfo) {
-            return;
-          }
-        try {
-          const userData = await API.graphql(graphqlOperation(
-            getUser, {id: userInfo.attributes.sub}))
-            if (userData) {
-              setUser(userData.data.getUser);
-            }
-            console.log(userData.data.getUser);
-        } catch (e) {
-          console.log(e);
-        }
-      }
-      fetchUser();
-    }, [])
+    
 
     return (
         <View>
@@ -55,95 +33,27 @@ const ProfileScreen = ({navigation} : any) => {
                         onPress={() => navigation.goBack()}
                     />
                     <Text style={styles.header}>
-                        Account
+                        About
                     </Text>
                 </View>
                 
                 <ScrollView style={{ height: '86%'}}>
-                    <View style={{ alignItems: 'center'}}>
-                        <Image 
-                            source={{ uri: user?.imageUri}}
-                            style={{
-                                width: 120,
-                                height: 120,
-                                backgroundColor: '#363636',
-                                borderRadius: 60,
-                                marginTop: 20,
-                            }}
-                        />
-                    </View>
 
-                    <TouchableWithoutFeedback onPress={() => navigation.navigate('Following')}>
-                        <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                                <View style={{ alignItems: 'center', margin: 20}}>
-                                    <Text style={{ color: 'cyan', opacity: .5}}>
-                                        32
-                                    </Text>
-                                    <Text style={{ color: '#ffffffa5', fontWeight: 'bold'}}>
-                                        Following
-                                    </Text>
-                                </View>
-
-                                <View style={{ alignItems: 'center', margin: 20}}>
-                                    <Text style={{ color: 'cyan', opacity: .5}}>
-                                        184
-                                    </Text>
-                                    <Text style={{ color: '#ffffffa5', fontWeight: 'bold'}}>
-                                        Followers
-                                    </Text>
-                                </View>
-                        </View>
-                    </TouchableWithoutFeedback>
-
-                    <View>
-                        <Text style={styles.header}>
-                        {!!user ? user.name : 'Cognito User'}
-                        </Text>
-                    </View>
-
-                    <TouchableWithoutFeedback onPress={() => navigation.navigate('EditProfileScreen', {user: user})}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 40, marginVertical: 20}}>
-                            <Text style={{ color: '#fff', fontSize: 16}}>
-                                Profile
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 40, marginVertical: 20}}>
+                        <View style={styles.subblock}>
+                            <Text style={styles.paragraph}>
+                                Version
                             </Text>
-                            <FontAwesome5 
-                                name='chevron-right'
-                                color='#fff'
-                                size={15}
-                            />
-                        </View>
-                    </TouchableWithoutFeedback>
-
-                    <TouchableWithoutFeedback onPress={ () => navigation.navigate('History')}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 40, marginVertical: 20}}>
-                            <Text style={{ color: '#fff', fontSize: 16}}>
-                                History
+                            <Text style={styles.subparagraph}>
+                                1.0.12
                             </Text>
-                            <FontAwesome5 
-                                name='chevron-right'
-                                color='#fff'
-                                size={15}
-                            />
                         </View>
-                    </TouchableWithoutFeedback>
+                    </View>
 
                     <TouchableWithoutFeedback onPress={ () => navigation.navigate('Narrations')}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 40, marginVertical: 20}}>
                             <Text style={{ color: '#fff', fontSize: 16}}>
-                                Publishing
-                            </Text>
-                            <FontAwesome5 
-                                name='chevron-right'
-                                color='#fff'
-                                size={15}
-                            />
-                        </View>
-                    </TouchableWithoutFeedback>
-
-                    <TouchableWithoutFeedback onPress={ () => navigation.navigate('PlanScreen')}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 40, marginVertical: 20}}>
-                            <Text style={{ color: '#fff', fontSize: 16}}>
-                                View Your Plan
+                                Terms and Conditions
                             </Text>
                             <FontAwesome5 
                                 name='chevron-right'
@@ -156,7 +66,7 @@ const ProfileScreen = ({navigation} : any) => {
                     <TouchableWithoutFeedback onPress={ () => navigation.navigate('NotificationSetting')}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 40, marginVertical: 20}}>
                             <Text style={{ color: '#fff', fontSize: 16}}>
-                                App Settings
+                                Privacy Policy
                             </Text>
                             <FontAwesome5 
                                 name='chevron-right'
@@ -166,16 +76,24 @@ const ProfileScreen = ({navigation} : any) => {
                         </View>
                     </TouchableWithoutFeedback>
 
-                    <TouchableWithoutFeedback onPress={ () => navigation.navigate('AboutScreen')}>
+                    <TouchableWithoutFeedback onPress={ () => navigation.navigate('NotificationSetting')}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 40, marginVertical: 20}}>
                             <Text style={{ color: '#fff', fontSize: 16}}>
-                                About
+                                FAQ
                             </Text>
                             <FontAwesome5 
                                 name='chevron-right'
                                 color='#fff'
                                 size={15}
                             />
+                        </View>
+                    </TouchableWithoutFeedback>
+
+                    <TouchableWithoutFeedback onPress={ () => navigation.navigate('NotificationSetting')}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 40, marginVertical: 20}}>
+                            <Text style={{ color: '#fff', fontSize: 16}}>
+                                Contact Us
+                            </Text>
                         </View>
                     </TouchableWithoutFeedback>
 
@@ -211,6 +129,17 @@ const styles = StyleSheet.create ({
         fontWeight: 'bold',
         marginHorizontal: 40,
         marginVertical: 20,
+    },
+    paragraph: {
+        fontSize: 16,
+        color: '#ffffff'
+    },
+    subparagraph: {
+        fontSize: 12,
+        color: '#ffffffa5'
+    },
+    subblock: {
+        width: '75%',
     },
 });
 

@@ -19,12 +19,19 @@ const Narrations = ({navigation} : any) => {
             >
             <View style={{marginHorizontal: 20, marginTop: 50}}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <FontAwesome5 
-                        name='chevron-left'
-                        color="#fff"
-                        size={20}
-                        onPress={() => navigation.goBack()}
-                    />
+                    <View style={{ flexDirection: 'row', justifyContent: 'center'}}>
+                        <FontAwesome5 
+                            name='chevron-left'
+                            color="#fff"
+                            size={20}
+                            style={{alignSelf: 'center'}}
+                            onPress={() => navigation.goBack()}
+                        />
+                        <Text style={styles.header}>
+                            History
+                        </Text>
+                    </View>
+                    
                     <FontAwesome5 
                         name='search'
                         color="#fff"
@@ -33,9 +40,7 @@ const Narrations = ({navigation} : any) => {
 
                 </View>
                 
-                <Text style={styles.header}>
-                    History
-                </Text>
+                
             </View>
             <View style={{ height: '82%'}}>
                 <AudioStoryFlatList />
@@ -53,8 +58,9 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 22,
         fontWeight: 'bold',
-        marginTop: 20,
-        marginBottom: 10,
+        marginTop: 0,
+        marginBottom: 0,
+        marginLeft: 20,
     },
 });
 
