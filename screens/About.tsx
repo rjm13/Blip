@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { View, Text, StyleSheet, Dimensions, ScrollView, TouchableWithoutFeedback, TouchableOpacity,  Image } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, ScrollView, TouchableWithoutFeedback, Linking, TouchableOpacity,  Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {StatusBar} from 'expo-status-bar';
 
@@ -8,12 +8,11 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { API, graphqlOperation, Auth } from "aws-amplify";
 import { getUser } from '../src/graphql/queries';
 
-import { useNavigation } from '@react-navigation/native';
-
-
 const ProfileScreen = ({navigation} : any) => {
 
-    
+    const pkg = require('../package.json');
+
+    const appVersion = pkg.version;
 
     return (
         <View>
@@ -45,7 +44,7 @@ const ProfileScreen = ({navigation} : any) => {
                                 Version
                             </Text>
                             <Text style={styles.subparagraph}>
-                                1.0.12
+                                {appVersion}
                             </Text>
                         </View>
                     </View>
@@ -89,7 +88,7 @@ const ProfileScreen = ({navigation} : any) => {
                         </View>
                     </TouchableWithoutFeedback>
 
-                    <TouchableWithoutFeedback onPress={ () => navigation.navigate('NotificationSetting')}>
+                    <TouchableWithoutFeedback onPress={() => Linking.openURL('mailto:martianspidermedia@gmail.com') }>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 40, marginVertical: 20}}>
                             <Text style={{ color: '#fff', fontSize: 16}}>
                                 Contact Us

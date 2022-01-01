@@ -127,7 +127,7 @@ const ProfileScreen = ({navigation} : any) => {
                         </View>
                     </TouchableWithoutFeedback>
 
-                    <TouchableWithoutFeedback onPress={ () => navigation.navigate('Narrations')}>
+                    <TouchableWithoutFeedback onPress={ () => navigation.navigate('Publishing')}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 40, marginVertical: 20}}>
                             <Text style={{ color: '#fff', fontSize: 16}}>
                                 Publishing

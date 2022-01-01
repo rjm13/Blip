@@ -15,6 +15,8 @@ import History from '../screens/HistoryScreen';
 import Following from '../screens/FollowingScreen';
 import AboutScreen from '../screens/About';
 import PlanScreen from '../screens/Plan';
+import PublishingMainScreen from '../screens/PublishingMain';
+import PublisherSetupScreen from '../screens/PublisherSetup';
 
 import StoriesScreen from '../screens/StoriesScreen';
 import PlaylistScreen from '../screens/Playlistscreen';
@@ -103,6 +105,16 @@ function HomeNavigator() {
       <HomeStack.Screen
         name="PlanScreen"
         component={PlanScreen}
+        options={{ headerShown: false }}
+      />
+      <HomeStack.Screen
+        name="Publishing"
+        component={PublishingMainScreen}
+        options={{ headerShown: false }}
+      />
+      <HomeStack.Screen
+        name="PublisherSetup"
+        component={PublisherSetupScreen}
         options={{ headerShown: false }}
       />
       <HomeStack.Screen
