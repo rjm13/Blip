@@ -1,19 +1,49 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, Dimensions, TouchableOpacity, TextInput, ScrollView} from 'react-native';
+import React, {useState, useCallback} from 'react';
+import {View, Text, StyleSheet, TouchableWithoutFeedback, Platform, Dimensions, TouchableOpacity, TextInput, ScrollView} from 'react-native';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import Feather from 'react-native-vector-icons/Feather';
+
 import { LinearGradient } from 'expo-linear-gradient';
+import ModalDropdown from 'react-native-modal-dropdown';
+
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { format } from "date-fns";
+
+
+
 
 const PublishingMain = ({navigation} : any) => {
 
+    const [date, setDate] = useState(new Date(1598051730000));
+    const [mode, setMode] = useState('date');
+    const [show, setShow] = useState(false);
+
+    const onChange = (event, selectedDate) => {
+        const currentDate = selectedDate || date;
+        setShow(Platform.OS === 'ios');
+        setDate(currentDate);
+    };
+
+    const showMode = (currentMode) => {
+        setShow(true);
+        setMode(currentMode);
+    };
+
+    const showDatepicker = () => {
+        showMode('date');
+    };
+
+    const showTimepicker = () => {
+        showMode('time');
+    };
+
+    const [Gender, setGender] = useState(['Male', 'Female']);
+
     const [data, setData] = useState({
         username: '',
-        password: '',
         name: '',
-        confirm_password: '',
         check_textInputChange: false,
-        secureTextEntry: true,
-        confirm_secureTextEntry: true,
     });
 
     const textInputChange = (val : any) => {
@@ -71,19 +101,34 @@ const PublishingMain = ({navigation} : any) => {
 
                 <View style={{marginTop: 40}}>
                     <Text style={styles.inputheader}>
-                        More Info
+                        Birth Date
                     </Text>
-                    <View style={styles.inputfield}>
-                        <TextInput 
-                            placeholder='....'
-                            placeholderTextColor='#ffffffa5'
-                            style={styles.textInputTitle}
-                            maxLength={30}
-                            onChangeText={(val) => textInputChange(val)}
-                            autoCapitalize='none'
+                    <TouchableWithoutFeedback onPress={showDatepicker}>
+                        <View style={styles.inputfield}>
+                            <Text style={styles.textInputTitle}>
+                                {format(date, "MMMM do, yyyy")}
+                            </Text>
+                        </View>
+                    </TouchableWithoutFeedback>
+                    {show && (
+                        <DateTimePicker
+                            testID="dateTimePicker"
+                            value={date}
+                            mode='date'
+                            is24Hour={true}
+                            display="default"
+                            onChange={onChange}
                         />
-                    </View>
+                    )}
                 </View>
+
+                <View style={{marginTop: 40}}>
+                    <Text style={styles.inputheader}>
+                        Birth Date
+                    </Text>
+                    
+                </View>
+                
             </ScrollView>
 
         </View>
