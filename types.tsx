@@ -33,6 +33,7 @@ export type TabOneParamList = {
   PlanScreen: undefined;
   Publishing: undefined;
   PublisherSetup: undefined;
+  Publisher: undefined;
 };
 
 export type TabTwoParamList = {

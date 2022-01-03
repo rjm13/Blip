@@ -1,66 +1,104 @@
-import React, {useState, useCallback} from 'react';
-import {View, Text, StyleSheet, TouchableWithoutFeedback, Platform, Dimensions, TouchableOpacity, TextInput, ScrollView} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, Text, StyleSheet, TouchableWithoutFeedback, ActivityIndicator, Platform, Dimensions, TouchableOpacity, TextInput, ScrollView} from 'react-native';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import Feather from 'react-native-vector-icons/Feather';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-import { LinearGradient } from 'expo-linear-gradient';
-import ModalDropdown from 'react-native-modal-dropdown';
+import { API, graphqlOperation, Auth, Storage } from "aws-amplify";
+import { updateUser } from '../src/graphql/mutations';
+import { getUser } from '../src/graphql/queries';
 
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { format } from "date-fns";
-
-
+import { useRoute } from '@react-navigation/native';
 
 
-const PublishingMain = ({navigation} : any) => {
+const PublishingSetup = ({navigation} : any) => {
 
-    const [date, setDate] = useState(new Date(1598051730000));
-    const [mode, setMode] = useState('date');
-    const [show, setShow] = useState(false);
+    const [user, setUser] = useState({})
 
-    const onChange = (event, selectedDate) => {
-        const currentDate = selectedDate || date;
-        setShow(Platform.OS === 'ios');
-        setDate(currentDate);
-    };
+    const route = useRoute();
+    const {User} = route.params
 
-    const showMode = (currentMode) => {
-        setShow(true);
-        setMode(currentMode);
-    };
+    const [update, didUpdate] = useState(false);
 
-    const showDatepicker = () => {
-        showMode('date');
-    };
+    useEffect(() => {
+        setUser(User);
+    }, [])
 
-    const showTimepicker = () => {
-        showMode('time');
-    };
+    useEffect(() => {
+        const fetchUser = async () => {
+          const userInfo = await Auth.currentAuthenticatedUser();
+            if (!userInfo) {
+              return;
+            }
+          try {
+            const userData = await API.graphql(graphqlOperation(
+              getUser, {id: userInfo.attributes.sub}))
+              if (userData) {
+                setUser(userData.data.getUser);
+              }
+              console.log(userData.data.getUser);
+          } catch (e) {
+            console.log(e);
+          }
+        }
+        fetchUser();
+      }, [update])
 
-    const [Gender, setGender] = useState(['Male', 'Female']);
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+
+    const [agree, setAgree] = useState(false);
+
+    const [publishing, setPublishing] = useState(false);
 
     const [data, setData] = useState({
-        username: '',
-        name: '',
-        check_textInputChange: false,
+        pseudonym: '',
+        publisher: false, 
     });
 
     const textInputChange = (val : any) => {
         if( val.length !== 0 ) {
             setData({
                 ... data,
-                username: val,
-                check_textInputChange: true
+                pseudonym: val,
             });
         } else {
             setData({
                 ... data,
-                name: val,
-                check_textInputChange: false
+                pseudonym: val,
             });
         }
     }
+
+    const handleUpdateAttributes = async () => {
+        //get authenticated user from Auth
+      if ( data.pseudonym.length !== 0 ) {
+          const userInfo = await Auth.currentAuthenticatedUser();
+  
+          const updatedUser = { id: userInfo.attributes.sub, pseudonym: data.pseudonym, isPublisher: true }
+  
+          if (userInfo) {
+              let result = await API.graphql(
+              graphqlOperation(updateUser, { input: updatedUser }))
+          console.log(result);
+
+          if (result) {
+            navigation.navigate('Publisher', {user: user})
+        }
+          setPublishing(false);
+          }
+      }
+  }
+
+  const updateAsPublisher = async () => {
+    if (agree === true) {
+        setPublishing(true);
+        handleUpdateAttributes();
+    }
+    else {
+        alert('You must agree to the Publishing Terms and Conditions to continue.')
+    }
+    
+}
 
     return(
         <View>
@@ -101,31 +139,39 @@ const PublishingMain = ({navigation} : any) => {
 
                 <View style={{marginTop: 40}}>
                     <Text style={styles.inputheader}>
-                        Birth Date
+                        Publishing Terms and Conditions
                     </Text>
-                    <TouchableWithoutFeedback onPress={showDatepicker}>
-                        <View style={styles.inputfield}>
-                            <Text style={styles.textInputTitle}>
-                                {format(date, "MMMM do, yyyy")}
+                    <ScrollView style={{width: '90%', height: 260, borderRadius: 10, alignSelf: 'center', marginTop: 10, backgroundColor: '#363636a5'}}>
+                        <Text style={{color: '#ffffffa5', margin: 20}}>
+                            i. I agree that as a publisher, I am handing over all rights to Blip. I am their slave and master and will submit to Blip's every command. Blip maintains the right to enforce this servitude indefinitely. This is a binding contract that cannot be ammended. Upon agreeing to terms, the signee will liquidate and forfiet all assets in the signee's name. 
+                            i. I agree that as a publisher, I am handing over all rights to Blip. I am their slave and master and will submit to Blip's every command. Blip maintains the right to enforce this servitude indefinitely. This is a binding contract that cannot be ammended. Upon agreeing to terms, the signee will liquidate and forfiet all assets in the signee's name. 
+                            i. I agree that as a publisher, I am handing over all rights to Blip. I am their slave and master and will submit to Blip's every command. Blip maintains the right to enforce this servitude indefinitely. This is a binding contract that cannot be ammended. Upon agreeing to terms, the signee will liquidate and forfiet all assets in the signee's name.                        
+                        </Text>
+                    </ScrollView>
+                    <TouchableWithoutFeedback onPress={() => setAgree(!agree)}>
+                        <View style={{flexDirection: 'row', marginTop: 20, alignSelf: 'center'}}>
+                            <FontAwesome 
+                                name={ agree ? 'check-circle' : 'check-circle-o'}
+                                size={20} 
+                                color={ agree ? 'cyan' : '#ffffffa5'} 
+                            />
+                            <Text style={{color: '#fff', marginLeft: 10, fontSize: 12}}>
+                                I agree to the Publishing Terms and Conditions
                             </Text>
-                        </View>
+                    </View>
                     </TouchableWithoutFeedback>
-                    {show && (
-                        <DateTimePicker
-                            testID="dateTimePicker"
-                            value={date}
-                            mode='date'
-                            is24Hour={true}
-                            display="default"
-                            onChange={onChange}
-                        />
-                    )}
-                </View>
 
-                <View style={{marginTop: 40}}>
-                    <Text style={styles.inputheader}>
-                        Birth Date
-                    </Text>
+                    <TouchableOpacity onPress={updateAsPublisher}>
+                        <View style={styles.button}>
+                            {publishing === true ? (
+                                <ActivityIndicator size="small" color="cyan"/>
+                            ) : (
+                                <Text style={styles.buttontext}>
+                                    Create Author Profile
+                                </Text>
+                            )}
+                        </View>
+                </TouchableOpacity>
                     
                 </View>
                 
@@ -167,6 +213,17 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignSelf: 'center',
     },
+    button: {
+        alignItems: 'center',
+        margin: 40,
+     },
+     buttontext: {
+         backgroundColor: 'cyan',
+         borderRadius: 20,
+         paddingVertical: 10,
+         paddingHorizontal: 20,
+ 
+     },
 });
 
-export default PublishingMain;
+export default PublishingSetup;

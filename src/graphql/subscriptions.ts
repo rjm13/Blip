@@ -40,6 +40,9 @@ export const onCreateUser = /* GraphQL */ `
         }
         nextToken
       }
+      pseudonym
+      dob
+      isPublisher
       createdAt
       updatedAt
     }
@@ -83,6 +86,9 @@ export const onUpdateUser = /* GraphQL */ `
         }
         nextToken
       }
+      pseudonym
+      dob
+      isPublisher
       createdAt
       updatedAt
     }
@@ -126,6 +132,9 @@ export const onDeleteUser = /* GraphQL */ `
         }
         nextToken
       }
+      pseudonym
+      dob
+      isPublisher
       createdAt
       updatedAt
     }
@@ -147,6 +156,9 @@ export const onCreateFollowingConn = /* GraphQL */ `
         authored {
           nextToken
         }
+        pseudonym
+        dob
+        isPublisher
         createdAt
         updatedAt
       }
@@ -162,6 +174,9 @@ export const onCreateFollowingConn = /* GraphQL */ `
         authored {
           nextToken
         }
+        pseudonym
+        dob
+        isPublisher
         createdAt
         updatedAt
       }
@@ -189,6 +204,9 @@ export const onUpdateFollowingConn = /* GraphQL */ `
         authored {
           nextToken
         }
+        pseudonym
+        dob
+        isPublisher
         createdAt
         updatedAt
       }
@@ -204,6 +222,9 @@ export const onUpdateFollowingConn = /* GraphQL */ `
         authored {
           nextToken
         }
+        pseudonym
+        dob
+        isPublisher
         createdAt
         updatedAt
       }
@@ -231,6 +252,9 @@ export const onDeleteFollowingConn = /* GraphQL */ `
         authored {
           nextToken
         }
+        pseudonym
+        dob
+        isPublisher
         createdAt
         updatedAt
       }
@@ -246,6 +270,9 @@ export const onDeleteFollowingConn = /* GraphQL */ `
         authored {
           nextToken
         }
+        pseudonym
+        dob
+        isPublisher
         createdAt
         updatedAt
       }
@@ -278,6 +305,9 @@ export const onCreateStory = /* GraphQL */ `
         authored {
           nextToken
         }
+        pseudonym
+        dob
+        isPublisher
         createdAt
         updatedAt
       }
@@ -325,6 +355,9 @@ export const onUpdateStory = /* GraphQL */ `
         authored {
           nextToken
         }
+        pseudonym
+        dob
+        isPublisher
         createdAt
         updatedAt
       }
@@ -372,6 +405,9 @@ export const onDeleteStory = /* GraphQL */ `
         authored {
           nextToken
         }
+        pseudonym
+        dob
+        isPublisher
         createdAt
         updatedAt
       }
@@ -416,6 +452,9 @@ export const onCreateComment = /* GraphQL */ `
           email
           imageUri
           bio
+          pseudonym
+          dob
+          isPublisher
           createdAt
           updatedAt
         }
@@ -457,6 +496,9 @@ export const onUpdateComment = /* GraphQL */ `
           email
           imageUri
           bio
+          pseudonym
+          dob
+          isPublisher
           createdAt
           updatedAt
         }
@@ -498,6 +540,9 @@ export const onDeleteComment = /* GraphQL */ `
           email
           imageUri
           bio
+          pseudonym
+          dob
+          isPublisher
           createdAt
           updatedAt
         }

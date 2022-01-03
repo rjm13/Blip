@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, TouchableWithoutFeedback, TextInput, Platform, ActivityIndicator } from 'react-native';
-import { getUser } from '../src/graphql/queries';
-//import { API, graphqlOperation, Auth } from "aws-amplify";
-//import { updateUser } from '../graphql/mutations';
+
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 
@@ -11,6 +9,7 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 import { API, graphqlOperation, Auth, Storage } from "aws-amplify";
 import { updateUser } from '../src/graphql/mutations';
+import { getUser } from '../src/graphql/queries';
 
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';

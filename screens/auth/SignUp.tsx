@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, TouchableWithoutFeedback, Dimensions, TextInput, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Feather from 'react-native-vector-icons/Feather';
 
@@ -7,7 +7,36 @@ import {Auth, graphqlOperation, API} from 'aws-amplify';
 import { getUser } from '../../src/graphql/queries';
 import { createUser } from '../../src/graphql/mutations';
 
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { format } from "date-fns";
+
 const SignUp = ({navigation} : any) => {
+
+//date time picker
+        const [date, setDate] = useState(new Date(1598051730000));
+        const [mode, setMode] = useState('date');
+        const [show, setShow] = useState(false);
+
+        const todaysdate = new Date(1598051730000);
+
+    const onChange = (event, selectedDate) => {
+        const currentDate = selectedDate || date;
+        setShow(Platform.OS === 'ios');
+        setDate(currentDate);
+    };
+
+    const showMode = (currentMode : any) => {
+        setShow(true);
+        setMode(currentMode);
+    };
+
+    const showDatepicker = () => {
+        showMode('date');
+    };
+
+    const showTimepicker = () => {
+        showMode('time');
+    };
 
     const [isErr, setIsErr] = useState(false);
 
@@ -207,6 +236,29 @@ const CreateUser = async () => {
                         </View>
                     </View>
 
+                    <View style={{marginTop: 0}}>
+                        <Text style={styles.header}>
+                            Birth Date
+                        </Text>
+                        <TouchableWithoutFeedback onPress={showDatepicker}>
+                            <View style={styles.inputfield}>
+                                <Text style={styles.textInputTitle}>
+                                    {format(date, "MMMM do, yyyy") === format(todaysdate, "MMMM do, yyyy") ? '...' : format(date, "MMMM do, yyyy")}
+                                </Text>
+                            </View>
+                        </TouchableWithoutFeedback>
+                        {show && (
+                            <DateTimePicker
+                                testID="dateTimePicker"
+                                value={date}
+                                mode='date'
+                                is24Hour={true}
+                                display="default"
+                                onChange={onChange}
+                            />
+                        )}
+                    </View>
+
                     <View style={{ borderBottomWidth: 1, borderColor: '#ffffffa5', marginBottom: 10, marginTop: 20, marginHorizontal: 20}}>
 
                     </View>
@@ -264,7 +316,7 @@ const CreateUser = async () => {
                 <TouchableOpacity onPress={handleSignUp}>
                     <View style={styles.button}>
                         {signingUp === true ? (
-                            <ActivityIndicator size="small" color="#155843"/>
+                            <ActivityIndicator size="small" color="cyan"/>
                         ) : (
                             <Text style={styles.buttontext}>
                                 Create Account

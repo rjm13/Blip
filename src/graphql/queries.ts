@@ -40,6 +40,9 @@ export const getUser = /* GraphQL */ `
         }
         nextToken
       }
+      pseudonym
+      dob
+      isPublisher
       createdAt
       updatedAt
     }
@@ -64,6 +67,9 @@ export const listUsers = /* GraphQL */ `
         authored {
           nextToken
         }
+        pseudonym
+        dob
+        isPublisher
         createdAt
         updatedAt
       }
@@ -87,6 +93,9 @@ export const getFollowingConn = /* GraphQL */ `
         authored {
           nextToken
         }
+        pseudonym
+        dob
+        isPublisher
         createdAt
         updatedAt
       }
@@ -102,6 +111,9 @@ export const getFollowingConn = /* GraphQL */ `
         authored {
           nextToken
         }
+        pseudonym
+        dob
+        isPublisher
         createdAt
         updatedAt
       }
@@ -128,6 +140,9 @@ export const listFollowingConns = /* GraphQL */ `
           email
           imageUri
           bio
+          pseudonym
+          dob
+          isPublisher
           createdAt
           updatedAt
         }
@@ -137,6 +152,9 @@ export const listFollowingConns = /* GraphQL */ `
           email
           imageUri
           bio
+          pseudonym
+          dob
+          isPublisher
           createdAt
           updatedAt
         }
@@ -171,6 +189,9 @@ export const getStory = /* GraphQL */ `
         authored {
           nextToken
         }
+        pseudonym
+        dob
+        isPublisher
         createdAt
         updatedAt
       }
@@ -217,6 +238,9 @@ export const listStories = /* GraphQL */ `
           email
           imageUri
           bio
+          pseudonym
+          dob
+          isPublisher
           createdAt
           updatedAt
         }
@@ -254,6 +278,9 @@ export const getComment = /* GraphQL */ `
           email
           imageUri
           bio
+          pseudonym
+          dob
+          isPublisher
           createdAt
           updatedAt
         }

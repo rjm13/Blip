@@ -1,17 +1,22 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, Text, StyleSheet, Dimensions, TouchableOpacity} from 'react-native';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { LinearGradient } from 'expo-linear-gradient';
 
+import { useRoute } from '@react-navigation/native';
+
 const PublishingMain = ({navigation} : any) => {
+
+    const route = useRoute();
+    const {User} = route.params
 
 
     return (
         <View style={styles.container}>
             <LinearGradient
                 colors={['black', '#363636a5', 'black']}
-                //style={styles.container}
+                style={{height: Dimensions.get('window').height}}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
             >
@@ -88,8 +93,8 @@ const PublishingMain = ({navigation} : any) => {
                     </View>
 
                     <TouchableOpacity 
-                        style={{alignContent: 'center', justifyContent: 'center', marginTop: 80, marginHorizontal: 20, backgroundColor: 'cyan', height: 100, borderRadius: 10}}
-                        onPress={() => {navigation.navigate('PublisherSetup')}}
+                        style={{alignContent: 'center', justifyContent: 'center', marginTop: 60, marginHorizontal: 30, backgroundColor: 'cyan', height: 80, borderRadius: 10}}
+                        onPress={() => {navigation.navigate('PublisherSetup', {user: User})}}
                     >
                         <Text style={{textAlign: 'center', fontSize: 20, fontWeight: 'bold'}}>
                             Create a Publisher Profile
@@ -106,7 +111,8 @@ const styles = StyleSheet.create({
     container: {
         justifyContent: 'center',
         alignContent: 'center',
-        width: Dimensions.get('window').width
+        width: Dimensions.get('window').width,
+        //height: Dimensions.get('window').height,
     },
     header: {
         color: '#fff',
