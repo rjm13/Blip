@@ -56,6 +56,7 @@ const SignUp = ({navigation} : any) => {
         username: '',
         password: '',
         name: '',
+        birthdate: format(date, "MM/dd/yyyy"),
         confirm_password: '',
         check_textInputChange: false,
         secureTextEntry: true,
@@ -64,7 +65,7 @@ const SignUp = ({navigation} : any) => {
 
 const CreateUser = async () => {
 
-    const { password, confirm_password, name, username } = data;
+    const { password, confirm_password, name, username, birthdate } = data;
 
     setSigningUp(true);
 
@@ -73,7 +74,8 @@ const CreateUser = async () => {
                 username,
                 password,
                 attributes: {
-                    name
+                    name,
+                    birthdate,
                 }
             });
             console.log(user);
@@ -140,7 +142,7 @@ const CreateUser = async () => {
 
     const handleSignUp = () => {
 
-        const { password, confirm_password, name, username } = data;
+        const { password, confirm_password, name, username, dob } = data;
 
         if (password.length < 6) {
             setNoMatch(false);

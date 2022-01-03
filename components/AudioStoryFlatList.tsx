@@ -18,9 +18,9 @@ import {
   } from 'react-native-popup-menu';
 
 import dummyaudio from '../data/dummyaudio';
-// import { listStorys } from '../src/graphql/queries';
-// import { deleteStory } from '../src/graphql/mutations';
-// import {graphqlOperation, API, Auth} from 'aws-amplify';
+import { listStories } from '../src/graphql/queries';
+import { deleteStory } from '../src/graphql/mutations';
+import {graphqlOperation, API, Auth} from 'aws-amplify';
 
 import { ItemParamList } from '../types';
 

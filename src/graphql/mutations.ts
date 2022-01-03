@@ -44,7 +44,7 @@ export const createUser = /* GraphQL */ `
         nextToken
       }
       pseudonym
-      dob
+      birthdate
       isPublisher
       createdAt
       updatedAt
@@ -93,7 +93,7 @@ export const updateUser = /* GraphQL */ `
         nextToken
       }
       pseudonym
-      dob
+      birthdate
       isPublisher
       createdAt
       updatedAt
@@ -142,7 +142,7 @@ export const deleteUser = /* GraphQL */ `
         nextToken
       }
       pseudonym
-      dob
+      birthdate
       isPublisher
       createdAt
       updatedAt
@@ -169,7 +169,7 @@ export const createFollowingConn = /* GraphQL */ `
           nextToken
         }
         pseudonym
-        dob
+        birthdate
         isPublisher
         createdAt
         updatedAt
@@ -187,7 +187,7 @@ export const createFollowingConn = /* GraphQL */ `
           nextToken
         }
         pseudonym
-        dob
+        birthdate
         isPublisher
         createdAt
         updatedAt
@@ -220,7 +220,7 @@ export const updateFollowingConn = /* GraphQL */ `
           nextToken
         }
         pseudonym
-        dob
+        birthdate
         isPublisher
         createdAt
         updatedAt
@@ -238,7 +238,7 @@ export const updateFollowingConn = /* GraphQL */ `
           nextToken
         }
         pseudonym
-        dob
+        birthdate
         isPublisher
         createdAt
         updatedAt
@@ -271,7 +271,7 @@ export const deleteFollowingConn = /* GraphQL */ `
           nextToken
         }
         pseudonym
-        dob
+        birthdate
         isPublisher
         createdAt
         updatedAt
@@ -289,7 +289,7 @@ export const deleteFollowingConn = /* GraphQL */ `
           nextToken
         }
         pseudonym
-        dob
+        birthdate
         isPublisher
         createdAt
         updatedAt
@@ -327,7 +327,7 @@ export const createStory = /* GraphQL */ `
           nextToken
         }
         pseudonym
-        dob
+        birthdate
         isPublisher
         createdAt
         updatedAt
@@ -380,7 +380,7 @@ export const updateStory = /* GraphQL */ `
           nextToken
         }
         pseudonym
-        dob
+        birthdate
         isPublisher
         createdAt
         updatedAt
@@ -433,7 +433,7 @@ export const deleteStory = /* GraphQL */ `
           nextToken
         }
         pseudonym
-        dob
+        birthdate
         isPublisher
         createdAt
         updatedAt
@@ -483,7 +483,7 @@ export const createComment = /* GraphQL */ `
           imageUri
           bio
           pseudonym
-          dob
+          birthdate
           isPublisher
           createdAt
           updatedAt
@@ -530,7 +530,7 @@ export const updateComment = /* GraphQL */ `
           imageUri
           bio
           pseudonym
-          dob
+          birthdate
           isPublisher
           createdAt
           updatedAt
@@ -577,7 +577,7 @@ export const deleteComment = /* GraphQL */ `
           imageUri
           bio
           pseudonym
-          dob
+          birthdate
           isPublisher
           createdAt
           updatedAt

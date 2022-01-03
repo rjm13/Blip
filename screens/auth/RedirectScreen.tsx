@@ -6,8 +6,6 @@ import { getUser } from '../../src/graphql/queries';
 import { StatusBar } from 'expo-status-bar';
 
 
-
-
 const SCREEN_WIDTH = Dimensions.get('window').width
 
 const SCREEN_HEIGHT = Dimensions.get('window').height
@@ -79,7 +77,7 @@ const Redirect = ({route, navigation} : any) => {
     // }, [])
 
     return (
-        <View style={{alignContent: 'center', justifyContent: 'center', width: SCREEN_WIDTH, height: SCREEN_HEIGHT, backgroundColor: '#fff'}}>
+        <View style={{alignContent: 'center', justifyContent: 'center', width: SCREEN_WIDTH, height: SCREEN_HEIGHT + 30, backgroundColor: '#363636'}}>
             <ActivityIndicator size="large" color="cyan" />
             <StatusBar style='light' backgroundColor="transparent"/>
         </View>

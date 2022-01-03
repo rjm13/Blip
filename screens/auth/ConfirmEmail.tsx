@@ -59,7 +59,7 @@ const ConfirmEmail = ({navigation, route} : {navigation: any, route : any}) => {
                     name: userInfo.attributes.name,
                     imageUri: userInfo.attributes.imageUri,
                     email: userInfo.attributes.email,
-                    //status: userInfo.attributes.status,
+                    birthdate: userInfo.attributes.birthdate,
                     //isLiked: [],
                 }
           

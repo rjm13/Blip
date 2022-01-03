@@ -41,7 +41,7 @@ export const getUser = /* GraphQL */ `
         nextToken
       }
       pseudonym
-      dob
+      birthdate
       isPublisher
       createdAt
       updatedAt
@@ -68,7 +68,7 @@ export const listUsers = /* GraphQL */ `
           nextToken
         }
         pseudonym
-        dob
+        birthdate
         isPublisher
         createdAt
         updatedAt
@@ -94,7 +94,7 @@ export const getFollowingConn = /* GraphQL */ `
           nextToken
         }
         pseudonym
-        dob
+        birthdate
         isPublisher
         createdAt
         updatedAt
@@ -112,7 +112,7 @@ export const getFollowingConn = /* GraphQL */ `
           nextToken
         }
         pseudonym
-        dob
+        birthdate
         isPublisher
         createdAt
         updatedAt
@@ -141,7 +141,7 @@ export const listFollowingConns = /* GraphQL */ `
           imageUri
           bio
           pseudonym
-          dob
+          birthdate
           isPublisher
           createdAt
           updatedAt
@@ -153,7 +153,7 @@ export const listFollowingConns = /* GraphQL */ `
           imageUri
           bio
           pseudonym
-          dob
+          birthdate
           isPublisher
           createdAt
           updatedAt
@@ -190,7 +190,7 @@ export const getStory = /* GraphQL */ `
           nextToken
         }
         pseudonym
-        dob
+        birthdate
         isPublisher
         createdAt
         updatedAt
@@ -239,7 +239,7 @@ export const listStories = /* GraphQL */ `
           imageUri
           bio
           pseudonym
-          dob
+          birthdate
           isPublisher
           createdAt
           updatedAt
@@ -279,7 +279,7 @@ export const getComment = /* GraphQL */ `
           imageUri
           bio
           pseudonym
-          dob
+          birthdate
           isPublisher
           createdAt
           updatedAt

@@ -13,6 +13,7 @@ export type RootStackParamList = {
   ModalNavigator: undefined;
   Drawer: undefined;
   Redirect: undefined;
+  Recordings: undefined;
 };
 
 export type BottomTabParamList = {
