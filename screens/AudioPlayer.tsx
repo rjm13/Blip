@@ -13,8 +13,8 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 
 import * as Animatable from 'react-native-animatable';
 import { useRoute } from '@react-navigation/native';
-//import {graphqlOperation, API, Storage} from 'aws-amplify';
-//import { getStory } from '../src/graphql/queries';
+import {graphqlOperation, API, Storage} from 'aws-amplify';
+import { getStory } from '../src/graphql/queries';
 
 import { AppContext } from '../AppContext';
 

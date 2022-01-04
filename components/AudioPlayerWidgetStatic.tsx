@@ -12,8 +12,8 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 
 import * as Animatable from 'react-native-animatable';
 import { useRoute } from '@react-navigation/native';
-// import {graphqlOperation, API, Storage} from 'aws-amplify';
-// import { getStory } from '../src/graphql/queries';
+import {graphqlOperation, API, Storage} from 'aws-amplify';
+import { getStory } from '../src/graphql/queries';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 import { AppContext } from '../AppContext';
@@ -205,7 +205,7 @@ const [isPlaying, setIsPlaying] = useState(false);
 
 const [position, setPosition] = useState(0); //position in milliseconds
 
-const [slideLength, setSlideLength] = useState(0);
+const [slideLength, setSlideLength] = useState(0); //slide length
 
 const onClose = () => {
     setStoryID(null);

@@ -1,10 +1,11 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {View, Text, StyleSheet, ScrollView, Dimensions, TouchableWithoutFeedback, FlatList, RefreshControl} from 'react-native';
-
+import { Audio } from 'expo-av';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Modal, Portal, Provider } from 'react-native-paper';
+import Slider from '@react-native-community/slider';
 
 import { format, parseISO } from "date-fns";
 
@@ -12,6 +13,23 @@ import { useRoute } from '@react-navigation/native';
 
 import { API, graphqlOperation, Auth } from "aws-amplify";
 import { getUser } from '../src/graphql/queries';
+
+function useInterval(callback, delay) {
+    const savedCallback = useRef();
+    
+    // Remember the latest callback.
+    useEffect(() => {
+        savedCallback.current = callback;
+    }, [callback]);
+    
+    // Set up the interval.
+    useEffect(() => {
+        let id = setInterval(() => {
+        savedCallback.current();
+        }, delay);
+        return () => clearInterval(id);
+    }, [delay]);
+    }
 
 const Publisher = ({navigation} : any) => {
 
@@ -52,7 +70,11 @@ const Publisher = ({navigation} : any) => {
 
       const [removedItem, setRemovedItem] = useState('');
 
-      const [playItem, setPlayItem] = useState();
+      const [playItem, setPlayItem] = useState({
+          title: '',
+          time: '',
+          audioUri: ''
+      });
 
       useEffect(() => {
         const LoadKeys = async () => {
@@ -112,6 +134,7 @@ const Publisher = ({navigation} : any) => {
         let [itemtime, setitemtime] = useState('');
         let [itemcreated, setitemcreated] = useState(new Date());
         let [itemid, setitemid] = useState('');
+        let [itemaudio, setitemaudio] = useState('');
 
         useEffect(() => {
             let componentMounted = true;
@@ -124,6 +147,7 @@ const Publisher = ({navigation} : any) => {
                     setitemtime(objs.time);
                     setitemcreated(parseISO(objs.created));
                     setitemid(objs.id);
+                    setitemaudio(objs.audioUri);
                 }
                 } catch(e) {
                     // read error
@@ -164,7 +188,7 @@ const Publisher = ({navigation} : any) => {
                                 color='#fff' 
                                 size={18} 
                                 style={{marginRight: 10}}
-                                onPress={() => {showPlayModal(); setPlayItem(item);}}
+                                onPress={() => {setPlayItem({title: itemtitle, time: itemtime, audioUri: itemaudio}); showPlayModal(); }}
                             />                           
                         </View>
                     </View>
@@ -188,6 +212,84 @@ const Publisher = ({navigation} : any) => {
             setIsFetching(false);
             }, 2000);
         }
+
+//Audio player
+
+const [sound, setSound] = useState();
+
+const [isPlaying, setIsPlaying] = useState(false);
+
+const [position, setPosition] = useState(0); //position in milliseconds
+
+const [slideLength, setSlideLength] = useState(0); //slide length
+
+//slider functions
+function SetPosition(value) {
+    setPosition(value)
+}
+
+async function StoryPosition (value) { 
+    await sound.setPositionAsync(value);
+    setPosition(value);
+}
+
+function millisToMinutesAndSeconds () {
+    let minutes = Math.floor(position / 60000);
+    let seconds = ((position % 60000) / 1000);
+    return (seconds == 60 ? (minutes+1) + ":00" : minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
+} 
+
+function convertToTime () {
+    let minutes = Math.floor(slideLength / 60000);
+    let seconds = Math.floor((slideLength % 60000) / 1000);
+    return (seconds == 60 ? (minutes+1) + ":00" : minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
+}  
+
+//audio play and pause control
+    async function PlayPause() {
+
+        console.log('Loading Sound');
+        const { sound } = await Audio.Sound.createAsync(
+            //{require(playItem.audioUri)},
+            {uri: playItem.audioUri},
+            {shouldPlay: true}
+        );
+        
+        setSound(sound);
+
+
+        let time = await sound.getStatusAsync();
+        setSlideLength(time.durationMillis);
+
+        if (isPlaying === false) {
+            console.log('Playing Sound');
+            await sound.playAsync(); 
+            setIsPlaying(true);
+            await sound.setPositionAsync(position);
+        } 
+        if (isPlaying === true) {
+            await sound.pauseAsync();
+            setIsPlaying (false);     
+        }    
+    }
+
+    useInterval(() => {
+        if (isPlaying === true && position < slideLength) {
+        setPosition(position + 1000);
+        }
+      }, 1000);
+
+      useEffect(() => {
+        return sound
+        ? () => {
+            console.log('Unloading Sound');
+            sound.unloadAsync(); }
+        : undefined;
+    }, [sound]);
+
+    // if (!Story) {
+    //     return null;
+    // }
 
     return (
         <Provider>
@@ -214,14 +316,45 @@ const Publisher = ({navigation} : any) => {
 {/* audio player modal */}
                 <Modal visible={visiblePlayModal} onDismiss={hidePlayModal} contentContainerStyle={playModalContainerStyle}>
                     <View style={{ padding: 20, backgroundColor: '#363636', borderRadius: 15,}}>
-                        <View style={{ alignItems: 'center', marginVertical: 40}}>
-                            <Text style={{fontSize: 16, textAlign: 'center', color: '#fff'}}>
-                                {playItem}
+                        <View style={{ alignItems: 'center', marginBottom: 40, marginTop: 10}}>
+                            <Text style={{fontSize: 20, fontWeight: 'bold', textAlign: 'center', color: '#fff'}}>
+                                {playItem.title}
                             </Text>
                         </View>
-                        <View style={{ alignItems: 'center'}}>
+                        <View style={{alignSelf: 'center' }}>
+                                <FontAwesome5 
+                                    name={isPlaying === true ? 'pause' : 'play'}
+                                    color='#ffffffCC'
+                                    size={40}
+                                    onPress={PlayPause}
+                                />
+                            </View>
+
                             
+                        <View style={{ alignItems: 'center', marginTop: 30}}>
+                            <Slider
+                                style={{width: 300, height: 10}}
+                                minimumTrackTintColor="cyan"
+                                maximumTrackTintColor="#ffffffa5"
+                                thumbTintColor='#fff'
+                                //tapToSeek={true}
+                                value={position}
+                                step={1000}
+
+                                minimumValue={0}
+                                maximumValue={slideLength} //function set to the length of the audio file
+                                onValueChange={SetPosition} //function: when slider changes, slider value = SetPosition
+                                onSlidingComplete={StoryPosition}
+                            />
                         </View>
+                        <View style={{ marginTop: 20, width: '90%', alignSelf: 'center', flexDirection: 'row', justifyContent: 'space-between',}}>
+                                <Text style={{ fontSize: 18, marginBottom: 5, textAlign: 'center', color: 'white'}}>
+                                    {millisToMinutesAndSeconds()}
+                                </Text>
+                                <Text style={{ fontSize: 18, marginBottom: 5, textAlign: 'center', color: 'white'}}>
+                                    {convertToTime()}
+                                </Text>
+                            </View>
                     </View>
                 </Modal>
             </Portal>
@@ -277,7 +410,7 @@ const Publisher = ({navigation} : any) => {
                     <FlatList 
                         data={SavedAudio}
                         renderItem={renderItem}
-                        keyExtractor={item => item.id}
+                        keyExtractor={item => item}
                         extraData={true}
                         scrollEnabled={false}
                         refreshControl={
