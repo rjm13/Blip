@@ -3,6 +3,10 @@ import {View, Text, StyleSheet, ScrollView, Dimensions, TouchableWithoutFeedback
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Modal, Portal, Provider } from 'react-native-paper';
+
+import { format, parseISO } from "date-fns";
 
 import { useRoute } from '@react-navigation/native';
 
@@ -42,46 +46,95 @@ const Publisher = ({navigation} : any) => {
         fetchUser();
       }, [])
 
-      const [Storys, setStorys] = useState([
-          {
-            id: 1,
-            title: 'Track 1',
-            time: '32:45',
-            created: 'Oct 13, 2021'
-          },
-          {
-            id: 2,
-            title: 'Track 1',
-            time: '32:45',
-            created: 'Oct 13, 2021'
-        },
-        {
-            id: 3,
-            title: 'Track 1',
-            time: '32:45',
-            created: 'Oct 13, 2021'
-        },
-        {
-            id: 4,
-            title: 'Track 1',
-            time: '32:45',
-            created: 'Oct 13, 2021'
-        },
-        {
-            id: 5,
-            title: 'Track 1',
-            time: '32:45',
-            created: 'Oct 13, 2021'
-        },
-        {
-            id: 6,
-            title: 'Track 1',
-            time: '32:45',
-            created: 'Oct 13, 2021'
-        },
-      ]);
+      const [SavedAudio, setSavedAudio] = useState([''])
 
-      const Item = ({title, time, created, id} : any) => {
+      const [isSaved, setIsSaved] = useState(false);
+
+      const [removedItem, setRemovedItem] = useState('');
+
+      const [playItem, setPlayItem] = useState();
+
+      useEffect(() => {
+        const LoadKeys = async () => {
+            let saved = await AsyncStorage.getAllKeys();
+    
+            if (saved != null) {
+                let result = saved.filter((item) => item.includes("recording"));
+                setSavedAudio(result);
+            } 
+        }
+        LoadKeys();
+    
+    }, [isSaved])
+
+//set the player modal state
+        const [visiblePlayModal, setVisiblePlayModal] = useState(false);
+  
+        const showPlayModal = () => setVisiblePlayModal(true);
+    
+        const hidePlayModal = () => setVisiblePlayModal(false);
+    
+        const playModalContainerStyle = {backgroundColor: 'transparent', padding: 20};
+
+//remove an item from asyncstorage function
+    //set the modal state
+    const [visibleRemoveModal, setVisibleRemoveModal] = useState(false);
+  
+    const showRemoveModal = () => setVisibleRemoveModal(true);
+
+    const hideRemoveModal = () => setVisibleRemoveModal(false);
+
+    const removeModalContainerStyle = {backgroundColor: 'transparent', padding: 20}; 
+
+    //remove the item
+    const RemoveAudio = async () => {
+        try {
+          await AsyncStorage.removeItem(removedItem);
+        } catch(e) {
+          // remove error
+        }
+        try {
+            let object = await AsyncStorage.getItem(removedItem);
+            let objs = object ? JSON.parse(object) : null
+            await AsyncStorage.removeItem(objs.id);
+        }
+        catch(e) {
+            // read error
+        }
+        setIsSaved(!isSaved);
+        hideRemoveModal();
+    }
+
+
+      const Item = ({item} : any) => {
+
+        let [itemtitle, setitemtitle] = useState('');
+        let [itemtime, setitemtime] = useState('');
+        let [itemcreated, setitemcreated] = useState(new Date());
+        let [itemid, setitemid] = useState('');
+
+        useEffect(() => {
+            let componentMounted = true;
+            const fetchData = async () => {
+                try {
+                    let object = await AsyncStorage.getItem(item);
+                    let objs = object ? JSON.parse(object) : null
+                    if(componentMounted) {
+                    setitemtitle(objs.title);
+                    setitemtime(objs.time);
+                    setitemcreated(parseISO(objs.created));
+                    setitemid(objs.id);
+                }
+                } catch(e) {
+                    // read error
+                }
+                
+            };
+            fetchData();
+            return () => {
+            componentMounted = false;
+            }
+        }, []);
 
         return(
             <View style={{marginBottom: 20, padding: 10, width: '90%', backgroundColor: '#363636', alignSelf: 'center', borderRadius: 10}}>
@@ -89,19 +142,30 @@ const Publisher = ({navigation} : any) => {
                         <TouchableWithoutFeedback>
                             <View>
                                 <Text style={{color: '#fff', fontWeight: 'bold', marginBottom: 6}}>
-                                    {title}
+                                    {itemtitle}
                                 </Text>
-                                <Text style={{color: '#fff', marginBottom: 6}}>
-                                    {created}
+                                <Text style={{color: '#fff', marginBottom: 6, fontSize: 12}}>
+                                    {format(itemcreated, "MMM do yyyy")}
                                 </Text>
-                                <Text style={{color: '#fff'}}>
-                                    {time}
+                                <Text style={{color: '#fff', fontSize: 12}}>
+                                    {itemtime}
                                 </Text>
                             </View>
                         </TouchableWithoutFeedback>    
                         <View style={{flexDirection: 'row', alignSelf: 'center'}}>
-                            <FontAwesome5 name='trash-alt' color='#fff' size={18} style={{marginRight: 30}}/>
-                            <FontAwesome5 name='play' color='#fff' size={18} style={{marginRight: 10}}/>                           
+                            <FontAwesome5 
+                                name='trash-alt' 
+                                color='#fff' size={18} 
+                                style={{marginRight: 30}} 
+                                onPress={() => {showRemoveModal(); setRemovedItem(item);}}
+                            />
+                            <FontAwesome5 
+                                name='play' 
+                                color='#fff' 
+                                size={18} 
+                                style={{marginRight: 10}}
+                                onPress={() => {showPlayModal(); setPlayItem(item);}}
+                            />                           
                         </View>
                     </View>
             </View>
@@ -111,10 +175,7 @@ const Publisher = ({navigation} : any) => {
       const renderItem = ({ item } : any) => (
 
         <Item 
-          title={item.title}
-          time={item.time}
-          id={item.id}
-          created={item.created}
+          item={item}
         />
       );
 
@@ -129,6 +190,42 @@ const Publisher = ({navigation} : any) => {
         }
 
     return (
+        <Provider>
+            <Portal>
+{/* Confirm Delete Modal */}
+                <Modal visible={visibleRemoveModal} onDismiss={hideRemoveModal} contentContainerStyle={removeModalContainerStyle}>
+                    <View style={{ padding: 20, backgroundColor: '#363636', borderRadius: 15,}}>
+                        <View style={{ alignItems: 'center', marginVertical: 40}}>
+                            <Text style={{fontSize: 16, textAlign: 'center', color: '#fff'}}>
+                                Are you sure you want to delete this track?
+                            </Text>
+                        </View>
+                        <View style={{ alignItems: 'center'}}>
+                            <TouchableWithoutFeedback onPress={RemoveAudio}>
+                                <View style={{ width: 120, height: 40, borderRadius: 25, backgroundColor: 'cyan', alignItems: 'center', justifyContent: 'center'}}>
+                                    <Text style={{color: '#000', fontSize: 16, textAlign: 'center', fontWeight: 'bold'}}>
+                                        Delete
+                                    </Text>
+                                </View>
+                            </TouchableWithoutFeedback>
+                        </View>
+                    </View>
+                </Modal>
+{/* audio player modal */}
+                <Modal visible={visiblePlayModal} onDismiss={hidePlayModal} contentContainerStyle={playModalContainerStyle}>
+                    <View style={{ padding: 20, backgroundColor: '#363636', borderRadius: 15,}}>
+                        <View style={{ alignItems: 'center', marginVertical: 40}}>
+                            <Text style={{fontSize: 16, textAlign: 'center', color: '#fff'}}>
+                                {playItem}
+                            </Text>
+                        </View>
+                        <View style={{ alignItems: 'center'}}>
+                            
+                        </View>
+                    </View>
+                </Modal>
+            </Portal>
+        
         <View style={styles.container}>
             
             <LinearGradient
@@ -178,7 +275,7 @@ const Publisher = ({navigation} : any) => {
                     </View>
 
                     <FlatList 
-                        data={Storys}
+                        data={SavedAudio}
                         renderItem={renderItem}
                         keyExtractor={item => item.id}
                         extraData={true}
@@ -209,6 +306,7 @@ const Publisher = ({navigation} : any) => {
             </LinearGradient>
             
         </View>
+        </Provider>
     );
 }
 

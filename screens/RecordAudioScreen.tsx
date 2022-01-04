@@ -9,6 +9,8 @@ import Slider from '@react-native-community/slider';
 import {LinearGradient} from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
 import { List, Modal, Portal, Provider } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import uuid from 'react-native-uuid';
 //import ToggleSwitch from 'toggle-switch-react-native';
 //import ModalDropdown from 'react-native-modal-dropdown';
 
@@ -38,6 +40,59 @@ export default function RecordAudio({
   
       const Genre = genres.map((item, index) => item.genre)
 
+      const [time, setTime] = useState(0);
+  
+      const [recTime, setRecTime] = useState(0)
+
+      const [AudioData, setAudioData] = useState({
+        id: 'recording' + uuid.v4().toString(),
+        title: '',
+        time: '',
+        created: 0,
+        audioUri: '',
+        check_textInputChange: false,
+      })
+
+      const textInputChange = (val : any) => {
+        if( val.length !== 0 ) {
+            setAudioData({
+                ... AudioData,
+                title: val,
+                check_textInputChange: true
+            });
+        } else {
+            setAudioData({
+                ... AudioData,
+                title: val,
+                check_textInputChange: false
+            });
+        }
+    }
+
+
+      const SaveToStorage = async () => {
+
+        let AudioToSave = {
+            id: AudioData.id,
+            title: AudioData.title,
+            time: AudioData.time,
+            created: new Date(),
+            audioUri: AudioData.audioUri,
+        }
+
+        try {
+            const jsonAudio = JSON.stringify(AudioToSave)
+            await AsyncStorage.setItem(AudioToSave.id, jsonAudio)
+        } catch (e) {
+            // saving error
+        }
+
+        console.log('Saved to Storage')
+        console.log(AudioToSave)
+
+        
+    }
+
       //Toggle Switch
       const [isSwitchOn, setIsSwitchOn] = React.useState(false);
       const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
@@ -51,14 +106,9 @@ export default function RecordAudio({
           backgroundColor: 'transparent', 
           padding: 20,
       };
-  
-      const [spice, setSpice] = useState(0);
+
   
       const [recording, setRecording] = useState();
-  
-      const [time, setTime] = useState(0);
-  
-      const [recTime, setRecTime] = useState(0)
   
       useInterval(() => {
           if (recording) {
@@ -70,7 +120,18 @@ export default function RecordAudio({
           let minutes = Math.floor(time / 60000);
           let seconds = ((time % 60000) / 1000);
           return (seconds == 60 ? (minutes+1) + ":00" : minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
-      }  
+        }  
+
+//audio recording functions
+
+  // Refs for the audio
+  const AudioRecorder = useRef(new Audio.Recording());
+  const AudioPlayer = useRef(new Audio.Sound());
+
+  const [RecordedURI, SetRecordedURI] = useState<string>("");
+
+  const [IsPLaying, SetIsPLaying] = useState<boolean>(false);
+
   
       async function startRecording() {
           try {
@@ -102,6 +163,11 @@ export default function RecordAudio({
           showModal();
           await recording.stopAndUnloadAsync();
           const uri = recording.getURI(); 
+          setAudioData({
+            ...AudioData,
+            audioUri: uri,
+            time: millisToMinutesAndSeconds(),
+          })
           console.log('Recording stopped and stored at', uri);
   
           // let time = await recording.getStatusAsync();
@@ -111,11 +177,6 @@ export default function RecordAudio({
           // }
           
         }
-      
-  
-      function SpiceRating (value) {
-          setSpice(value);
-      }
 
 
   return (
@@ -158,7 +219,7 @@ export default function RecordAudio({
                         style={{ 
                             marginBottom: 20,
                         }}
-                        onPress={hideModal}>
+                        onPress={() => { hideModal(); SaveToStorage(); }}>
                         <LinearGradient
                             colors={['cyan', 'cyan']}
                             style={{ 
@@ -167,7 +228,7 @@ export default function RecordAudio({
                                 borderRadius: 20,
                                 width: 200,
                                 }} >
-                            <Text style={{ color: 'black', fontSize: 16, textAlign: 'center'}}>Save File</Text>
+                            <Text style={{ color: 'black', fontSize: 16, textAlign: 'center'}}>Save Recording</Text>
                         </LinearGradient>
                     </TouchableOpacity>
 
@@ -197,12 +258,12 @@ export default function RecordAudio({
             <View style={[styles.inputfield, {height: 60}]}>
                 <TextInput
                     placeholder='Story Title'
-                        placeholderTextColor='#ffffffa5'
+                    placeholderTextColor='#ffffffa5'
                     style={styles.textInputTitle}
                     maxLength={50}
                     multiline={true}
                     numberOfLines={2}
-                    //onChangeText={displayStatus => setDisplayStatus(displayStatus)}
+                    onChangeText={(val) => textInputChange(val)}
                 />
             </View>
             
