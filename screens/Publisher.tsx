@@ -3,6 +3,7 @@ import {View, Text, StyleSheet, ScrollView, Dimensions, TouchableWithoutFeedback
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useRoute } from '@react-navigation/native';
 
@@ -17,6 +18,21 @@ const Publisher = ({navigation} : any) => {
     const {User} = route.params
 
     const [update, didUpdate] = useState(false);
+
+    const [SavedAudio, setSavedAudio] = useState([''])
+
+    useEffect(() => {
+        const LoadKeys = async () => {
+            let saved = await AsyncStorage.getAllKeys();
+    
+            if (saved != null) {
+                let result = saved.filter((item) => item.includes("recording"));
+                setSavedAudio(result);
+            } 
+        }
+        LoadKeys();
+    
+    }, [])
 
     // useEffect(() => {
     //     setUser(User);
@@ -119,7 +135,7 @@ const Publisher = ({navigation} : any) => {
                                 My Recordings
                             </Text>
                             <Text style={styles.textcounter}>
-                                {user?.authored?.items.length}
+                                {SavedAudio.length}
                             </Text>
                         </View>
                     </TouchableWithoutFeedback>
