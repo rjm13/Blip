@@ -13,7 +13,6 @@ export type RootStackParamList = {
   ModalNavigator: undefined;
   Drawer: undefined;
   Redirect: undefined;
-  Recordings: undefined;
   SimpleAudioPlayer: undefined;
 };
 
@@ -36,6 +35,8 @@ export type TabOneParamList = {
   Publishing: undefined;
   PublisherSetup: undefined;
   Publisher: undefined;
+  Recordings: undefined;
+  MyStories: undefined;
 };
 
 export type TabTwoParamList = {

@@ -19,6 +19,7 @@ import PublishingMainScreen from '../screens/PublishingMain';
 import PublisherSetupScreen from '../screens/PublisherSetup';
 import PublisherScreen from '../screens/Publisher';
 import Recordings from '../screens/Recordings';
+import MyStories from '../screens/MyStories';
 
 import StoriesScreen from '../screens/StoriesScreen';
 import PlaylistScreen from '../screens/Playlistscreen';
@@ -142,6 +143,11 @@ function HomeNavigator() {
       <HomeStack.Screen
         name="Narrations"
         component={Narrations}
+        options={{ headerShown: false }}
+      />
+      <HomeStack.Screen
+        name="MyStories"
+        component={MyStories}
         options={{ headerShown: false }}
       />
       <HomeStack.Screen

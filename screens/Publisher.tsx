@@ -107,7 +107,7 @@ const Publisher = ({navigation} : any) => {
                         </Text>
                     </View>
 
-                    <TouchableWithoutFeedback onPress={ () => navigation.navigate('PlanScreen')}>
+                    <TouchableWithoutFeedback onPress={ () => navigation.navigate('Following')}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 40, marginVertical: 20}}>
                             <Text style={{ color: '#fff', fontSize: 16}}>
                                 Followers
@@ -118,7 +118,7 @@ const Publisher = ({navigation} : any) => {
                         </View>
                     </TouchableWithoutFeedback>
 
-                    <TouchableWithoutFeedback onPress={ () => navigation.navigate('PlanScreen')}>
+                    <TouchableWithoutFeedback onPress={ () => navigation.navigate('MyStories')}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 40, marginVertical: 20}}>
                             <Text style={{ color: '#fff', fontSize: 16}}>
                                 My Stories

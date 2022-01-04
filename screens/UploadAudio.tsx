@@ -12,13 +12,41 @@ import ModalDropdown from 'react-native-modal-dropdown';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import uuid from 'react-native-uuid';
-//import { API, graphqlOperation, Auth, Storage } from "aws-amplify";
-//import { createStory } from '../src/graphql/mutations';
+import { API, graphqlOperation, Auth, Storage } from "aws-amplify";
+import { createStory, updateUser } from '../src/graphql/mutations';
+import { getUser } from '../src/graphql/queries';
 import { Audio } from 'expo-av';
+
+import { useRoute } from '@react-navigation/native';
 
 import genres  from '../data/dummygenre';
 
+
+
+
 export default function UploadAudio({navigation} : any) {   
+
+    const [user, setUser] = useState({})
+
+    useEffect(() => {
+        const fetchUser = async () => {
+          const userInfo = await Auth.currentAuthenticatedUser();
+            if (!userInfo) {
+              return;
+            }
+          try {
+            const userData = await API.graphql(graphqlOperation(
+              getUser, {id: userInfo.attributes.sub}))
+              if (userData) {
+                setUser(userData.data.getUser);
+              }
+              console.log(userData.data.getUser);
+          } catch (e) {
+            console.log(e);
+          }
+        }
+        fetchUser();
+      }, [])
 
 //audio object
     const [pendingImageState, setPendingImageState] = useState('');
@@ -28,7 +56,7 @@ export default function UploadAudio({navigation} : any) {
         title: '',
         description: '',
         genre: '',
-        writer: '',
+        writer: user?.pseudonym,
         narrator: '',
         time: null,
         imageUri: '',
@@ -415,12 +443,17 @@ export default function UploadAudio({navigation} : any) {
             /> 
         </View>
         <View style={{ alignItems: 'center'}}> 
-            <Text style={[styles.title, {marginBottom: 30}]}>
+            <Text style={[styles.title, {marginBottom: 50}]}>
                 Upload a Short Story
             </Text>
+
+            <Text style={styles.inputheader}>
+                Story Title *
+            </Text>
             <View style={[styles.inputfield, {height: 60}]}>
+                
                 <TextInput
-                    placeholder='Story Title*'
+                    placeholder='....'
                         placeholderTextColor='#ffffffa5'
                     style={styles.textInputTitle}
                     maxLength={50}
@@ -434,9 +467,13 @@ export default function UploadAudio({navigation} : any) {
                     size={20}
                 />
             </View>
+
+            <Text style={styles.inputheader}>
+                Description *
+            </Text>
             <View style={styles.inputfield}>
                 <TextInput
-                    placeholder='Description*'
+                    placeholder='....'
                         placeholderTextColor='#ffffffa5'
                     style={[styles.textInput, { height: 80 }]}
                     maxLength={300}
@@ -451,6 +488,9 @@ export default function UploadAudio({navigation} : any) {
                 />
             </View>
 
+            <Text style={styles.inputheader}>
+                Genre *
+            </Text>
             <View style={{ 
                     width: '90%', 
                     marginBottom: 20, 
@@ -464,7 +504,7 @@ export default function UploadAudio({navigation} : any) {
                     }}>
                 <ModalDropdown 
                   options={Genre}
-                  defaultValue='Select category...*'
+                  defaultValue='Select Genre...'
                   defaultTextStyle={{ color: '#ffffffa5'}}
                   onSelect={(val) => ConvertToString(val)}
                   style={{ 
@@ -499,15 +539,19 @@ export default function UploadAudio({navigation} : any) {
 
             </View>
 
+            <Text style={styles.inputheader}>
+                Author *
+            </Text>
             <View style={[styles.inputfield, {height: 60}]}>
                 <TextInput
-                    placeholder='Author*'
-                        placeholderTextColor='#ffffffa5'
+                    placeholder={!!user ? user?.pseudonym : '....'}
+                    placeholderTextColor='#ffffffa5'
                     style={styles.textInputTitle}
                     maxLength={50}
                     multiline={true}
                     numberOfLines={2}
                     onChangeText={val => setData({...data, writer: val})}
+                    defaultValue={!!user ? user?.pseudonym : 'Annonymous'}
                 />
                 <FontAwesome5 
                     name='check-circle'
@@ -516,9 +560,12 @@ export default function UploadAudio({navigation} : any) {
                 />
             </View>
 
+            <Text style={styles.inputheader}>
+                Narrator *
+            </Text>
             <View style={[styles.inputfield, {height: 60}]}>
                 <TextInput
-                    placeholder='Narrator'
+                    placeholder='....'
                         placeholderTextColor='#ffffffa5'
                     style={styles.textInputTitle}
                     maxLength={50}
@@ -554,15 +601,22 @@ export default function UploadAudio({navigation} : any) {
             </View>
 
             <View style={{ margin: 40, flexDirection: 'row'}}>
-                <Text style={{ color: '#ffffffa5'}}>
-                    I have read and agree to the community upload guidelines.
-                </Text>
                 <FontAwesome5 
                     name='check-circle'
                     color={termsAgree === true ? 'cyan' : '#363636'}
                     size={20}
                     onPress={handleTerms}
                 />
+                <Text style={{ color: '#ffffffa5', fontSize: 12, marginRight: 4, marginLeft: 20, textAlign: 'left'}}>
+                    I agree to the
+                </Text>
+                <TouchableWithoutFeedback>
+                    <Text style={{ color: '#ffffffa5', fontSize: 12, textAlign: 'left', textDecorationLine: 'underline'}}>
+                        Publishing Terms and Conditions.
+                    </Text>
+                </TouchableWithoutFeedback>
+                
+                
             </View>
 
                 <TouchableOpacity onPress={showModal}>
@@ -609,6 +663,14 @@ title: {
     fontWeight: 'bold',
     marginTop: 10,
     marginBottom: 0,
+},
+inputheader: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 20,
+    marginBottom: 10,
+    alignSelf: 'flex-start'
 },
 inputfield: {
     width: '90%',
