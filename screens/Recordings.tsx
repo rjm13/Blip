@@ -14,7 +14,7 @@ import { useRoute } from '@react-navigation/native';
 import { API, graphqlOperation, Auth } from "aws-amplify";
 import { getUser } from '../src/graphql/queries';
 
-function useInterval(callback, delay) {
+const useInterval = (callback, delay) => {
     const savedCallback = useRef();
     
     // Remember the latest callback.
@@ -24,10 +24,13 @@ function useInterval(callback, delay) {
     
     // Set up the interval.
     useEffect(() => {
-        let id = setInterval(() => {
+        function tick() {
         savedCallback.current();
-        }, delay);
+        }
+        if (delay !== null) {
+        let id = setInterval(tick, delay);
         return () => clearInterval(id);
+        }
     }, [delay]);
     }
 
@@ -44,25 +47,25 @@ const Publisher = ({navigation} : any) => {
     //     setUser(User);
     // }, [])
 
-    useEffect(() => {
-        const fetchUser = async () => {
-          const userInfo = await Auth.currentAuthenticatedUser();
-            if (!userInfo) {
-              return;
-            }
-          try {
-            const userData = await API.graphql(graphqlOperation(
-              getUser, {id: userInfo.attributes.sub}))
-              if (userData) {
-                setUser(userData.data.getUser);
-              }
-              console.log(userData.data.getUser);
-          } catch (e) {
-            console.log(e);
-          }
-        }
-        fetchUser();
-      }, [])
+    // useEffect(() => {
+    //     const fetchUser = async () => {
+    //       const userInfo = await Auth.currentAuthenticatedUser();
+    //         if (!userInfo) {
+    //           return;
+    //         }
+    //       try {
+    //         const userData = await API.graphql(graphqlOperation(
+    //           getUser, {id: userInfo.attributes.sub}))
+    //           if (userData) {
+    //             setUser(userData.data.getUser);
+    //           }
+    //           console.log(userData.data.getUser);
+    //       } catch (e) {
+    //         console.log(e);
+    //       }
+    //     }
+    //     fetchUser();
+    //   }, [])
 
       const [SavedAudio, setSavedAudio] = useState([''])
 
@@ -130,24 +133,29 @@ const Publisher = ({navigation} : any) => {
 
       const Item = ({item} : any) => {
 
-        let [itemtitle, setitemtitle] = useState('');
-        let [itemtime, setitemtime] = useState('');
-        let [itemcreated, setitemcreated] = useState(new Date());
-        let [itemid, setitemid] = useState('');
-        let [itemaudio, setitemaudio] = useState('');
+        let [itemState, setItemState] = useState({
+            title: null,
+            time: null,
+            created: new Date(),
+            id: null,
+            audio: null,
+        })
 
         useEffect(() => {
             let componentMounted = true;
             const fetchData = async () => {
                 try {
+                    console.log('whats going on here')
                     let object = await AsyncStorage.getItem(item);
                     let objs = object ? JSON.parse(object) : null
                     if(componentMounted) {
-                    setitemtitle(objs.title);
-                    setitemtime(objs.time);
-                    setitemcreated(parseISO(objs.created));
-                    setitemid(objs.id);
-                    setitemaudio(objs.audioUri);
+                        setItemState({
+                            title: objs.title,
+                            time: objs.time,
+                            created: parseISO(objs.created),
+                            id: objs.id,
+                            audio: objs.audioUri
+                        })
                 }
                 } catch(e) {
                     // read error
@@ -166,13 +174,13 @@ const Publisher = ({navigation} : any) => {
                         <TouchableWithoutFeedback>
                             <View>
                                 <Text style={{color: '#fff', fontWeight: 'bold', marginBottom: 6}}>
-                                    {itemtitle}
+                                    {itemState.title}
                                 </Text>
                                 <Text style={{color: '#fff', marginBottom: 6, fontSize: 12}}>
-                                    {format(itemcreated, "MMM do yyyy")}
+                                    {format(itemState.created, "MMM do yyyy")}
                                 </Text>
                                 <Text style={{color: '#fff', fontSize: 12}}>
-                                    {itemtime}
+                                    {itemState.time}
                                 </Text>
                             </View>
                         </TouchableWithoutFeedback>    
@@ -188,7 +196,8 @@ const Publisher = ({navigation} : any) => {
                                 color='#fff' 
                                 size={18} 
                                 style={{marginRight: 10}}
-                                onPress={() => {setPlayItem({title: itemtitle, time: itemtime, audioUri: itemaudio}); showPlayModal(); }}
+                                onPress={() => {navigation.navigate('SimpleAudioPlayer', {item: item})}}
+                                //onPress={() => {setPlayItem({title: itemState.title, time: itemState.time, audioUri: itemState.audio}); showPlayModal(); setPosition(0)}}
                             />                           
                         </View>
                     </View>
@@ -207,9 +216,10 @@ const Publisher = ({navigation} : any) => {
 
         const onRefresh = () => {
             setIsFetching(true);
+            setIsSaved(!isSaved)
             //fetchStorys();
             setTimeout(() => {
-            setIsFetching(false);
+                setIsFetching(false);
             }, 2000);
         }
 
@@ -224,29 +234,29 @@ const [position, setPosition] = useState(0); //position in milliseconds
 const [slideLength, setSlideLength] = useState(0); //slide length
 
 //slider functions
-function SetPosition(value) {
+const SetPosition = (value) => {
     setPosition(value)
 }
 
-async function StoryPosition (value) { 
+const StoryPosition = async (value) => { 
     await sound.setPositionAsync(value);
     setPosition(value);
 }
 
-function millisToMinutesAndSeconds () {
+const millisToMinutesAndSeconds = () => {
     let minutes = Math.floor(position / 60000);
     let seconds = ((position % 60000) / 1000);
     return (seconds == 60 ? (minutes+1) + ":00" : minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
 } 
 
-function convertToTime () {
+const convertToTime = () => {
     let minutes = Math.floor(slideLength / 60000);
     let seconds = Math.floor((slideLength % 60000) / 1000);
     return (seconds == 60 ? (minutes+1) + ":00" : minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
 }  
 
 //audio play and pause control
-    async function PlayPause() {
+    const PlayPause = async () => {
 
         console.log('Loading Sound');
         const { sound } = await Audio.Sound.createAsync(
@@ -277,13 +287,20 @@ function convertToTime () {
         if (isPlaying === true && position < slideLength) {
         setPosition(position + 1000);
         }
+        if (isPlaying === true && position >= slideLength) {
+            setPosition(0);
+            setIsPlaying(false)
+        }
       }, 1000);
 
       useEffect(() => {
         return sound
         ? () => {
             console.log('Unloading Sound');
-            sound.unloadAsync(); }
+            sound.unloadAsync(); 
+            //setPosition(0);
+            //setIsPlaying(false);
+        }
         : undefined;
     }, [sound]);
 
@@ -314,7 +331,7 @@ function convertToTime () {
                     </View>
                 </Modal>
 {/* audio player modal */}
-                <Modal visible={visiblePlayModal} onDismiss={hidePlayModal} contentContainerStyle={playModalContainerStyle}>
+                <Modal visible={visiblePlayModal} onDismiss={() => {hidePlayModal(); setSound(undefined);}} contentContainerStyle={playModalContainerStyle}>
                     <View style={{ padding: 20, backgroundColor: '#363636', borderRadius: 15,}}>
                         <View style={{ alignItems: 'center', marginBottom: 40, marginTop: 10}}>
                             <Text style={{fontSize: 20, fontWeight: 'bold', textAlign: 'center', color: '#fff'}}>
@@ -387,7 +404,7 @@ function convertToTime () {
                         </View>  
                     </View>
                     
-                <ScrollView style={styles.container}>
+                <View style={styles.container}>
                     
                     <FontAwesome5 
                         name='book-reader'
@@ -411,8 +428,9 @@ function convertToTime () {
                         data={SavedAudio}
                         renderItem={renderItem}
                         keyExtractor={item => item}
-                        extraData={true}
-                        scrollEnabled={false}
+                        //extraData={isSaved}
+                        style={{height: '57%'}}
+                        //scrollEnabled={false}
                         refreshControl={
                             <RefreshControl
                             refreshing={isFetching}
@@ -423,19 +441,15 @@ function convertToTime () {
                         ListFooterComponent={ () => {
                             return (
                             <View style={{ marginBottom: 40, height:  120, alignItems: 'center', justifyContent: 'center'}}>
-                                <Text style={{ color: 'white'}}>
+                                {/* <Text style={{ color: 'white'}}>
                                     Load more
-                                </Text>
+                                </Text> */}
                             </View>
-                        );
-
-                        }
-
-                        }
+                        );}}
                     />
 
   
-                </ScrollView>
+                </View>
             </LinearGradient>
             
         </View>

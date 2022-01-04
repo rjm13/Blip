@@ -11,6 +11,7 @@ import RecordAudioScreen from '../screens/RecordAudioScreen';
 import AudioPlayer from '../screens/AudioPlayer';
 import UserScreen from '../screens/UserScreen';
 import UploadAudio from '../screens/UploadAudio';
+import SimpleAudioPlayer from '../screens/SimpleAudioPlayer';
 
 import SignUpScreen from '../screens/auth/SignUp';
 import SignInScreen from '../screens/auth/SignIn';
@@ -91,7 +92,8 @@ function RootNavigator() {
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ title: 'Oops!' }} />
       <Stack.Screen name="ForgotPasswordCon" component={ForgotPasswordConScreen} options={{ title: 'Oops!' }} />
       <Stack.Screen name="ConfirmEmail" component={ConfirmEmailScreen} options={{ title: 'Oops!' }} />
-     
+      <Stack.Screen name="SimpleAudioPlayer" component={SimpleAudioPlayer} options={{ title: 'Oops!' }} />
+    
       <Stack.Screen name="AudioPlayer" component={AudioPlayer} options={{ title: 'Oops!' }} />
       <Stack.Screen name="Redirect" component={RedirectScreen} />
       {/* <Stack.Screen name="Drawer" component={DrawerNavigator} options={{ title: 'Oops!' }} /> */}
