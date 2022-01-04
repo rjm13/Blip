@@ -494,13 +494,16 @@ const handleUpdatePassword = async () => {
         </Portal>
 
             <View>
-                <View style={{ marginTop: 50, marginBottom: 20, marginHorizontal: 20,}}>
+                <View style={{  alignItems: 'center', flexDirection: 'row', marginTop: 50, marginBottom: 20, marginHorizontal: 20,}}>
                     <FontAwesome5 
                         name='chevron-left'
                         color='#fff'
                         size={20}
                         onPress={() => navigation.goBack()}
                     />
+                    <Text style={{color: '#fff', fontSize: 22, fontWeight: 'bold', marginHorizontal: 40}}>
+                        Edit Profile
+                    </Text>
                 </View>
 
                 <TouchableOpacity onPress={showNameModal}>

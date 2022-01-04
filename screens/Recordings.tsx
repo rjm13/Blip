@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 22,
         fontWeight: 'bold',
-        marginLeft: 20,
+        marginLeft: 40,
     },
     textcounter: {
         color: '#fff', 

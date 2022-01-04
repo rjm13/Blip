@@ -26,7 +26,7 @@ const FollowingScreen = ({navigation} : any) => {
       >
           
           <View>
-              <View style={{ marginTop: 50, marginHorizontal: 20}}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 60, marginHorizontal: 20}}>
                   <FontAwesome5 
                     name='chevron-left'
                     color='#fff'
@@ -34,14 +34,14 @@ const FollowingScreen = ({navigation} : any) => {
                     onPress={ () => navigation.goBack()}
                   />
 
-              </View>
+              
             <View style={{ 
                 flexDirection: 'row', 
                 justifyContent: 'flex-start', 
                 width: '100%', 
                 alignItems: 'flex-end',
                 marginHorizontal: 20,
-                height: 50,
+                //height: 50,
                 }}>
         
                 <TouchableWithoutFeedback onPress={() => setSelectedId(1)}>
@@ -89,6 +89,7 @@ const FollowingScreen = ({navigation} : any) => {
                         
                     </Text>
                 </TouchableWithoutFeedback>
+            </View>
             </View>
             
           </View>
