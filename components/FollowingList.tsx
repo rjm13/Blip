@@ -14,7 +14,7 @@ import {Auth, graphqlOperation, API} from 'aws-amplify';
 import people from '../data/dummypeople';
 import {useNavigation, useRoute} from '@react-navigation/native';
 
-const Item = ({ pseudonym, imageUri, id, navigation, bio, following, authored, isPublisher } : any) => {
+const Item = ({ pseudonym, imageUri, id, bio, following, authored, isPublisher } : any) => {
 
     //const navigation = useNavigation();
 
