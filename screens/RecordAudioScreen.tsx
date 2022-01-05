@@ -46,7 +46,7 @@ export default function RecordAudio({
 
       const [AudioData, setAudioData] = useState({
         id: 'recording' + uuid.v4().toString(),
-        title: '',
+        title: uuid.v4().toString(),
         time: '',
         created: 0,
         audioUri: '',
@@ -109,9 +109,11 @@ export default function RecordAudio({
 
   
       const [recording, setRecording] = useState();
+
+      const [isRecording, setIsRecording] = useState(false);
   
       useInterval(() => {
-          if (recording) {
+          if (isRecording) {
           setTime(time + 1000);
           }
         }, 1000);
@@ -132,6 +134,8 @@ export default function RecordAudio({
 
   const [IsPLaying, SetIsPLaying] = useState<boolean>(false);
 
+  const [stopped, setStopped] = useState(false)
+
   
       async function startRecording() {
           try {
@@ -146,6 +150,7 @@ export default function RecordAudio({
             await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
             await recording.startAsync(); 
             setRecording(recording);
+            setIsRecording(true);
             console.log('Recording started');
   
           let time = await recording.getStatusAsync();
@@ -160,7 +165,7 @@ export default function RecordAudio({
         async function stopRecording() {
           console.log('Stopping recording..');
           setRecording(undefined);
-          showModal();
+          setIsRecording(false);
           await recording.stopAndUnloadAsync();
           const uri = recording.getURI(); 
           setAudioData({
@@ -168,126 +173,161 @@ export default function RecordAudio({
             audioUri: uri,
             time: millisToMinutesAndSeconds(),
           })
+          setStopped(true);
           console.log('Recording stopped and stored at', uri);
-  
-          // let time = await recording.getStatusAsync();
-  
-          // if ( time.isDoneRecording === true) {
-          //     {showModal}
-          // }
-          
         }
+
+        async function pauseRecording() {
+            console.log('Stopping recording..');
+            showModal();
+            await recording.pauseAsync();
+            setIsRecording(false);
+            console.log('Recording stopped and stored at');
+          }
+        
+          async function unpauseRecording() {
+            console.log('Stopping recording..');
+            await recording.startAsync();
+            setIsRecording(true);
+            console.log('Recording stopped and stored at');
+          }
 
 
   return (
     <Provider>
-    <View style={styles.container}>
+        <View style={styles.container}>
+            <Portal>
+                <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
+                    <View style={{ alignItems: 'center', padding: 20, backgroundColor: '#363636', borderRadius: 15,}}>
+                    
+                        <View style={{alignItems: 'center', marginBottom: 40, justifyContent: 'space-between', width: '100%'}}>
+                            <Text style={[styles.title, {textTransform: 'capitalize', marginBottom: 20}]}>
+                            {AudioData.title}
+                            </Text>   
+                            <Text style={styles.timer}>
+                                {millisToMinutesAndSeconds()}
+                            </Text>
+                        </View>
+                    
+                        <View style={{ }}>
+                            <TouchableOpacity
+                                style={{ 
+                                    marginBottom: 20,
+                                }}
+                                onPress={hideModal}>
+                                <View
+                                    style={{ 
+                                        paddingHorizontal: 20,
+                                        paddingVertical: 10,
+                                        borderRadius: 20,
+                                        width: 200,
+                                        borderWidth: 1,
+                                        borderColor: 'cyan'
+                                        }} >
+                                    <Text style={{ color: 'cyan', fontSize: 16, textAlign: 'center'}}>
+                                        Continue Recording
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
 
-    <Portal>
-        <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
-            <View style={{ alignItems: 'center', padding: 20, backgroundColor: '#363636', borderRadius: 15,}}>
-            
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
-                <Text style={[styles.title, {textTransform: 'capitalize'}]}>
-                   Story Title 
-                </Text>   
-                <Text style={styles.timer}>
-                    {millisToMinutesAndSeconds()}
+                            <TouchableOpacity
+                                style={{marginBottom: 20}}
+                                onPress={() => { stopRecording(); }}
+                                onLongPress={() => {SaveToStorage(); navigation.goBack();}}
+                            >
+                                <View
+                                    style={{ 
+                                        paddingHorizontal: 20,
+                                        paddingVertical: 10,
+                                        borderRadius: 20,
+                                        width: 200,
+                                        backgroundColor: stopped === true ? 'gold' : 'cyan'
+                                        }} >
+                                    
+                                    {stopped === true ? 
+                                        <Text style={{ color: 'black', fontSize: 16, fontWeight: 'bold', textAlign: 'center'}}>
+                                            Hold to Confirm
+                                        </Text>
+                                        :
+                                        <Text style={{ color: 'black', fontSize: 16, fontWeight: 'bold', textAlign: 'center'}}>
+                                            Save To Storage
+                                        </Text>
+                                    }
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+            </Portal>
+
+            <View style={{ marginTop: 50, marginHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
+            <AntDesign 
+                    name='close'
+                    size={25}
+                    color='#fff'
+                    onPress={ () => navigation.goBack()}
+                /> 
+            </View>
+
+            <View style={{ alignItems: 'center'}}>
+                <Text style={[styles.title, {marginBottom: 30}]}>
+                    Record a Short Story
+                </Text>
+                <Text style={{marginHorizontal: 40, color: '#fff', fontSize: 12}}>
+                    In order to be eligible for submission, your story must be no longer than 2 hours 
                 </Text>
             </View>
-              
-            <View style={{ }}>
-                <TouchableOpacity
-                    style={{ 
-                        marginBottom: 20,
-                    }}
-                    onPress={hideModal}>
-                    <View
-                        style={{ 
-                            paddingHorizontal: 20,
-                            paddingVertical: 10,
-                            borderRadius: 20,
-                            width: 200,
-                            borderWidth: 1,
-                            borderColor: 'cyan'
-                            }} >
-                        <Text style={{ color: 'cyan', fontSize: 16, textAlign: 'center'}}>Continue Recording</Text>
-                    </View>
+
+            <View style={{ alignItems: 'center', justifyContent: 'center', height: 500}}> 
+
+                <Text style={[styles.title, {alignSelf: 'flex-start', marginLeft: 20, marginBottom: 10}]}>
+                    Track Title
+                </Text>
+                                    
+                <View style={[styles.inputfield, {height: 60}]}>
+                    <TextInput
+                        placeholder='....'
+                        placeholderTextColor='#ffffffa5'
+                        style={styles.textInputTitle}
+                        maxLength={50}
+                        multiline={true}
+                        numberOfLines={2}
+                        onChangeText={(val) => textInputChange(val)}
+                    />
+                </View>
+                
+                <TouchableOpacity onPress={
+                    isRecording === true && recording ? pauseRecording : 
+                    isRecording === false && !recording ? startRecording :
+                    unpauseRecording
+                    }>
+                        <View style={[styles.recordbutton, {
+                            backgroundColor: !isRecording ? 'transparent' : '#00ffff',
+                            borderColor: !isRecording ? '#00ffff' : 'transparent',
+                            borderWidth: 1
+                            }]}>
+                            <FontAwesome5 
+                                name='microphone-alt'
+                                color={ !isRecording ? '#00ffff' : '#000'}
+                                size={30}
+                            />
+                        </View>
                 </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={{ 
-                            marginBottom: 20,
-                        }}
-                        onPress={() => { hideModal(); SaveToStorage(); }}>
-                        <LinearGradient
-                            colors={['cyan', 'cyan']}
-                            style={{ 
-                                paddingHorizontal: 20,
-                                paddingVertical: 10,
-                                borderRadius: 20,
-                                width: 200,
-                                }} >
-                            <Text style={{ color: 'black', fontSize: 16, textAlign: 'center'}}>Save Recording</Text>
-                        </LinearGradient>
-                    </TouchableOpacity>
-
+                <View style={{ marginVertical: 10,}}>
+                    <Text style={styles.timer}>
+                        {millisToMinutesAndSeconds()}
+                    </Text>
+                </View>
+                <View style={{marginTop: 20}}>
+                    {recording ? (
+                    <Text style={{color: 'red', fontSize: 16}}>
+                        Recording in Progress
+                    </Text>
+                    ) : null}
                 </View>
             </View>
-        </Modal>
-    </Portal>
-
-        <View style={{ marginTop: 50, marginHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
-           <AntDesign 
-                name='close'
-                size={25}
-                color='#fff'
-                onPress={ () => navigation.goBack()}
-            /> 
         </View>
-
-
-        <View style={{ alignItems: 'center'}}>
-            <Text style={styles.title}>
-                Record a Short Story
-            </Text>
-        </View>
-
-        <View style={{ alignItems: 'center', justifyContent: 'center', height: 500}}> 
-            
-            <View style={[styles.inputfield, {height: 60}]}>
-                <TextInput
-                    placeholder='Story Title'
-                    placeholderTextColor='#ffffffa5'
-                    style={styles.textInputTitle}
-                    maxLength={50}
-                    multiline={true}
-                    numberOfLines={2}
-                    onChangeText={(val) => textInputChange(val)}
-                />
-            </View>
-            
-            <TouchableOpacity onPress={recording ? stopRecording : startRecording}>
-                    <View style={[styles.recordbutton, {
-                        backgroundColor: !recording ? 'transparent' : '#00ffff',
-                        borderColor: !recording ? '#00ffff' : 'transparent',
-                        borderWidth: 1
-                        }]}>
-                        <FontAwesome5 
-                            name='microphone-alt'
-                            color={ !recording ? '#00ffff' : '#000'}
-                            size={30}
-                        />
-                    </View>
-            </TouchableOpacity>
-
-            <View style={{ marginVertical: 10,}}>
-                <Text style={styles.timer}>
-                    {millisToMinutesAndSeconds()}
-                </Text>
-            </View>
-        </View>
-    </View>
     </Provider>
 );
 }
@@ -301,7 +341,6 @@ title: {
     fontSize: 18,
     fontWeight: 'bold',
     marginTop: 10,
-    marginBottom: 30,
     
 },
 inputfield: {
@@ -330,7 +369,7 @@ recordbutton: {
 },
 timer: {
     color: '#ffffff',
-    fontSize: 22,
+    fontSize: 18,
 },
 });
 
