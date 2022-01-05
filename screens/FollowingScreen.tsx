@@ -25,30 +25,15 @@ const FollowingScreen = ({navigation} : any) => {
 
     const [ users, setUsers ] = useState([]);
 
-    useEffect( () => {
-        const fetchUsers = async () => {
-
-            const userInfo = await Auth.currentAuthenticatedUser();
-
-
-            try {
-                const usersData = await API.graphql(
-                    graphqlOperation(
-                        listUsers
-                    )
-                )
-                setUsers(usersData.data.listUsers.items);
-            } catch (e) {
-                console.log(e);
-            }
-        }
-        fetchUsers();
-    },[])
-
     const [user, setUser] = useState({})
 
     useEffect(() => {
+
+
         const fetchUser = async () => {
+
+        let Following = []
+
           const userInfo = await Auth.currentAuthenticatedUser();
             if (!userInfo) {
               return;
@@ -60,12 +45,72 @@ const FollowingScreen = ({navigation} : any) => {
                 setUser(userData.data.getUser);
               }
               console.log(userData.data.getUser);
+
+              for (let i = 0; i < userData.data.getUser.following.length; i++) {
+                try {
+                    const response = await API.graphql(graphqlOperation(getUser, {
+                    id: userData.data.getUser.following[i]
+                } ))
+                    Following.push(response.data.getUser);
+                } catch (e) {
+
+                }
+            }
+            setUsers(Following)
+
           } catch (e) {
             console.log(e);
           }
         }
         fetchUser();
       }, [])
+
+
+    //   useEffect(() => {
+
+    //     const fetchUsers = async () => {
+
+    //         let Following = []
+
+    //         for (let i = 0; i < user.following.length; i++) {
+    //             try {
+    //                 const response = await API.graphql(graphqlOperation(getUser, {
+    //                 id: user.following[i]
+    //             } ))
+    //                 Following.push(response.data.getUser);
+    //             } catch (e) {
+
+    //             }
+    //         }
+    //         setUsers(Following)
+    //     };
+    //     fetchUsers();
+    // }, [])
+
+    // useEffect( () => {
+    //     const fetchUsers = async () => {
+
+    //         try {
+    //             const usersData = await API.graphql(
+    //                 graphqlOperation(
+    //                     listUsers, {
+    //                         filter: {
+    //                             id: {
+    //                                 contains: {
+                                       
+    //                                 }
+    //                             }
+    //                         }
+    //                     }
+    //                 )
+    //             )
+    //             setUsers(usersData.data.listUsers.items);
+    //         } catch (e) {
+    //             console.log(e);
+    //         }
+    //     }
+    //     fetchUsers();
+    // },[])
 
     const [SelectedId, setSelectedId] = useState(1);
 

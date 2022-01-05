@@ -113,7 +113,7 @@ const Publisher = ({navigation} : any) => {
                                 Followers
                             </Text>
                             <Text style={styles.textcounter}>
-                                {user?.following ? user?.following?.items.length : '0'}
+                                {user?.following ? user?.following?.length : '0'}
                             </Text>
                         </View>
                     </TouchableWithoutFeedback>

@@ -1,112 +1,338 @@
-import React, {useState} from 'react';
-import { StyleSheet, Dimensions } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import { StyleSheet, Dimensions, Image, TouchableWithoutFeedback, FlatList } from 'react-native';
 import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
 import { Searchbar } from 'react-native-paper';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicon from 'react-native-vector-icons/Ionicons';
 import {LinearGradient} from 'expo-linear-gradient';
 
+import AudioStoryFlatList from '../components/AudioStoryFlatList';
 import FollowingList from '../components/FollowingList';
+//import FollowersList from '../components/FollowingList';
 
-const BrowseAuthor = ({navigation} : any) => {
+import { API, graphqlOperation, Auth } from "aws-amplify";
+import { getUser } from '../src/graphql/queries';
+import { listUsers } from '../src/graphql/queries';
 
-    function SearchBar () {
+import {useNavigation, useRoute} from '@react-navigation/native';
 
-        const [searchQuery, setSearchQuery] = useState('');
-      
-        const onChangeSearch = query => setSearchQuery(query);
-      
+
+const BrowseAuthors = ({navigation} : any) => {
+
+    const [ users, setUsers ] = useState([]);
+
+    useEffect( () => {
+        const fetchUsers = async () => {
+
+            const userInfo = await Auth.currentAuthenticatedUser();
+
+
+            try {
+                const usersData = await API.graphql(
+                    graphqlOperation(
+                        listUsers
+                    )
+                )
+                setUsers(usersData.data.listUsers.items);
+            } catch (e) {
+                console.log(e);
+            }
+        }
+        fetchUsers();
+    },[])
+
+    const [user, setUser] = useState({})
+
+    useEffect(() => {
+        const fetchUser = async () => {
+          const userInfo = await Auth.currentAuthenticatedUser();
+            if (!userInfo) {
+              return;
+            }
+          try {
+            const userData = await API.graphql(graphqlOperation(
+              getUser, {id: userInfo.attributes.sub}))
+              if (userData) {
+                setUser(userData.data.getUser);
+              }
+              console.log(userData.data.getUser);
+          } catch (e) {
+            console.log(e);
+          }
+        }
+        fetchUser();
+      }, [])
+
+    const [SelectedId, setSelectedId] = useState(1);
+
+    const Item = ({ pseudonym, imageUri, id, bio, following, authored, isPublisher } : any) => {
+
+        //const navigation = useNavigation();
+    
+        const [ShowModalThing, setShowModalThing] = useState(false);
+    
         return (
-          <View>
-            <Searchbar
-              placeholder="Search"
-              placeholderTextColor='#000000a5'
-              onChangeText={onChangeSearch}
-              value={searchQuery}
-              iconColor='#000000a5'
-              style={{
-                height: 35,
-                marginHorizontal: 20,
-                borderRadius: 8,
-                backgroundColor: '#e0e0e0',
-              }}
-              inputStyle={{fontSize: 16,}}
-            />
-          </View>
+            <View style={styles.tile}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
+                    <TouchableWithoutFeedback onPress={() => navigation.navigate('UserScreen', {userID: id})}>
+                        <View style={{ flexDirection: 'row'}}>
+                            <Image 
+                                source={{ uri: imageUri}}
+                                style={{
+                                    width: 50,
+                                    height: 50,
+                                    borderRadius: 25,
+                                    backgroundColor: 'cyan'
+                                }}
+                            />
+                        
+                            <View style={{ marginHorizontal: 10}}>
+                                <Text style={styles.name}>
+                                    {pseudonym}
+                                </Text> 
+                                
+                                
+                                <View style={{ flexDirection: 'row', marginTop: 4, alignItems: 'center'}}>
+                                    {/* <FontAwesome5 
+                                        name='book-open'
+                                        size={12}
+                                        color='#ffffffa5'
+                                        style={{ marginRight: 5}}
+                                    />
+                                    <Text style={styles.userId}>
+                                        0
+                                    </Text>   */}
+                                    <FontAwesome5 
+                                        name='book-reader'
+                                        size={12}
+                                        color='#ffffffa5'
+                                        style={{ marginRight: 5}}
+                                    />
+                                    <Text style={styles.userId}>
+                                        {authored.length ? authored.length : 0}
+                                    </Text> 
+                                </View> 
+                            </View>
+                        </View>
+                    </TouchableWithoutFeedback>    
+    
+                    <TouchableWithoutFeedback onPress={() => {setShowModalThing(!ShowModalThing)}}>
+                        <View style={{ backgroundColor: 'transparent', width: 40, alignItems: 'flex-end' }}>
+                            <AntDesign
+                                name={'ellipsis1'}
+                                size={20}
+                                color='white'
+                            />
+                        </View>
+                    </TouchableWithoutFeedback>
+                </View>    
+    
+                    
+    
+                <View style={{marginTop: 10, marginHorizontal: 5}}>
+                    <Text style={{color: "#fff", fontSize: 12, }}>
+                        {bio}
+                    </Text>
+                </View>
+    
+                {ShowModalThing === true ? (
+                        
+                        <View style={{ backgroundColor: '#484848', borderColor: 'black', borderRadius: 5, borderWidth: 0, position: 'absolute', right: 40, top: 30, alignSelf: 'flex-end'}}>
+                            <TouchableWithoutFeedback onPress={() => {}} >
+                                <Text style={{color: '#fff', padding: 10}}>
+                                    Unfollow
+                                </Text>
+                            </TouchableWithoutFeedback>
+                            <TouchableWithoutFeedback onPress={() => {}} >
+                                <Text style={{color: '#fff', padding: 10}}>
+                                    View Profile
+                                </Text>
+                            </TouchableWithoutFeedback>
+                        </View>
+                    
+                ) : null}
+               
+            </View>
         );
-      };
-
+    }
+    
+    const renderItem = ({ item }) => (
+    
+        <Item 
+            //user={item}
+            name={item.name}
+            id={item.id}
+            pseudonym={item.pseudonym}
+            imageUri={item.imageUri}
+            //narrations={item.narrations.length}
+            authored={item.authored}
+            bio={item.bio}
+            following={item.following}
+            isPublisher={item.isPublisher}
+        />
+      );
 
     return (
         <View >
         <LinearGradient
-        colors={['#3b4b80', '#000', 'black']}
+        colors={['#363636','#2f217966', '#000']}
         //style={styles.container}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
           
-          <View style={{  alignItems: 'center', flexDirection: 'row', marginTop: 60, marginBottom: 20, marginHorizontal: 20}}>
-                <FontAwesome5
+          <View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 60, marginHorizontal: 20}}>
+                  <FontAwesome5 
                     name='chevron-left'
-                    size={22}
                     color='#fff'
-                    style={{ marginRight: 20 }}
-                    onPress={() => navigation.goBack()}
-                />
-                <Text style={{ color: 'white', marginHorizontal: 0, fontSize: 22, fontWeight: 'bold'}}>
-                    Authors
-                </Text>
+                    size={20}
+                    onPress={ () => navigation.goBack()}
+                  />
+
+              
+            <View style={{ 
+                flexDirection: 'row', 
+                justifyContent: 'flex-start', 
+                width: '100%', 
+                alignItems: 'flex-end',
+                marginHorizontal: 20,
+                //height: 50,
+                }}>
+        
+                <TouchableWithoutFeedback onPress={() => setSelectedId(1)}>
+                    <Text style={{ 
+                        color: SelectedId ===  1 ? '#fff' : '#ffffffa5',
+                        marginHorizontal: 15, 
+                        fontSize: SelectedId ===  1 ? 22 : 17,
+                        fontWeight: SelectedId === 1 ? 'bold' : 'normal',
+                        borderBottomColor: '#fff',
+                        //borderBottomWidth: SelectedId ===  1 ? 1 : 0,
+                    }}>
+                        Browse Authors
+                    </Text>
+                </TouchableWithoutFeedback>
+
+                {/* {user?.isPublisher === true ? (
+                    <TouchableWithoutFeedback onPress={() => setSelectedId(2)}>
+                        <Text style={{ 
+                            color: SelectedId ===  2 ? '#fff' : '#ffffffa5',
+                            marginHorizontal: 15, 
+                            fontSize: SelectedId ===  2 ? 22 : 17,
+                            fontWeight: SelectedId === 2 ? 'bold' : 'normal'
+                        }}>
+                            Followers
+                        </Text>
+                    </TouchableWithoutFeedback>
+                ) : null} */}
+                
+
+                {/* <TouchableWithoutFeedback onPress={() => setSelectedId(3)}>
+                    <Text style={{ 
+                        color: SelectedId ===  3 ? '#fff' : '#ffffffa5',
+                        marginHorizontal: 15, 
+                        fontSize: SelectedId ===  3 ? 22 : 17,
+                        fontWeight: SelectedId === 3 ? 'bold' : 'normal'
+                    }}>
+                        
+                    </Text>
+                </TouchableWithoutFeedback> */}
+
+                {/* <TouchableWithoutFeedback onPress={() => setSelectedId(4)}>
+                    <Text style={{ 
+                        color: SelectedId ===  4 ? '#fff' : '#ffffffa5',
+                        marginHorizontal: 15, 
+                        fontSize: SelectedId ===  4 ? 22 : 17,
+                        fontWeight: SelectedId === 4 ? 'bold' : 'normal'
+                    }}>                        
+                        
+                    </Text>
+                </TouchableWithoutFeedback> */}
+            </View>
+            </View>
+            
           </View>
         
-            <View style={{ marginBottom: 20}}>
-                <SearchBar />
-            </View>
-
+            {/* <View>
+                {renderElement()}
+            </View> */}
+            {SelectedId === 1 ? (
+                <View style={{ alignItems: 'center', marginTop: 20, height: '86%'}}>
+                    <FlatList
+                        style={{ width: '100%' }}
+                        data={users}
+                        renderItem={renderItem}
+                        keyExtractor={(item) => item.id}
+                        //extraData={true}
+                    />
+                </View>
+            ) : SelectedId === 2 && user?.isPublisher === true ? (
+                <View style={{ alignItems: 'center', marginTop: 20, height: '86%'}}>
+                    {/* <FollowersList /> */}
+                </View>
+            ) : null}
             
-
-            <View style={{ height: '80%'}}>
-                <FollowingList />
-            </View>
-
+           
+            
+        
         </LinearGradient>
         </View>
     );
 }
 
-const styles = StyleSheet.create ({
-  header: {
-      color: '#fff',
-      fontSize: 22,
-      fontWeight: 'bold',
-  },
-  title: {
-    color: '#000',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 5,
-  },
-  box: {
-    height: 100,
-    width: 140,
-    borderRadius: 15,
-    marginVertical: 10,
-    padding: 10,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  genrebox: {
-    height: 80,
-    borderRadius: 15,
-    marginVertical: 10,
-    padding: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-  },
+
+const styles = StyleSheet.create({
+    container: {
+        width: Dimensions.get('window').width, 
+     },
+     tile: {
+         backgroundColor: '#383838a5',
+         marginHorizontal: 20,
+         marginVertical: 10,
+         padding: 20,
+         borderRadius: 15,
+     },
+     name: {
+         fontSize: 16,
+         fontWeight: 'bold',
+         color: '#fff',
+     },
+     userId: {
+         fontSize: 12,
+         color: '#ffffffa5',
+         marginRight: 15,
+         marginLeft: 5,
+     },
+     popupblock: {
+         marginTop: 10,
+     },
+     paragraph: {
+         color: '#ffffffa5'
+     },
+     playbutton: {
+         borderWidth: 0.3,
+         paddingHorizontal: 15,
+         paddingVertical: 3,
+         borderRadius: 15,
+         borderColor: '#fff',
+         color: '#fff',
+     },
+     time: {
+         fontSize: 16,
+         fontWeight: 'normal',
+         color: '#ffffffa5',
+     },
+     category: {
+         fontSize: 12,
+         color: 'cyan',
+         fontStyle: 'italic',
+         marginVertical: 3,
+ 
+     },
 });
 
-export default BrowseAuthor;
+export default BrowseAuthors;
