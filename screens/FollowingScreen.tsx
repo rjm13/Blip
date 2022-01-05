@@ -11,6 +11,7 @@ import {LinearGradient} from 'expo-linear-gradient';
 
 import AudioStoryFlatList from '../components/AudioStoryFlatList';
 import FollowingList from '../components/FollowingList';
+//import FollowersList from '../components/FollowingList';
 
 const FollowingScreen = ({navigation} : any) => {
 
@@ -53,7 +54,7 @@ const FollowingScreen = ({navigation} : any) => {
                         borderBottomColor: '#fff',
                         //borderBottomWidth: SelectedId ===  1 ? 1 : 0,
                     }}>
-                        Followers
+                        Following
                     </Text>
                 </TouchableWithoutFeedback>
 
@@ -64,7 +65,7 @@ const FollowingScreen = ({navigation} : any) => {
                         fontSize: SelectedId ===  2 ? 22 : 17,
                         fontWeight: SelectedId === 2 ? 'bold' : 'normal'
                     }}>
-                        Following
+                        Followers
                     </Text>
                 </TouchableWithoutFeedback>
 
@@ -97,10 +98,16 @@ const FollowingScreen = ({navigation} : any) => {
             {/* <View>
                 {renderElement()}
             </View> */}
-
-            <View style={{ alignItems: 'center', marginTop: 20, height: '86%'}}>
-                <FollowingList />
-            </View>
+            {SelectedId === 1 ? (
+                <View style={{ alignItems: 'center', marginTop: 20, height: '86%'}}>
+                    <FollowingList />
+                </View>
+            ) : SelectedId === 2 ? (
+                <View style={{ alignItems: 'center', marginTop: 20, height: '86%'}}>
+                    {/* <FollowersList /> */}
+                </View>
+            ) : null}
+            
            
             
         

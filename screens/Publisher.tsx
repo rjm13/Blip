@@ -181,7 +181,7 @@ const Publisher = ({navigation} : any) => {
                 </View>
 
                 <View style={{marginVertical: 40}}>
-                    <TouchableWithoutFeedback onPress={ () => navigation.navigate('PlanScreen')}>
+                    <TouchableWithoutFeedback onPress={ () => navigation.navigate('Terms')}>
                         <View style={{ justifyContent: 'center', marginHorizontal: 40, marginVertical: 20}}>
                             <Text style={{ textAlign: 'center', color: '#fff', fontSize: 14}}>
                                 Terms and Conditions

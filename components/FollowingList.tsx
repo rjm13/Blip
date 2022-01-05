@@ -7,23 +7,23 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
-// import { listUsers } from '../src/graphql/queries';
-// import { listFollowingIDs } from '../src/graphql/queries';
-// import {Auth} from 'aws-amplify';
+import { listUsers } from '../src/graphql/queries';
+//import { listFollowingIDs } from '../src/graphql/queries';
+import {Auth, graphqlOperation, API} from 'aws-amplify';
 
 import people from '../data/dummypeople';
 import {useNavigation, useRoute} from '@react-navigation/native';
 
-const Item = ({ name, imageUri, id, bio } : any) => {
+const Item = ({ pseudonym, imageUri, id, navigation, bio, following, authored, isPublisher } : any) => {
 
-    const navigation = useNavigation();
+    //const navigation = useNavigation();
 
-
+    const [ShowModalThing, setShowModalThing] = useState(false);
 
     return (
         <View style={styles.tile}>
-            <TouchableWithoutFeedback onPress={() => navigation.navigate('UserScreen', {userID: id})}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
+                <TouchableWithoutFeedback onPress={() => navigation.navigate('UserScreen', {userID: id})}>
                     <View style={{ flexDirection: 'row'}}>
                         <Image 
                             source={{ uri: imageUri}}
@@ -37,48 +37,69 @@ const Item = ({ name, imageUri, id, bio } : any) => {
                     
                         <View style={{ marginHorizontal: 10}}>
                             <Text style={styles.name}>
-                                {name}
+                                {pseudonym}
                             </Text> 
                             
                             
                             <View style={{ flexDirection: 'row', marginTop: 4, alignItems: 'center'}}>
-                                <FontAwesome5 
+                                {/* <FontAwesome5 
                                     name='book-open'
                                     size={12}
                                     color='#ffffffa5'
                                     style={{ marginRight: 5}}
                                 />
-                            <Text style={styles.userId}>
+                                <Text style={styles.userId}>
                                     0
-                                </Text>  
+                                </Text>   */}
                                 <FontAwesome5 
                                     name='book-reader'
                                     size={12}
                                     color='#ffffffa5'
                                     style={{ marginRight: 5}}
                                 />
-                            <Text style={styles.userId}>
-                                    0
+                                <Text style={styles.userId}>
+                                    {authored.length ? authored.length : 0}
                                 </Text> 
                             </View> 
                         </View>
                     </View>
-                
+                </TouchableWithoutFeedback>    
 
-                <View>
-                    <View style={{ alignSelf: 'center', flexDirection: 'row', }}>
+                <TouchableWithoutFeedback onPress={() => {setShowModalThing(!ShowModalThing)}}>
+                    <View style={{ backgroundColor: 'transparent', width: 40, alignItems: 'flex-end' }}>
                         <AntDesign
                             name={'ellipsis1'}
                             size={20}
                             color='white'
-                            //onPress={onLikePress}
                         />
                     </View>
-                </View>
+                </TouchableWithoutFeedback>
+            </View>    
+
                 
-            </View> 
-            
-            </TouchableWithoutFeedback>
+
+            <View style={{marginTop: 10, marginHorizontal: 5}}>
+                <Text style={{color: "#fff", fontSize: 12, }}>
+                    {bio}
+                </Text>
+            </View>
+
+            {ShowModalThing === true ? (
+                    
+                    <View style={{ backgroundColor: '#484848', borderColor: 'black', borderRadius: 5, borderWidth: 0, position: 'absolute', right: 40, top: 30, alignSelf: 'flex-end'}}>
+                        <TouchableWithoutFeedback onPress={() => {}} >
+                            <Text style={{color: '#fff', padding: 10}}>
+                                Unfollow
+                            </Text>
+                        </TouchableWithoutFeedback>
+                        <TouchableWithoutFeedback onPress={() => {}} >
+                            <Text style={{color: '#fff', padding: 10}}>
+                                View Profile
+                            </Text>
+                        </TouchableWithoutFeedback>
+                    </View>
+                
+            ) : null}
            
         </View>
     );
@@ -114,11 +135,13 @@ export default function FollowingList() {
             //user={item}
             name={item.name}
             id={item.id}
-            // email={item.email}
+            pseudonym={item.pseudonym}
             imageUri={item.imageUri}
             //narrations={item.narrations.length}
-            //author={item.author.length}
+            authored={item.authored}
             bio={item.bio}
+            following={item.following}
+            isPublisher={item.isPublisher}
         />
       );
 

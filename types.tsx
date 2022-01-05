@@ -14,6 +14,7 @@ export type RootStackParamList = {
   Drawer: undefined;
   Redirect: undefined;
   SimpleAudioPlayer: undefined;
+  Terms: undefined;
 };
 
 export type BottomTabParamList = {
