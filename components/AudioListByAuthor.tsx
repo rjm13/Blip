@@ -22,12 +22,12 @@ import {
   } from 'react-native-popup-menu';
 
 // import dummyaudio from '../data/dummyaudio';
-// import { listStorys } from '../src/graphql/queries';
-// import { deleteStory } from '../src/graphql/mutations';
-// import {graphqlOperation, API, Auth} from 'aws-amplify';
-// import { getUser } from '../src/graphql/queries';
-// import { updateUser } from '../src/graphql/mutations';
-// import { createFollowingID, deleteFollowingID } from '../src/graphql/mutations';
+//import { listStorys } from '../src/graphql/queries';
+import { deleteStory } from '../src/graphql/mutations';
+import {graphqlOperation, API, Auth} from 'aws-amplify';
+import { getUser } from '../src/graphql/queries';
+import { updateUser } from '../src/graphql/mutations';
+//import { createFollowingID, deleteFollowingID } from '../src/graphql/mutations';
 
 import { ItemParamList } from '../types';
 
@@ -611,7 +611,7 @@ const AudioListByAuthor = ({genre}) => {
                         <Animated.View style={[ {backgroundColor: animatedColor, height: animatedHeaderHeight, width: Dimensions.get('window').width, position: 'absolute', flex: 1}]}
                         >
                        
-                                <View style={{ flexDirection: 'row', marginVertical: 20, justifyContent: 'space-between', marginHorizontal: 20, alignItems: 'center'}}>
+                                <View style={{ flexDirection: 'row', marginVertical: 40, justifyContent: 'space-between', marginHorizontal: 20, alignItems: 'center'}}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center'}}>
                                         <AntDesign 
                                             name='close'
@@ -646,46 +646,37 @@ const AudioListByAuthor = ({genre}) => {
 
                                 <Animated.View style={{opacity: animatedOpacitySlow}}>
 
-                                <View style={{ alignItems: 'center'}}>
-                                    <Image 
-                                        source={{ uri: User?.imageUri}}
-                                        style={{
-                                            width: 120,
-                                            height: 120,
-                                            backgroundColor: '#363636',
-                                            borderRadius: 60,
-                                            marginTop: 20,
-                                            
-                                        }}
-                                    />
-                                </View>
+                                    <View style={{ alignItems: 'center'}}>
+                                        <Image 
+                                            source={{ uri: User?.imageUri}}
+                                            style={{
+                                                width: 120,
+                                                height: 120,
+                                                backgroundColor: '#363636',
+                                                borderRadius: 60,
+                                                marginTop: 20,
+                                                
+                                            }}
+                                        />
+                                    </View>
 
-                                <View style={{ alignItems: 'center', marginTop: 20, marginBottom: 10 }}>
-                                    <Text style={{fontSize: 22, color: '#fff', fontWeight: 'bold'}}>
-                                        {User?.name}
-                                    </Text>
-                                </View>
+                                    <View style={{ alignItems: 'center', marginTop: 20, marginBottom: 10 }}>
+                                        <Text style={{fontSize: 22, color: '#fff', fontWeight: 'bold'}}>
+                                            {User?.pseudonym}
+                                        </Text>
+                                    </View>
 
-                                <View style={{ flexDirection: 'row', marginBottom: 10, alignSelf: 'center'}}>
-                                                <FontAwesome5 
-                                                    name='book-open'
-                                                    size={12}
-                                                    color='#ffffffa5'
-                                                    style={{ marginRight: 5}}
-                                                />
-                                            <Text style={styles.userId}>
-                                                    0
-                                                </Text>  
-                                                <FontAwesome5 
-                                                    name='book-reader'
-                                                    size={12}
-                                                    color='#ffffffa5'
-                                                    style={{ marginRight: 5}}
-                                                />
-                                            <Text style={styles.userId}>
-                                                    0
-                                                </Text> 
-                                            </View> 
+                                    <View style={{ flexDirection: 'row', marginBottom: 10, alignSelf: 'center'}}>                                             
+                                        <FontAwesome5 
+                                            name='book-reader'
+                                            size={12}
+                                            color='#ffffffa5'
+                                            style={{ marginRight: 5}}
+                                        />
+                                        <Text style={styles.userId}>
+                                            {User?.authored.length ? User?.authored.length : 0}
+                                        </Text> 
+                                    </View> 
                                 </Animated.View>
 
                                 <Animated.View style={{opacity: animatedOpacity}}>
@@ -705,7 +696,7 @@ const AudioListByAuthor = ({genre}) => {
                                     marginBottom: 20
                                 }}>
                         
-                                    <TouchableWithoutFeedback onPress={() => setSelectedId(1)}>
+                                    {/* <TouchableWithoutFeedback onPress={() => setSelectedId(1)}>
                                         <Text style={{ 
                                             color: SelectedId ===  1 ? '#fff' : '#ffffffa5',
                                             marginHorizontal: 15, 
@@ -716,9 +707,9 @@ const AudioListByAuthor = ({genre}) => {
                                         }}>
                                             Authored
                                         </Text>
-                                    </TouchableWithoutFeedback>
+                                    </TouchableWithoutFeedback> */}
 
-                                    <TouchableWithoutFeedback onPress={() => setSelectedId(2)}>
+                                    {/* <TouchableWithoutFeedback onPress={() => setSelectedId(2)}>
                                         <Text style={{ 
                                             color: SelectedId ===  2 ? '#fff' : '#ffffffa5',
                                             marginHorizontal: 15, 
@@ -727,7 +718,7 @@ const AudioListByAuthor = ({genre}) => {
                                         }}>
                                             Narrations
                                         </Text>
-                                    </TouchableWithoutFeedback>
+                                    </TouchableWithoutFeedback> */}
                                 </View> 
                                 </Animated.View>
                                  

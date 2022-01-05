@@ -8,7 +8,6 @@ import { StatusBar } from 'expo-status-bar';
 
 import AudioListByAuthor from '../components/AudioListByAuthor';
 
-
 import {useRoute} from '@react-navigation/native'
 
 import { API, graphqlOperation, Auth } from "aws-amplify";
@@ -39,7 +38,6 @@ const UserScreen = ({navigation} : any) => {
         }
         fetchUser();   
       }, [])
-
 
 
     return (

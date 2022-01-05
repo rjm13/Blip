@@ -508,13 +508,18 @@ const handleUpdatePassword = async () => {
 
                 <TouchableOpacity onPress={showNameModal}>
                     <View style={styles.emailcontainer }> 
-                        <Text style={ styles.words }>Pseudonym</Text>
-                        <Text style={ styles.placeholdertext }>{user?.name || 'annonymous'}</Text>
+                        <Text style={ styles.words }>Name</Text>
+                        <Text style={ styles.placeholdertext }>{user?.name}</Text>
                     </View>
                 </TouchableOpacity>
-                
 
-        
+                {user?.isPublisher === true ? (
+                    <View style={styles.emailcontainer }> 
+                        <Text style={ styles.words }>Pseudonym</Text>
+                        <Text style={ styles.placeholdertext }>{user?.pseudonym || 'annonymous'}</Text>
+                    </View>
+                ) : null}
+                   
                 <TouchableOpacity onPress={showBioModal}>
                     <View style={styles.statuscontainer}> 
                         <Text style={{fontSize: 14, color: '#ffffffa5', padding: 10}}>{user?.bio || 'Say something about yourself'}</Text>

@@ -77,21 +77,24 @@ const ProfileScreen = ({navigation} : any) => {
                         <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                                 <View style={{ alignItems: 'center', margin: 20}}>
                                     <Text style={{ color: 'cyan', opacity: .5}}>
-                                        32
+                                        {user?.following.length ? user?.following.length : 0}
                                     </Text>
                                     <Text style={{ color: '#ffffffa5', fontWeight: 'bold'}}>
                                         Following
                                     </Text>
                                 </View>
 
-                                <View style={{ alignItems: 'center', margin: 20}}>
-                                    <Text style={{ color: 'cyan', opacity: .5}}>
-                                        184
-                                    </Text>
-                                    <Text style={{ color: '#ffffffa5', fontWeight: 'bold'}}>
-                                        Followers
-                                    </Text>
-                                </View>
+                                {user?.isPublisher === true ? (
+                                    <View style={{ alignItems: 'center', margin: 20}}>
+                                        <Text style={{ color: 'cyan', opacity: .5}}>
+                                            {user?.following.length ? user?.following.length : 0}
+                                        </Text>
+                                        <Text style={{ color: '#ffffffa5', fontWeight: 'bold'}}>
+                                            Followers
+                                        </Text>
+                                    </View>
+                                ) : null}
+                                
                         </View>
                     </TouchableWithoutFeedback>
 
