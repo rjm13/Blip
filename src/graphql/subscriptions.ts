@@ -10,17 +10,7 @@ export const onCreateUser = /* GraphQL */ `
       email
       imageUri
       bio
-      following {
-        items {
-          id
-          createdAt
-          updatedAt
-          userFollowingId
-          followingConnUserId
-          followingConnFollowerId
-        }
-        nextToken
-      }
+      following
       authored {
         items {
           id
@@ -56,17 +46,7 @@ export const onUpdateUser = /* GraphQL */ `
       email
       imageUri
       bio
-      following {
-        items {
-          id
-          createdAt
-          updatedAt
-          userFollowingId
-          followingConnUserId
-          followingConnFollowerId
-        }
-        nextToken
-      }
+      following
       authored {
         items {
           id
@@ -102,17 +82,7 @@ export const onDeleteUser = /* GraphQL */ `
       email
       imageUri
       bio
-      following {
-        items {
-          id
-          createdAt
-          updatedAt
-          userFollowingId
-          followingConnUserId
-          followingConnFollowerId
-        }
-        nextToken
-      }
+      following
       authored {
         items {
           id
@@ -150,9 +120,7 @@ export const onCreateFollowingConn = /* GraphQL */ `
         email
         imageUri
         bio
-        following {
-          nextToken
-        }
+        following
         authored {
           nextToken
         }
@@ -168,9 +136,7 @@ export const onCreateFollowingConn = /* GraphQL */ `
         email
         imageUri
         bio
-        following {
-          nextToken
-        }
+        following
         authored {
           nextToken
         }
@@ -182,7 +148,6 @@ export const onCreateFollowingConn = /* GraphQL */ `
       }
       createdAt
       updatedAt
-      userFollowingId
       followingConnUserId
       followingConnFollowerId
     }
@@ -198,9 +163,7 @@ export const onUpdateFollowingConn = /* GraphQL */ `
         email
         imageUri
         bio
-        following {
-          nextToken
-        }
+        following
         authored {
           nextToken
         }
@@ -216,9 +179,7 @@ export const onUpdateFollowingConn = /* GraphQL */ `
         email
         imageUri
         bio
-        following {
-          nextToken
-        }
+        following
         authored {
           nextToken
         }
@@ -230,7 +191,6 @@ export const onUpdateFollowingConn = /* GraphQL */ `
       }
       createdAt
       updatedAt
-      userFollowingId
       followingConnUserId
       followingConnFollowerId
     }
@@ -246,9 +206,7 @@ export const onDeleteFollowingConn = /* GraphQL */ `
         email
         imageUri
         bio
-        following {
-          nextToken
-        }
+        following
         authored {
           nextToken
         }
@@ -264,9 +222,7 @@ export const onDeleteFollowingConn = /* GraphQL */ `
         email
         imageUri
         bio
-        following {
-          nextToken
-        }
+        following
         authored {
           nextToken
         }
@@ -278,7 +234,6 @@ export const onDeleteFollowingConn = /* GraphQL */ `
       }
       createdAt
       updatedAt
-      userFollowingId
       followingConnUserId
       followingConnFollowerId
     }
@@ -299,9 +254,7 @@ export const onCreateStory = /* GraphQL */ `
         email
         imageUri
         bio
-        following {
-          nextToken
-        }
+        following
         authored {
           nextToken
         }
@@ -349,9 +302,7 @@ export const onUpdateStory = /* GraphQL */ `
         email
         imageUri
         bio
-        following {
-          nextToken
-        }
+        following
         authored {
           nextToken
         }
@@ -399,9 +350,7 @@ export const onDeleteStory = /* GraphQL */ `
         email
         imageUri
         bio
-        following {
-          nextToken
-        }
+        following
         authored {
           nextToken
         }
@@ -452,6 +401,7 @@ export const onCreateComment = /* GraphQL */ `
           email
           imageUri
           bio
+          following
           pseudonym
           birthdate
           isPublisher
@@ -496,6 +446,7 @@ export const onUpdateComment = /* GraphQL */ `
           email
           imageUri
           bio
+          following
           pseudonym
           birthdate
           isPublisher
@@ -540,6 +491,7 @@ export const onDeleteComment = /* GraphQL */ `
           email
           imageUri
           bio
+          following
           pseudonym
           birthdate
           isPublisher

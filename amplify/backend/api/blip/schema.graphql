@@ -8,7 +8,7 @@ type User @model @auth(rules: [{ allow: public}]) {
   email: String!
   imageUri: String
   bio: String
-  following: [FollowingConn] @hasMany
+  following: [ID]
   authored: [Story] @hasMany
   pseudonym: String
   birthdate: String

@@ -27,7 +27,7 @@ import { deleteStory } from '../src/graphql/mutations';
 import {graphqlOperation, API, Auth} from 'aws-amplify';
 import { getUser } from '../src/graphql/queries';
 import { updateUser } from '../src/graphql/mutations';
-//import { createFollowingID, deleteFollowingID } from '../src/graphql/mutations';
+import { createFollowingConn, deleteFollowingConn } from '../src/graphql/mutations';
 
 import { ItemParamList } from '../types';
 
@@ -520,13 +520,58 @@ const AudioListByAuthor = ({genre}) => {
     const route = useRoute();
     const {userID} = route.params
 
-    useEffect(() => {
+    // useEffect(() => {
+        
+    //     const fetchUser = async () => {
+    //         try {
+    //             const userData = await API.graphql(graphqlOperation(
+    //               getUser, {id: userID}))
+    //               if (userData) {
+    //                 setUser(userData.data.getUser);
+    //               }
+    //               console.log(userData.data.getUser);
+    //         } catch (e) {
+    //             console.log(e);
+    //           }  
+    //     }
+    //     fetchUser();   
+    //   }, [])
+
+      
+
+      const [currentUser, setCurrentUser] = useState(null)
+
+      const [Following, setFollowing] = useState(false);
+
+      
+
+      useEffect(() => {
+
         const fetchUser = async () => {
+
+            const userInfo = await Auth.currentAuthenticatedUser(); 
+
             try {
                 const userData = await API.graphql(graphqlOperation(
-                  getUser, {id: userID}))
-                  if (userData) {
+                    getUser, {id: userID}))
+                    if (userData) {
                     setUser(userData.data.getUser);
+                    }
+                    console.log(userData.data.getUser);
+            } catch (e) {
+                console.log(e);
+                }  
+
+            try {
+                
+
+                const userData = await API.graphql(graphqlOperation(
+                  getUser, {id: userInfo.attributes.sub}))
+                  if (userData) {
+                    setCurrentUser(userData.data.getUser);
+                  }
+                  if (userData.data.getUser.following.includes(userID)) {
+                    setFollowing(true);
                   }
                   console.log(userData.data.getUser);
             } catch (e) {
@@ -534,34 +579,77 @@ const AudioListByAuthor = ({genre}) => {
               }  
         }
         fetchUser();   
+        
       }, [])
+
+    //   useEffect(() => {
+    //     if (currentUser?.following) {
+    //       if (currentUser?.following.includes(User.id)) {
+    //             setFollowing(true);
+    //           }
+    //     } else {null}   
+    //   }, [])
 
 
     const [SelectedId, setSelectedId] = useState(1);
 
-    const [Following, setFollowing] = useState(false);
+
+    // useEffect(() => {
+    //     if (currentUser?.following?.includes(User?.id)) {
+    //         setFollowing(true);
+    //         console.log('this user is being followed')
+    //     }
+    // }, [])
 
     const FollowUser = async () => {
 
-        const userInfo = await Auth.currentAuthenticatedUser();
+        console.log(currentUser)
 
-        const followingId = await API.graphql(graphqlOperation(createFollowingID, { 
-            input: {followingIDUserId: userInfo.attributes.sub, followingIDFollowerId: User?.id}}))
+        const updatedUser = {
+            id: currentUser.id,
+            //following: currentUser?.following?.includes(User?.id) ? currentUser?.following?.filter(item => item !== User?.id) :
+            following: currentUser?.following !== null || [] ? [...currentUser?.following, User?.id] : [User?.id]
+        }
 
-        console.log(followingId)
+        let followingInfo = await API.graphql(graphqlOperation(updateUser, { input: updatedUser }))
+        console.log(followingInfo)
+
     }
 
-    function FollowButton () {
-        if (Following === true) {
-            setFollowing(false)
+    const unFollowUser = async () => {
+
+        console.log(currentUser)
+
+        const updatedUser = {
+            id: currentUser.id,
+            following:  currentUser?.following?.filter(item => item !== User?.id) 
+            //currentUser?.following !== null || [] ? [...currentUser?.following, User?.id] : [User?.id]
         }
-        else {
-            setFollowing(true)
-            FollowUser();
+
+        if (currentUser?.following?.includes(User?.id)) {
+            let followingInfo = await API.graphql(graphqlOperation(updateUser, { input: updatedUser }))
+            console.log(followingInfo)
         }
+        
+        
+
     }
 
     
+
+    function FollowButton () {
+        if (Following === true) {
+            unFollowUser();
+            setFollowing(false);
+        }
+        if (Following === false) {
+            FollowUser();
+            setFollowing(true)
+            
+        }
+    }
+
+
 
 
 
@@ -573,7 +661,7 @@ const AudioListByAuthor = ({genre}) => {
                 data={Storys}
                 renderItem={renderItem}
                 keyExtractor={item => item.id}
-                extraData={true}
+                //extraData={Following}
                 //stickyHeaderIndices={[0]}
                 //onScroll={event => {setScrollOffset(event.nativeEvent.contentOffset.y);}}
                 onScroll={Animated.event(

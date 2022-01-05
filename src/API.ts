@@ -8,6 +8,7 @@ export type CreateUserInput = {
   email: string,
   imageUri?: string | null,
   bio?: string | null,
+  following?: Array< string | null > | null,
   pseudonym?: string | null,
   birthdate?: string | null,
   isPublisher?: boolean | null,
@@ -18,6 +19,7 @@ export type ModelUserConditionInput = {
   email?: ModelStringInput | null,
   imageUri?: ModelStringInput | null,
   bio?: ModelStringInput | null,
+  following?: ModelIDInput | null,
   pseudonym?: ModelStringInput | null,
   birthdate?: ModelStringInput | null,
   isPublisher?: ModelBooleanInput | null,
@@ -66,6 +68,22 @@ export type ModelSizeInput = {
   between?: Array< number | null > | null,
 };
 
+export type ModelIDInput = {
+  ne?: string | null,
+  eq?: string | null,
+  le?: string | null,
+  lt?: string | null,
+  ge?: string | null,
+  gt?: string | null,
+  contains?: string | null,
+  notContains?: string | null,
+  between?: Array< string | null > | null,
+  beginsWith?: string | null,
+  attributeExists?: boolean | null,
+  attributeType?: ModelAttributeTypes | null,
+  size?: ModelSizeInput | null,
+};
+
 export type ModelBooleanInput = {
   ne?: boolean | null,
   eq?: boolean | null,
@@ -80,31 +98,13 @@ export type User = {
   email: string,
   imageUri?: string | null,
   bio?: string | null,
-  following?: ModelFollowingConnConnection | null,
+  following?: Array< string | null > | null,
   authored?: ModelStoryConnection | null,
   pseudonym?: string | null,
   birthdate?: string | null,
   isPublisher?: boolean | null,
   createdAt: string,
   updatedAt: string,
-};
-
-export type ModelFollowingConnConnection = {
-  __typename: "ModelFollowingConnConnection",
-  items:  Array<FollowingConn | null >,
-  nextToken?: string | null,
-};
-
-export type FollowingConn = {
-  __typename: "FollowingConn",
-  id: string,
-  user?: User | null,
-  follower?: User | null,
-  createdAt: string,
-  updatedAt: string,
-  userFollowingId?: string | null,
-  followingConnUserId?: string | null,
-  followingConnFollowerId?: string | null,
 };
 
 export type ModelStoryConnection = {
@@ -157,6 +157,7 @@ export type UpdateUserInput = {
   email?: string | null,
   imageUri?: string | null,
   bio?: string | null,
+  following?: Array< string | null > | null,
   pseudonym?: string | null,
   birthdate?: string | null,
   isPublisher?: boolean | null,
@@ -168,7 +169,6 @@ export type DeleteUserInput = {
 
 export type CreateFollowingConnInput = {
   id?: string | null,
-  userFollowingId?: string | null,
   followingConnUserId?: string | null,
   followingConnFollowerId?: string | null,
 };
@@ -177,30 +177,23 @@ export type ModelFollowingConnConditionInput = {
   and?: Array< ModelFollowingConnConditionInput | null > | null,
   or?: Array< ModelFollowingConnConditionInput | null > | null,
   not?: ModelFollowingConnConditionInput | null,
-  userFollowingId?: ModelIDInput | null,
   followingConnUserId?: ModelIDInput | null,
   followingConnFollowerId?: ModelIDInput | null,
 };
 
-export type ModelIDInput = {
-  ne?: string | null,
-  eq?: string | null,
-  le?: string | null,
-  lt?: string | null,
-  ge?: string | null,
-  gt?: string | null,
-  contains?: string | null,
-  notContains?: string | null,
-  between?: Array< string | null > | null,
-  beginsWith?: string | null,
-  attributeExists?: boolean | null,
-  attributeType?: ModelAttributeTypes | null,
-  size?: ModelSizeInput | null,
+export type FollowingConn = {
+  __typename: "FollowingConn",
+  id: string,
+  user?: User | null,
+  follower?: User | null,
+  createdAt: string,
+  updatedAt: string,
+  followingConnUserId?: string | null,
+  followingConnFollowerId?: string | null,
 };
 
 export type UpdateFollowingConnInput = {
   id: string,
-  userFollowingId?: string | null,
   followingConnUserId?: string | null,
   followingConnFollowerId?: string | null,
 };
@@ -308,6 +301,7 @@ export type ModelUserFilterInput = {
   email?: ModelStringInput | null,
   imageUri?: ModelStringInput | null,
   bio?: ModelStringInput | null,
+  following?: ModelIDInput | null,
   pseudonym?: ModelStringInput | null,
   birthdate?: ModelStringInput | null,
   isPublisher?: ModelBooleanInput | null,
@@ -327,9 +321,14 @@ export type ModelFollowingConnFilterInput = {
   and?: Array< ModelFollowingConnFilterInput | null > | null,
   or?: Array< ModelFollowingConnFilterInput | null > | null,
   not?: ModelFollowingConnFilterInput | null,
-  userFollowingId?: ModelIDInput | null,
   followingConnUserId?: ModelIDInput | null,
   followingConnFollowerId?: ModelIDInput | null,
+};
+
+export type ModelFollowingConnConnection = {
+  __typename: "ModelFollowingConnConnection",
+  items:  Array<FollowingConn | null >,
+  nextToken?: string | null,
 };
 
 export type ModelStoryFilterInput = {
@@ -374,19 +373,7 @@ export type CreateUserMutation = {
     email: string,
     imageUri?: string | null,
     bio?: string | null,
-    following?:  {
-      __typename: "ModelFollowingConnConnection",
-      items:  Array< {
-        __typename: "FollowingConn",
-        id: string,
-        createdAt: string,
-        updatedAt: string,
-        userFollowingId?: string | null,
-        followingConnUserId?: string | null,
-        followingConnFollowerId?: string | null,
-      } | null >,
-      nextToken?: string | null,
-    } | null,
+    following?: Array< string | null > | null,
     authored?:  {
       __typename: "ModelStoryConnection",
       items:  Array< {
@@ -429,19 +416,7 @@ export type UpdateUserMutation = {
     email: string,
     imageUri?: string | null,
     bio?: string | null,
-    following?:  {
-      __typename: "ModelFollowingConnConnection",
-      items:  Array< {
-        __typename: "FollowingConn",
-        id: string,
-        createdAt: string,
-        updatedAt: string,
-        userFollowingId?: string | null,
-        followingConnUserId?: string | null,
-        followingConnFollowerId?: string | null,
-      } | null >,
-      nextToken?: string | null,
-    } | null,
+    following?: Array< string | null > | null,
     authored?:  {
       __typename: "ModelStoryConnection",
       items:  Array< {
@@ -484,19 +459,7 @@ export type DeleteUserMutation = {
     email: string,
     imageUri?: string | null,
     bio?: string | null,
-    following?:  {
-      __typename: "ModelFollowingConnConnection",
-      items:  Array< {
-        __typename: "FollowingConn",
-        id: string,
-        createdAt: string,
-        updatedAt: string,
-        userFollowingId?: string | null,
-        followingConnUserId?: string | null,
-        followingConnFollowerId?: string | null,
-      } | null >,
-      nextToken?: string | null,
-    } | null,
+    following?: Array< string | null > | null,
     authored?:  {
       __typename: "ModelStoryConnection",
       items:  Array< {
@@ -542,10 +505,7 @@ export type CreateFollowingConnMutation = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -563,10 +523,7 @@ export type CreateFollowingConnMutation = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -579,7 +536,6 @@ export type CreateFollowingConnMutation = {
     } | null,
     createdAt: string,
     updatedAt: string,
-    userFollowingId?: string | null,
     followingConnUserId?: string | null,
     followingConnFollowerId?: string | null,
   } | null,
@@ -601,10 +557,7 @@ export type UpdateFollowingConnMutation = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -622,10 +575,7 @@ export type UpdateFollowingConnMutation = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -638,7 +588,6 @@ export type UpdateFollowingConnMutation = {
     } | null,
     createdAt: string,
     updatedAt: string,
-    userFollowingId?: string | null,
     followingConnUserId?: string | null,
     followingConnFollowerId?: string | null,
   } | null,
@@ -660,10 +609,7 @@ export type DeleteFollowingConnMutation = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -681,10 +627,7 @@ export type DeleteFollowingConnMutation = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -697,7 +640,6 @@ export type DeleteFollowingConnMutation = {
     } | null,
     createdAt: string,
     updatedAt: string,
-    userFollowingId?: string | null,
     followingConnUserId?: string | null,
     followingConnFollowerId?: string | null,
   } | null,
@@ -724,10 +666,7 @@ export type CreateStoryMutation = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -784,10 +723,7 @@ export type UpdateStoryMutation = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -844,10 +780,7 @@ export type DeleteStoryMutation = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -908,6 +841,7 @@ export type CreateCommentMutation = {
         email: string,
         imageUri?: string | null,
         bio?: string | null,
+        following?: Array< string | null > | null,
         pseudonym?: string | null,
         birthdate?: string | null,
         isPublisher?: boolean | null,
@@ -960,6 +894,7 @@ export type UpdateCommentMutation = {
         email: string,
         imageUri?: string | null,
         bio?: string | null,
+        following?: Array< string | null > | null,
         pseudonym?: string | null,
         birthdate?: string | null,
         isPublisher?: boolean | null,
@@ -1012,6 +947,7 @@ export type DeleteCommentMutation = {
         email: string,
         imageUri?: string | null,
         bio?: string | null,
+        following?: Array< string | null > | null,
         pseudonym?: string | null,
         birthdate?: string | null,
         isPublisher?: boolean | null,
@@ -1051,19 +987,7 @@ export type GetUserQuery = {
     email: string,
     imageUri?: string | null,
     bio?: string | null,
-    following?:  {
-      __typename: "ModelFollowingConnConnection",
-      items:  Array< {
-        __typename: "FollowingConn",
-        id: string,
-        createdAt: string,
-        updatedAt: string,
-        userFollowingId?: string | null,
-        followingConnUserId?: string | null,
-        followingConnFollowerId?: string | null,
-      } | null >,
-      nextToken?: string | null,
-    } | null,
+    following?: Array< string | null > | null,
     authored?:  {
       __typename: "ModelStoryConnection",
       items:  Array< {
@@ -1109,10 +1033,7 @@ export type ListUsersQuery = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -1142,10 +1063,7 @@ export type GetFollowingConnQuery = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -1163,10 +1081,7 @@ export type GetFollowingConnQuery = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -1179,7 +1094,6 @@ export type GetFollowingConnQuery = {
     } | null,
     createdAt: string,
     updatedAt: string,
-    userFollowingId?: string | null,
     followingConnUserId?: string | null,
     followingConnFollowerId?: string | null,
   } | null,
@@ -1204,6 +1118,7 @@ export type ListFollowingConnsQuery = {
         email: string,
         imageUri?: string | null,
         bio?: string | null,
+        following?: Array< string | null > | null,
         pseudonym?: string | null,
         birthdate?: string | null,
         isPublisher?: boolean | null,
@@ -1217,6 +1132,7 @@ export type ListFollowingConnsQuery = {
         email: string,
         imageUri?: string | null,
         bio?: string | null,
+        following?: Array< string | null > | null,
         pseudonym?: string | null,
         birthdate?: string | null,
         isPublisher?: boolean | null,
@@ -1225,7 +1141,6 @@ export type ListFollowingConnsQuery = {
       } | null,
       createdAt: string,
       updatedAt: string,
-      userFollowingId?: string | null,
       followingConnUserId?: string | null,
       followingConnFollowerId?: string | null,
     } | null >,
@@ -1253,10 +1168,7 @@ export type GetStoryQuery = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -1316,6 +1228,7 @@ export type ListStoriesQuery = {
         email: string,
         imageUri?: string | null,
         bio?: string | null,
+        following?: Array< string | null > | null,
         pseudonym?: string | null,
         birthdate?: string | null,
         isPublisher?: boolean | null,
@@ -1363,6 +1276,7 @@ export type GetCommentQuery = {
         email: string,
         imageUri?: string | null,
         bio?: string | null,
+        following?: Array< string | null > | null,
         pseudonym?: string | null,
         birthdate?: string | null,
         isPublisher?: boolean | null,
@@ -1438,19 +1352,7 @@ export type OnCreateUserSubscription = {
     email: string,
     imageUri?: string | null,
     bio?: string | null,
-    following?:  {
-      __typename: "ModelFollowingConnConnection",
-      items:  Array< {
-        __typename: "FollowingConn",
-        id: string,
-        createdAt: string,
-        updatedAt: string,
-        userFollowingId?: string | null,
-        followingConnUserId?: string | null,
-        followingConnFollowerId?: string | null,
-      } | null >,
-      nextToken?: string | null,
-    } | null,
+    following?: Array< string | null > | null,
     authored?:  {
       __typename: "ModelStoryConnection",
       items:  Array< {
@@ -1488,19 +1390,7 @@ export type OnUpdateUserSubscription = {
     email: string,
     imageUri?: string | null,
     bio?: string | null,
-    following?:  {
-      __typename: "ModelFollowingConnConnection",
-      items:  Array< {
-        __typename: "FollowingConn",
-        id: string,
-        createdAt: string,
-        updatedAt: string,
-        userFollowingId?: string | null,
-        followingConnUserId?: string | null,
-        followingConnFollowerId?: string | null,
-      } | null >,
-      nextToken?: string | null,
-    } | null,
+    following?: Array< string | null > | null,
     authored?:  {
       __typename: "ModelStoryConnection",
       items:  Array< {
@@ -1538,19 +1428,7 @@ export type OnDeleteUserSubscription = {
     email: string,
     imageUri?: string | null,
     bio?: string | null,
-    following?:  {
-      __typename: "ModelFollowingConnConnection",
-      items:  Array< {
-        __typename: "FollowingConn",
-        id: string,
-        createdAt: string,
-        updatedAt: string,
-        userFollowingId?: string | null,
-        followingConnUserId?: string | null,
-        followingConnFollowerId?: string | null,
-      } | null >,
-      nextToken?: string | null,
-    } | null,
+    following?: Array< string | null > | null,
     authored?:  {
       __typename: "ModelStoryConnection",
       items:  Array< {
@@ -1591,10 +1469,7 @@ export type OnCreateFollowingConnSubscription = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -1612,10 +1487,7 @@ export type OnCreateFollowingConnSubscription = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -1628,7 +1500,6 @@ export type OnCreateFollowingConnSubscription = {
     } | null,
     createdAt: string,
     updatedAt: string,
-    userFollowingId?: string | null,
     followingConnUserId?: string | null,
     followingConnFollowerId?: string | null,
   } | null,
@@ -1645,10 +1516,7 @@ export type OnUpdateFollowingConnSubscription = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -1666,10 +1534,7 @@ export type OnUpdateFollowingConnSubscription = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -1682,7 +1547,6 @@ export type OnUpdateFollowingConnSubscription = {
     } | null,
     createdAt: string,
     updatedAt: string,
-    userFollowingId?: string | null,
     followingConnUserId?: string | null,
     followingConnFollowerId?: string | null,
   } | null,
@@ -1699,10 +1563,7 @@ export type OnDeleteFollowingConnSubscription = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -1720,10 +1581,7 @@ export type OnDeleteFollowingConnSubscription = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -1736,7 +1594,6 @@ export type OnDeleteFollowingConnSubscription = {
     } | null,
     createdAt: string,
     updatedAt: string,
-    userFollowingId?: string | null,
     followingConnUserId?: string | null,
     followingConnFollowerId?: string | null,
   } | null,
@@ -1758,10 +1615,7 @@ export type OnCreateStorySubscription = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -1813,10 +1667,7 @@ export type OnUpdateStorySubscription = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -1868,10 +1719,7 @@ export type OnDeleteStorySubscription = {
       email: string,
       imageUri?: string | null,
       bio?: string | null,
-      following?:  {
-        __typename: "ModelFollowingConnConnection",
-        nextToken?: string | null,
-      } | null,
+      following?: Array< string | null > | null,
       authored?:  {
         __typename: "ModelStoryConnection",
         nextToken?: string | null,
@@ -1927,6 +1775,7 @@ export type OnCreateCommentSubscription = {
         email: string,
         imageUri?: string | null,
         bio?: string | null,
+        following?: Array< string | null > | null,
         pseudonym?: string | null,
         birthdate?: string | null,
         isPublisher?: boolean | null,
@@ -1974,6 +1823,7 @@ export type OnUpdateCommentSubscription = {
         email: string,
         imageUri?: string | null,
         bio?: string | null,
+        following?: Array< string | null > | null,
         pseudonym?: string | null,
         birthdate?: string | null,
         isPublisher?: boolean | null,
@@ -2021,6 +1871,7 @@ export type OnDeleteCommentSubscription = {
         email: string,
         imageUri?: string | null,
         bio?: string | null,
+        following?: Array< string | null > | null,
         pseudonym?: string | null,
         birthdate?: string | null,
         isPublisher?: boolean | null,

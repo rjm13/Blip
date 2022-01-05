@@ -10,17 +10,7 @@ export const getUser = /* GraphQL */ `
       email
       imageUri
       bio
-      following {
-        items {
-          id
-          createdAt
-          updatedAt
-          userFollowingId
-          followingConnUserId
-          followingConnFollowerId
-        }
-        nextToken
-      }
+      following
       authored {
         items {
           id
@@ -61,9 +51,7 @@ export const listUsers = /* GraphQL */ `
         email
         imageUri
         bio
-        following {
-          nextToken
-        }
+        following
         authored {
           nextToken
         }
@@ -87,9 +75,7 @@ export const getFollowingConn = /* GraphQL */ `
         email
         imageUri
         bio
-        following {
-          nextToken
-        }
+        following
         authored {
           nextToken
         }
@@ -105,9 +91,7 @@ export const getFollowingConn = /* GraphQL */ `
         email
         imageUri
         bio
-        following {
-          nextToken
-        }
+        following
         authored {
           nextToken
         }
@@ -119,7 +103,6 @@ export const getFollowingConn = /* GraphQL */ `
       }
       createdAt
       updatedAt
-      userFollowingId
       followingConnUserId
       followingConnFollowerId
     }
@@ -140,6 +123,7 @@ export const listFollowingConns = /* GraphQL */ `
           email
           imageUri
           bio
+          following
           pseudonym
           birthdate
           isPublisher
@@ -152,6 +136,7 @@ export const listFollowingConns = /* GraphQL */ `
           email
           imageUri
           bio
+          following
           pseudonym
           birthdate
           isPublisher
@@ -160,7 +145,6 @@ export const listFollowingConns = /* GraphQL */ `
         }
         createdAt
         updatedAt
-        userFollowingId
         followingConnUserId
         followingConnFollowerId
       }
@@ -183,9 +167,7 @@ export const getStory = /* GraphQL */ `
         email
         imageUri
         bio
-        following {
-          nextToken
-        }
+        following
         authored {
           nextToken
         }
@@ -238,6 +220,7 @@ export const listStories = /* GraphQL */ `
           email
           imageUri
           bio
+          following
           pseudonym
           birthdate
           isPublisher
@@ -278,6 +261,7 @@ export const getComment = /* GraphQL */ `
           email
           imageUri
           bio
+          following
           pseudonym
           birthdate
           isPublisher
