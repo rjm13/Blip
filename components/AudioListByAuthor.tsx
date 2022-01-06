@@ -552,28 +552,40 @@ const AudioListByAuthor = ({genre}) => {
             const userInfo = await Auth.currentAuthenticatedUser(); 
 
             try {
-                const userData = await API.graphql(graphqlOperation(
+                const authorData = await API.graphql(graphqlOperation(
                     getUser, {id: userID}))
-                    if (userData) {
-                    setUser(userData.data.getUser);
+                    if (authorData) {
+                    setUser(authorData.data.getUser);
                     }
-                    console.log(userData.data.getUser);
-            } catch (e) {
-                console.log(e);
-                }  
+                    console.log(authorData.data.getUser);
+            // } catch (e) {
+            //     console.log(e);
+            //     }  
 
-            try {
-                
-
+            // try {                
                 const userData = await API.graphql(graphqlOperation(
                   getUser, {id: userInfo.attributes.sub}))
                   if (userData) {
                     setCurrentUser(userData.data.getUser);
-                  }
-                  if (userData.data.getUser.following.includes(userID)) {
+                  } 
+            // } catch (e) {
+            //     console.log(e);
+            //   }  
+            //   try {                
+                const followData = await API.graphql(graphqlOperation(
+                    listFollowingConns, {
+                        filter: {
+                            authorID: {
+                                eq: authorData.data.getUser.id
+                            },
+                            followerID: {
+                                eq: userData.data.getUser.id
+                            }
+                        }
+                    }))
+                  if (followData.data.listFollowingConns.items.length === 1) {
                     setFollowing(true);
-                  }
-                  console.log(userData.data.getUser);
+                  } 
             } catch (e) {
                 console.log(e);
               }  
