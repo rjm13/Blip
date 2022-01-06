@@ -33,6 +33,16 @@ export const getUser = /* GraphQL */ `
       pseudonym
       birthdate
       isPublisher
+      followers {
+        items {
+          id
+          followerID
+          authorID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
@@ -58,6 +68,9 @@ export const listUsers = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -69,7 +82,9 @@ export const getFollowingConn = /* GraphQL */ `
   query GetFollowingConn($id: ID!) {
     getFollowingConn(id: $id) {
       id
-      user {
+      followerID
+      authorID
+      author {
         id
         name
         email
@@ -82,6 +97,9 @@ export const getFollowingConn = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -98,13 +116,14 @@ export const getFollowingConn = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
       createdAt
       updatedAt
-      followingConnUserId
-      followingConnFollowerId
     }
   }
 `;
@@ -117,7 +136,9 @@ export const listFollowingConns = /* GraphQL */ `
     listFollowingConns(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        user {
+        followerID
+        authorID
+        author {
           id
           name
           email
@@ -145,8 +166,6 @@ export const listFollowingConns = /* GraphQL */ `
         }
         createdAt
         updatedAt
-        followingConnUserId
-        followingConnFollowerId
       }
       nextToken
     }
@@ -174,6 +193,9 @@ export const getStory = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }

@@ -3,7 +3,7 @@
 input AMPLIFY { globalAuthRule: AuthRule = { allow: public } } # FOR TESTING ONLY!
 
 type User @model @auth(rules: [{ allow: public}]) {
-  id: ID!
+  id: ID! 
   name: String
   email: String!
   imageUri: String
@@ -13,14 +13,17 @@ type User @model @auth(rules: [{ allow: public}]) {
   pseudonym: String
   birthdate: String
   isPublisher: Boolean
+  followers: [FollowingConn] @hasMany(indexName: "byFollower", fields: "id")
 }
 
 type FollowingConn 
   @model @auth(rules: [{ allow: public}])
 {
     id: ID!
-    user: User @hasOne
-    follower: User @hasOne
+    followerID: ID @index(name: "byFollower", sortKeyFields: ["authorID"])
+    authorID: ID @index(name: "byAuthor", sortKeyFields: ["followerID"])
+    author: User @hasOne (fields: ["authorID"])
+    follower: User @hasOne (fields: ["followerID"])
 }
 
 type Story @model @auth(rules: [{ allow: public}])

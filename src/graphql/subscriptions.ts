@@ -33,6 +33,16 @@ export const onCreateUser = /* GraphQL */ `
       pseudonym
       birthdate
       isPublisher
+      followers {
+        items {
+          id
+          followerID
+          authorID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
@@ -69,6 +79,16 @@ export const onUpdateUser = /* GraphQL */ `
       pseudonym
       birthdate
       isPublisher
+      followers {
+        items {
+          id
+          followerID
+          authorID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
@@ -105,6 +125,16 @@ export const onDeleteUser = /* GraphQL */ `
       pseudonym
       birthdate
       isPublisher
+      followers {
+        items {
+          id
+          followerID
+          authorID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
@@ -114,7 +144,9 @@ export const onCreateFollowingConn = /* GraphQL */ `
   subscription OnCreateFollowingConn {
     onCreateFollowingConn {
       id
-      user {
+      followerID
+      authorID
+      author {
         id
         name
         email
@@ -127,6 +159,9 @@ export const onCreateFollowingConn = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -143,13 +178,14 @@ export const onCreateFollowingConn = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
       createdAt
       updatedAt
-      followingConnUserId
-      followingConnFollowerId
     }
   }
 `;
@@ -157,7 +193,9 @@ export const onUpdateFollowingConn = /* GraphQL */ `
   subscription OnUpdateFollowingConn {
     onUpdateFollowingConn {
       id
-      user {
+      followerID
+      authorID
+      author {
         id
         name
         email
@@ -170,6 +208,9 @@ export const onUpdateFollowingConn = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -186,13 +227,14 @@ export const onUpdateFollowingConn = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
       createdAt
       updatedAt
-      followingConnUserId
-      followingConnFollowerId
     }
   }
 `;
@@ -200,7 +242,9 @@ export const onDeleteFollowingConn = /* GraphQL */ `
   subscription OnDeleteFollowingConn {
     onDeleteFollowingConn {
       id
-      user {
+      followerID
+      authorID
+      author {
         id
         name
         email
@@ -213,6 +257,9 @@ export const onDeleteFollowingConn = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -229,13 +276,14 @@ export const onDeleteFollowingConn = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
       createdAt
       updatedAt
-      followingConnUserId
-      followingConnFollowerId
     }
   }
 `;
@@ -261,6 +309,9 @@ export const onCreateStory = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -309,6 +360,9 @@ export const onUpdateStory = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -357,6 +411,9 @@ export const onDeleteStory = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }

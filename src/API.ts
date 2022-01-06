@@ -103,6 +103,7 @@ export type User = {
   pseudonym?: string | null,
   birthdate?: string | null,
   isPublisher?: boolean | null,
+  followers?: ModelFollowingConnConnection | null,
   createdAt: string,
   updatedAt: string,
 };
@@ -151,6 +152,23 @@ export type Comment = {
   commentStoryId?: string | null,
 };
 
+export type ModelFollowingConnConnection = {
+  __typename: "ModelFollowingConnConnection",
+  items:  Array<FollowingConn | null >,
+  nextToken?: string | null,
+};
+
+export type FollowingConn = {
+  __typename: "FollowingConn",
+  id: string,
+  followerID?: string | null,
+  authorID?: string | null,
+  author?: User | null,
+  follower?: User | null,
+  createdAt: string,
+  updatedAt: string,
+};
+
 export type UpdateUserInput = {
   id: string,
   name?: string | null,
@@ -169,33 +187,22 @@ export type DeleteUserInput = {
 
 export type CreateFollowingConnInput = {
   id?: string | null,
-  followingConnUserId?: string | null,
-  followingConnFollowerId?: string | null,
+  followerID?: string | null,
+  authorID?: string | null,
 };
 
 export type ModelFollowingConnConditionInput = {
+  followerID?: ModelIDInput | null,
+  authorID?: ModelIDInput | null,
   and?: Array< ModelFollowingConnConditionInput | null > | null,
   or?: Array< ModelFollowingConnConditionInput | null > | null,
   not?: ModelFollowingConnConditionInput | null,
-  followingConnUserId?: ModelIDInput | null,
-  followingConnFollowerId?: ModelIDInput | null,
-};
-
-export type FollowingConn = {
-  __typename: "FollowingConn",
-  id: string,
-  user?: User | null,
-  follower?: User | null,
-  createdAt: string,
-  updatedAt: string,
-  followingConnUserId?: string | null,
-  followingConnFollowerId?: string | null,
 };
 
 export type UpdateFollowingConnInput = {
   id: string,
-  followingConnUserId?: string | null,
-  followingConnFollowerId?: string | null,
+  followerID?: string | null,
+  authorID?: string | null,
 };
 
 export type DeleteFollowingConnInput = {
@@ -318,17 +325,11 @@ export type ModelUserConnection = {
 
 export type ModelFollowingConnFilterInput = {
   id?: ModelIDInput | null,
+  followerID?: ModelIDInput | null,
+  authorID?: ModelIDInput | null,
   and?: Array< ModelFollowingConnFilterInput | null > | null,
   or?: Array< ModelFollowingConnFilterInput | null > | null,
   not?: ModelFollowingConnFilterInput | null,
-  followingConnUserId?: ModelIDInput | null,
-  followingConnFollowerId?: ModelIDInput | null,
-};
-
-export type ModelFollowingConnConnection = {
-  __typename: "ModelFollowingConnConnection",
-  items:  Array<FollowingConn | null >,
-  nextToken?: string | null,
 };
 
 export type ModelStoryFilterInput = {
@@ -398,6 +399,18 @@ export type CreateUserMutation = {
     pseudonym?: string | null,
     birthdate?: string | null,
     isPublisher?: boolean | null,
+    followers?:  {
+      __typename: "ModelFollowingConnConnection",
+      items:  Array< {
+        __typename: "FollowingConn",
+        id: string,
+        followerID?: string | null,
+        authorID?: string | null,
+        createdAt: string,
+        updatedAt: string,
+      } | null >,
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -441,6 +454,18 @@ export type UpdateUserMutation = {
     pseudonym?: string | null,
     birthdate?: string | null,
     isPublisher?: boolean | null,
+    followers?:  {
+      __typename: "ModelFollowingConnConnection",
+      items:  Array< {
+        __typename: "FollowingConn",
+        id: string,
+        followerID?: string | null,
+        authorID?: string | null,
+        createdAt: string,
+        updatedAt: string,
+      } | null >,
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -484,6 +509,18 @@ export type DeleteUserMutation = {
     pseudonym?: string | null,
     birthdate?: string | null,
     isPublisher?: boolean | null,
+    followers?:  {
+      __typename: "ModelFollowingConnConnection",
+      items:  Array< {
+        __typename: "FollowingConn",
+        id: string,
+        followerID?: string | null,
+        authorID?: string | null,
+        createdAt: string,
+        updatedAt: string,
+      } | null >,
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -498,7 +535,9 @@ export type CreateFollowingConnMutation = {
   createFollowingConn?:  {
     __typename: "FollowingConn",
     id: string,
-    user?:  {
+    followerID?: string | null,
+    authorID?: string | null,
+    author?:  {
       __typename: "User",
       id: string,
       name?: string | null,
@@ -513,6 +552,10 @@ export type CreateFollowingConnMutation = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
@@ -531,13 +574,15 @@ export type CreateFollowingConnMutation = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
     createdAt: string,
     updatedAt: string,
-    followingConnUserId?: string | null,
-    followingConnFollowerId?: string | null,
   } | null,
 };
 
@@ -550,7 +595,9 @@ export type UpdateFollowingConnMutation = {
   updateFollowingConn?:  {
     __typename: "FollowingConn",
     id: string,
-    user?:  {
+    followerID?: string | null,
+    authorID?: string | null,
+    author?:  {
       __typename: "User",
       id: string,
       name?: string | null,
@@ -565,6 +612,10 @@ export type UpdateFollowingConnMutation = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
@@ -583,13 +634,15 @@ export type UpdateFollowingConnMutation = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
     createdAt: string,
     updatedAt: string,
-    followingConnUserId?: string | null,
-    followingConnFollowerId?: string | null,
   } | null,
 };
 
@@ -602,7 +655,9 @@ export type DeleteFollowingConnMutation = {
   deleteFollowingConn?:  {
     __typename: "FollowingConn",
     id: string,
-    user?:  {
+    followerID?: string | null,
+    authorID?: string | null,
+    author?:  {
       __typename: "User",
       id: string,
       name?: string | null,
@@ -617,6 +672,10 @@ export type DeleteFollowingConnMutation = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
@@ -635,13 +694,15 @@ export type DeleteFollowingConnMutation = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
     createdAt: string,
     updatedAt: string,
-    followingConnUserId?: string | null,
-    followingConnFollowerId?: string | null,
   } | null,
 };
 
@@ -674,6 +735,10 @@ export type CreateStoryMutation = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
@@ -731,6 +796,10 @@ export type UpdateStoryMutation = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
@@ -788,6 +857,10 @@ export type DeleteStoryMutation = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
@@ -1012,6 +1085,18 @@ export type GetUserQuery = {
     pseudonym?: string | null,
     birthdate?: string | null,
     isPublisher?: boolean | null,
+    followers?:  {
+      __typename: "ModelFollowingConnConnection",
+      items:  Array< {
+        __typename: "FollowingConn",
+        id: string,
+        followerID?: string | null,
+        authorID?: string | null,
+        createdAt: string,
+        updatedAt: string,
+      } | null >,
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -1041,6 +1126,10 @@ export type ListUsersQuery = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null >,
@@ -1056,7 +1145,9 @@ export type GetFollowingConnQuery = {
   getFollowingConn?:  {
     __typename: "FollowingConn",
     id: string,
-    user?:  {
+    followerID?: string | null,
+    authorID?: string | null,
+    author?:  {
       __typename: "User",
       id: string,
       name?: string | null,
@@ -1071,6 +1162,10 @@ export type GetFollowingConnQuery = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
@@ -1089,13 +1184,15 @@ export type GetFollowingConnQuery = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
     createdAt: string,
     updatedAt: string,
-    followingConnUserId?: string | null,
-    followingConnFollowerId?: string | null,
   } | null,
 };
 
@@ -1111,7 +1208,9 @@ export type ListFollowingConnsQuery = {
     items:  Array< {
       __typename: "FollowingConn",
       id: string,
-      user?:  {
+      followerID?: string | null,
+      authorID?: string | null,
+      author?:  {
         __typename: "User",
         id: string,
         name?: string | null,
@@ -1141,8 +1240,6 @@ export type ListFollowingConnsQuery = {
       } | null,
       createdAt: string,
       updatedAt: string,
-      followingConnUserId?: string | null,
-      followingConnFollowerId?: string | null,
     } | null >,
     nextToken?: string | null,
   } | null,
@@ -1176,6 +1273,10 @@ export type GetStoryQuery = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
@@ -1377,6 +1478,18 @@ export type OnCreateUserSubscription = {
     pseudonym?: string | null,
     birthdate?: string | null,
     isPublisher?: boolean | null,
+    followers?:  {
+      __typename: "ModelFollowingConnConnection",
+      items:  Array< {
+        __typename: "FollowingConn",
+        id: string,
+        followerID?: string | null,
+        authorID?: string | null,
+        createdAt: string,
+        updatedAt: string,
+      } | null >,
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -1415,6 +1528,18 @@ export type OnUpdateUserSubscription = {
     pseudonym?: string | null,
     birthdate?: string | null,
     isPublisher?: boolean | null,
+    followers?:  {
+      __typename: "ModelFollowingConnConnection",
+      items:  Array< {
+        __typename: "FollowingConn",
+        id: string,
+        followerID?: string | null,
+        authorID?: string | null,
+        createdAt: string,
+        updatedAt: string,
+      } | null >,
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -1453,6 +1578,18 @@ export type OnDeleteUserSubscription = {
     pseudonym?: string | null,
     birthdate?: string | null,
     isPublisher?: boolean | null,
+    followers?:  {
+      __typename: "ModelFollowingConnConnection",
+      items:  Array< {
+        __typename: "FollowingConn",
+        id: string,
+        followerID?: string | null,
+        authorID?: string | null,
+        createdAt: string,
+        updatedAt: string,
+      } | null >,
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -1462,7 +1599,9 @@ export type OnCreateFollowingConnSubscription = {
   onCreateFollowingConn?:  {
     __typename: "FollowingConn",
     id: string,
-    user?:  {
+    followerID?: string | null,
+    authorID?: string | null,
+    author?:  {
       __typename: "User",
       id: string,
       name?: string | null,
@@ -1477,6 +1616,10 @@ export type OnCreateFollowingConnSubscription = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
@@ -1495,13 +1638,15 @@ export type OnCreateFollowingConnSubscription = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
     createdAt: string,
     updatedAt: string,
-    followingConnUserId?: string | null,
-    followingConnFollowerId?: string | null,
   } | null,
 };
 
@@ -1509,7 +1654,9 @@ export type OnUpdateFollowingConnSubscription = {
   onUpdateFollowingConn?:  {
     __typename: "FollowingConn",
     id: string,
-    user?:  {
+    followerID?: string | null,
+    authorID?: string | null,
+    author?:  {
       __typename: "User",
       id: string,
       name?: string | null,
@@ -1524,6 +1671,10 @@ export type OnUpdateFollowingConnSubscription = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
@@ -1542,13 +1693,15 @@ export type OnUpdateFollowingConnSubscription = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
     createdAt: string,
     updatedAt: string,
-    followingConnUserId?: string | null,
-    followingConnFollowerId?: string | null,
   } | null,
 };
 
@@ -1556,7 +1709,9 @@ export type OnDeleteFollowingConnSubscription = {
   onDeleteFollowingConn?:  {
     __typename: "FollowingConn",
     id: string,
-    user?:  {
+    followerID?: string | null,
+    authorID?: string | null,
+    author?:  {
       __typename: "User",
       id: string,
       name?: string | null,
@@ -1571,6 +1726,10 @@ export type OnDeleteFollowingConnSubscription = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
@@ -1589,13 +1748,15 @@ export type OnDeleteFollowingConnSubscription = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
     createdAt: string,
     updatedAt: string,
-    followingConnUserId?: string | null,
-    followingConnFollowerId?: string | null,
   } | null,
 };
 
@@ -1623,6 +1784,10 @@ export type OnCreateStorySubscription = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
@@ -1675,6 +1840,10 @@ export type OnUpdateStorySubscription = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,
@@ -1727,6 +1896,10 @@ export type OnDeleteStorySubscription = {
       pseudonym?: string | null,
       birthdate?: string | null,
       isPublisher?: boolean | null,
+      followers?:  {
+        __typename: "ModelFollowingConnConnection",
+        nextToken?: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null,

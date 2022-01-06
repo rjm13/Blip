@@ -25,7 +25,7 @@ import {
 //import { listStorys } from '../src/graphql/queries';
 import { deleteStory } from '../src/graphql/mutations';
 import {graphqlOperation, API, Auth} from 'aws-amplify';
-import { getUser } from '../src/graphql/queries';
+import { getUser, getFollowingConn, listFollowingConns } from '../src/graphql/queries';
 import { updateUser } from '../src/graphql/mutations';
 import { createFollowingConn, deleteFollowingConn } from '../src/graphql/mutations';
 
@@ -603,34 +603,72 @@ const AudioListByAuthor = ({genre}) => {
 
     const FollowUser = async () => {
 
-        console.log(currentUser)
+        // console.log(currentUser)
 
-        const updatedUser = {
-            id: currentUser.id,
-            //following: currentUser?.following?.includes(User?.id) ? currentUser?.following?.filter(item => item !== User?.id) :
-            following: currentUser?.following !== null || [] ? [...currentUser?.following, User?.id] : [User?.id]
-        }
+        // const updatedUser = {
+        //     id: currentUser.id,
+        //     //following: currentUser?.following?.includes(User?.id) ? currentUser?.following?.filter(item => item !== User?.id) :
+        //     following: currentUser?.following !== null || [] ? [...currentUser?.following, User?.id] : [User?.id]
+        // }
 
-        let followingInfo = await API.graphql(graphqlOperation(updateUser, { input: updatedUser }))
-        console.log(followingInfo)
+        // let followingInfo = await API.graphql(graphqlOperation(updateUser, { input: updatedUser }))
+        // console.log(followingInfo)
 
+        // console.log('this is the')
+        // console.log(User)
+
+        // const updatedUser = {
+        //     id: currentUser.id,
+        //     followers: [User]
+        // }
+
+        let createConnection = await API.graphql(graphqlOperation(
+            createFollowingConn, {input: {followerID: currentUser.id, authorID: User.id}}
+        ))
+        //let followersInfo = await API.graphql(graphqlOperation(updateUser, {input: updatedUser}))
+        //console.log(followersInfo)
+        console.log(createConnection)
     }
 
     const unFollowUser = async () => {
 
-        console.log(currentUser)
+        // console.log(currentUser)
 
-        const updatedUser = {
-            id: currentUser.id,
-            following:  currentUser?.following?.filter(item => item !== User?.id) 
-            //currentUser?.following !== null || [] ? [...currentUser?.following, User?.id] : [User?.id]
-        }
+        // const updatedUser = {
+        //     id: currentUser.id,
+        //     following:  currentUser?.following?.filter(item => item !== User?.id) 
+        //     //currentUser?.following !== null || [] ? [...currentUser?.following, User?.id] : [User?.id]
+        // }
 
-        if (currentUser?.following?.includes(User?.id)) {
-            let followingInfo = await API.graphql(graphqlOperation(updateUser, { input: updatedUser }))
-            console.log(followingInfo)
-        }
+        // if (currentUser?.following?.includes(User?.id)) {
+        //     let followingInfo = await API.graphql(graphqlOperation(updateUser, { input: updatedUser }))
+        //     console.log(followingInfo)
+        // }
+
         
+        
+        let getConnection = await API.graphql(graphqlOperation(
+            listFollowingConns, {
+                filter: {
+                    authorID: {
+                        eq: User.id
+                    },
+                    followerID: {
+                        eq: currentUser.id
+                    }
+                }
+            }
+        ))
+        
+        let connectionID = getConnection.data.listFollowingConns.items[0].id
+        console.log(connectionID)
+
+
+        let deleteConnection = await API.graphql(graphqlOperation(
+            deleteFollowingConn, {input: {"id": connectionID}}
+        ))
+        console.log(deleteConnection)
+        console.log(currentUser);
         
 
     }

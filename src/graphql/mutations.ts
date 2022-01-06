@@ -36,6 +36,16 @@ export const createUser = /* GraphQL */ `
       pseudonym
       birthdate
       isPublisher
+      followers {
+        items {
+          id
+          followerID
+          authorID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
@@ -75,6 +85,16 @@ export const updateUser = /* GraphQL */ `
       pseudonym
       birthdate
       isPublisher
+      followers {
+        items {
+          id
+          followerID
+          authorID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
@@ -114,6 +134,16 @@ export const deleteUser = /* GraphQL */ `
       pseudonym
       birthdate
       isPublisher
+      followers {
+        items {
+          id
+          followerID
+          authorID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
@@ -126,7 +156,9 @@ export const createFollowingConn = /* GraphQL */ `
   ) {
     createFollowingConn(input: $input, condition: $condition) {
       id
-      user {
+      followerID
+      authorID
+      author {
         id
         name
         email
@@ -139,6 +171,9 @@ export const createFollowingConn = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -155,13 +190,14 @@ export const createFollowingConn = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
       createdAt
       updatedAt
-      followingConnUserId
-      followingConnFollowerId
     }
   }
 `;
@@ -172,7 +208,9 @@ export const updateFollowingConn = /* GraphQL */ `
   ) {
     updateFollowingConn(input: $input, condition: $condition) {
       id
-      user {
+      followerID
+      authorID
+      author {
         id
         name
         email
@@ -185,6 +223,9 @@ export const updateFollowingConn = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -201,13 +242,14 @@ export const updateFollowingConn = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
       createdAt
       updatedAt
-      followingConnUserId
-      followingConnFollowerId
     }
   }
 `;
@@ -218,7 +260,9 @@ export const deleteFollowingConn = /* GraphQL */ `
   ) {
     deleteFollowingConn(input: $input, condition: $condition) {
       id
-      user {
+      followerID
+      authorID
+      author {
         id
         name
         email
@@ -231,6 +275,9 @@ export const deleteFollowingConn = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -247,13 +294,14 @@ export const deleteFollowingConn = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
       createdAt
       updatedAt
-      followingConnUserId
-      followingConnFollowerId
     }
   }
 `;
@@ -282,6 +330,9 @@ export const createStory = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -333,6 +384,9 @@ export const updateStory = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -384,6 +438,9 @@ export const deleteStory = /* GraphQL */ `
         pseudonym
         birthdate
         isPublisher
+        followers {
+          nextToken
+        }
         createdAt
         updatedAt
       }
