@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, Dimensions, Image, TouchableWithoutFeedback, FlatList } from 'react-native';
+import { StyleSheet, Dimensions, Image, TouchableWithoutFeedback, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
 import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
 import { Searchbar } from 'react-native-paper';
@@ -16,7 +16,9 @@ import FollowingList from '../components/FollowingList';
 
 import { API, graphqlOperation, Auth } from "aws-amplify";
 import { getUser } from '../src/graphql/queries';
-import { listUsers } from '../src/graphql/queries';
+import { listUsers, listFollowingConns } from '../src/graphql/queries';
+import { createFollowingConn, deleteFollowingConn } from '../src/graphql/mutations';
+
 
 import {useNavigation, useRoute} from '@react-navigation/native';
 
@@ -26,6 +28,42 @@ const FollowingScreen = ({navigation} : any) => {
     const [ users, setUsers ] = useState([]);
 
     const [user, setUser] = useState({})
+
+    const [didUpdate, setDidUpdate] = useState(false);
+
+    const [isFetching, setIsFetching] = useState(false);
+
+    const fetchUsers = async () => {
+
+        let Following = []
+
+        const followData = await API.graphql(graphqlOperation(
+
+            listFollowingConns, {
+                filter: {
+                    followerID: {
+                        eq: user.id
+                    }
+                }
+            }))
+          //if (followData.data.listFollowingConns.items) {
+
+            for (let i = 0; i < followData.data.listFollowingConns.items.length; i++) {
+                Following.push(followData.data.listFollowingConns.items[i].author) 
+            //}
+
+            setUsers(Following);
+            //console.log(followData.data.listFollowingConns.items);
+          } 
+        }
+
+    const onRefresh = () => {
+        setIsFetching(true);
+        //fetchUsers();
+        setTimeout(() => {
+          setIsFetching(false);
+        }, 2000);
+      }
 
     useEffect(() => {
 
@@ -46,19 +84,36 @@ const FollowingScreen = ({navigation} : any) => {
               }
               console.log(userData.data.getUser);
 
-              for (let i = 0; i < userData.data.getUser.following.length; i++) {
-                try {
-                    const response = await API.graphql(graphqlOperation(getUser, {
-                    id: userData.data.getUser.following[i]
-                } ))
-                    Following.push(response.data.getUser);
-                } catch (e) {
+            //   for (let i = 0; i < userData.data.getUser.following.length; i++) {
+            //     try {
+            //         const response = await API.graphql(graphqlOperation(getUser, {
+            //         id: userData.data.getUser.following[i]
+            //     } ))
+            //         Following.push(response.data.getUser);
+            //     } catch (e) {
 
-                }
-            }
-            setUsers(Following)
+            //     }
 
-          } catch (e) {
+
+            const followData = await API.graphql(graphqlOperation(
+
+                listFollowingConns, {
+                    filter: {
+                        followerID: {
+                            eq: userData.data.getUser.id
+                        }
+                    }
+                }))
+              //if (followData.data.listFollowingConns.items) {
+
+                for (let i = 0; i < followData.data.listFollowingConns.items.length; i++) {
+                    Following.push(followData.data.listFollowingConns.items[i].author) 
+                //}
+
+                setUsers(Following);
+                //console.log(followData.data.listFollowingConns.items);
+              } 
+            } catch (e) {
             console.log(e);
           }
         }
@@ -114,11 +169,76 @@ const FollowingScreen = ({navigation} : any) => {
 
     const [SelectedId, setSelectedId] = useState(1);
 
-    const Item = ({ pseudonym, imageUri, id, bio, following, authored, isPublisher } : any) => {
-
-        //const navigation = useNavigation();
     
+
+    const Item = ({ author, numAuthored, pseudonym, imageUri, id, bio, following, authored, isPublisher } : any) => {
+
+        const [isFollowing, setIsFollowing] = useState(true)
+
         const [ShowModalThing, setShowModalThing] = useState(false);
+        
+        const fetchInfo = async () => {
+            const getConnection = await API.graphql(graphqlOperation(
+                listFollowingConns, {
+                    filter: {
+                        authorID: {
+                            eq: id
+                        },
+                        followerID: {
+                            eq: user.id
+                        }
+                    }
+                }
+            ))
+            console.log(user.id)
+            console.log(getConnection.data.listFollowingConns.items.length)
+            if (getConnection.data.listFollowingConns.items.length !== 1) {setIsFollowing(false)}
+            setShowModalThing(!ShowModalThing)
+        }
+        
+        
+
+        const FollowUser = async () => {
+    
+            let createConnection = await API.graphql(graphqlOperation(
+                createFollowingConn, {input: {followerID: user.id, authorID: id}}
+            ))
+            //let followersInfo = await API.graphql(graphqlOperation(updateUser, {input: updatedUser}))
+            //console.log(followersInfo)
+            console.log(createConnection)
+        }
+    
+        const unFollowUser = async () => {
+    
+            let getConnection = await API.graphql(graphqlOperation(
+                listFollowingConns, {
+                    filter: {
+                        authorID: {
+                            eq: id
+                        },
+                        followerID: {
+                            eq: user.id
+                        }
+                    }
+                }
+            ))
+            console.log(getConnection)
+            
+            let connectionID = getConnection.data.listFollowingConns.items[0].id
+            console.log(connectionID)
+    
+    
+            let deleteConnection = await API.graphql(graphqlOperation(
+                deleteFollowingConn, {input: {"id": connectionID}}
+            ))
+            console.log(deleteConnection)
+            console.log('deleted')
+            setDidUpdate(!didUpdate)
+            
+    
+        }
+    
+        
     
         return (
             <View style={styles.tile}>
@@ -158,14 +278,14 @@ const FollowingScreen = ({navigation} : any) => {
                                         style={{ marginRight: 5}}
                                     />
                                     <Text style={styles.userId}>
-                                        {authored.length ? authored.length : 0}
+                                        {numAuthored === null ? 0 : numAuthored}
                                     </Text> 
                                 </View> 
                             </View>
                         </View>
                     </TouchableWithoutFeedback>    
     
-                    <TouchableWithoutFeedback onPress={() => {setShowModalThing(!ShowModalThing)}}>
+                    <TouchableWithoutFeedback onPress={fetchInfo}>
                         <View style={{ backgroundColor: 'transparent', width: 40, alignItems: 'flex-end' }}>
                             <AntDesign
                                 name={'ellipsis1'}
@@ -187,16 +307,16 @@ const FollowingScreen = ({navigation} : any) => {
                 {ShowModalThing === true ? (
                         
                         <View style={{ backgroundColor: '#484848', borderColor: 'black', borderRadius: 5, borderWidth: 0, position: 'absolute', right: 40, top: 30, alignSelf: 'flex-end'}}>
-                            <TouchableWithoutFeedback onPress={() => {}} >
+                            <TouchableOpacity onPress={isFollowing === true ? unFollowUser : FollowUser} >
                                 <Text style={{color: '#fff', padding: 10}}>
-                                    Unfollow
+                                    {isFollowing === true ? 'Unfollow' : 'Follow'}
                                 </Text>
-                            </TouchableWithoutFeedback>
-                            <TouchableWithoutFeedback onPress={() => {}} >
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => {navigation.navigate('UserScreen', {userID: id})}} >
                                 <Text style={{color: '#fff', padding: 10}}>
                                     View Profile
                                 </Text>
-                            </TouchableWithoutFeedback>
+                            </TouchableOpacity>
                         </View>
                     
                 ) : null}
@@ -208,7 +328,7 @@ const FollowingScreen = ({navigation} : any) => {
     const renderItem = ({ item }) => (
     
         <Item 
-            //user={item}
+            author={item}
             name={item.name}
             id={item.id}
             pseudonym={item.pseudonym}
@@ -218,6 +338,7 @@ const FollowingScreen = ({navigation} : any) => {
             bio={item.bio}
             following={item.following}
             isPublisher={item.isPublisher}
+            numAuthored={item.numAuthored}
         />
       );
 
@@ -262,7 +383,7 @@ const FollowingScreen = ({navigation} : any) => {
                     </Text>
                 </TouchableWithoutFeedback>
 
-                {user?.isPublisher === true ? (
+                {/* {user?.isPublisher === true ? (
                     <TouchableWithoutFeedback onPress={() => setSelectedId(2)}>
                         <Text style={{ 
                             color: SelectedId ===  2 ? '#fff' : '#ffffffa5',
@@ -273,7 +394,7 @@ const FollowingScreen = ({navigation} : any) => {
                             Followers
                         </Text>
                     </TouchableWithoutFeedback>
-                ) : null}
+                ) : null} */}
                 
 
                 {/* <TouchableWithoutFeedback onPress={() => setSelectedId(3)}>
@@ -312,7 +433,13 @@ const FollowingScreen = ({navigation} : any) => {
                         data={users}
                         renderItem={renderItem}
                         keyExtractor={(item) => item.id}
-                        //extraData={true}
+                        refreshControl={
+                            <RefreshControl
+                             refreshing={isFetching}
+                             onRefresh={onRefresh}
+                            />
+                          }
+                        //extraData={didUpdate}
                     />
                 </View>
             ) : SelectedId === 2 && user?.isPublisher === true ? (

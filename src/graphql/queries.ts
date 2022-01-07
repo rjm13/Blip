@@ -19,17 +19,16 @@ export const getUser = /* GraphQL */ `
           audioUri
           genre
           userID
-          writer
+          author
           narrator
           time
           description
           createdAt
           updatedAt
-          userAuthoredId
-          storyAuthorId
         }
         nextToken
       }
+      numAuthored
       pseudonym
       birthdate
       isPublisher
@@ -65,6 +64,7 @@ export const listUsers = /* GraphQL */ `
         authored {
           nextToken
         }
+        numAuthored
         pseudonym
         birthdate
         isPublisher
@@ -94,6 +94,7 @@ export const getFollowingConn = /* GraphQL */ `
         authored {
           nextToken
         }
+        numAuthored
         pseudonym
         birthdate
         isPublisher
@@ -113,6 +114,7 @@ export const getFollowingConn = /* GraphQL */ `
         authored {
           nextToken
         }
+        numAuthored
         pseudonym
         birthdate
         isPublisher
@@ -145,6 +147,7 @@ export const listFollowingConns = /* GraphQL */ `
           imageUri
           bio
           following
+          numAuthored
           pseudonym
           birthdate
           isPublisher
@@ -158,6 +161,7 @@ export const listFollowingConns = /* GraphQL */ `
           imageUri
           bio
           following
+          numAuthored
           pseudonym
           birthdate
           isPublisher
@@ -179,8 +183,7 @@ export const getStory = /* GraphQL */ `
       imageUri
       audioUri
       genre
-      userID
-      author {
+      user {
         id
         name
         email
@@ -190,6 +193,7 @@ export const getStory = /* GraphQL */ `
         authored {
           nextToken
         }
+        numAuthored
         pseudonym
         birthdate
         isPublisher
@@ -199,7 +203,8 @@ export const getStory = /* GraphQL */ `
         createdAt
         updatedAt
       }
-      writer
+      userID
+      author
       narrator
       time
       description
@@ -217,8 +222,6 @@ export const getStory = /* GraphQL */ `
       }
       createdAt
       updatedAt
-      userAuthoredId
-      storyAuthorId
     }
   }
 `;
@@ -235,21 +238,22 @@ export const listStories = /* GraphQL */ `
         imageUri
         audioUri
         genre
-        userID
-        author {
+        user {
           id
           name
           email
           imageUri
           bio
           following
+          numAuthored
           pseudonym
           birthdate
           isPublisher
           createdAt
           updatedAt
         }
-        writer
+        userID
+        author
         narrator
         time
         description
@@ -258,8 +262,6 @@ export const listStories = /* GraphQL */ `
         }
         createdAt
         updatedAt
-        userAuthoredId
-        storyAuthorId
       }
       nextToken
     }
@@ -276,21 +278,22 @@ export const getComment = /* GraphQL */ `
         imageUri
         audioUri
         genre
-        userID
-        author {
+        user {
           id
           name
           email
           imageUri
           bio
           following
+          numAuthored
           pseudonym
           birthdate
           isPublisher
           createdAt
           updatedAt
         }
-        writer
+        userID
+        author
         narrator
         time
         description
@@ -299,8 +302,6 @@ export const getComment = /* GraphQL */ `
         }
         createdAt
         updatedAt
-        userAuthoredId
-        storyAuthorId
       }
       content
       createdAt
@@ -327,14 +328,12 @@ export const listComments = /* GraphQL */ `
           audioUri
           genre
           userID
-          writer
+          author
           narrator
           time
           description
           createdAt
           updatedAt
-          userAuthoredId
-          storyAuthorId
         }
         content
         createdAt

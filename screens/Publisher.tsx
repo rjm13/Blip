@@ -8,9 +8,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRoute } from '@react-navigation/native';
 
 import { API, graphqlOperation, Auth } from "aws-amplify";
-import { getUser } from '../src/graphql/queries';
+import { getUser, listFollowingConns } from '../src/graphql/queries';
 
 const Publisher = ({navigation} : any) => {
+
+    const [numFollowers, setNumFollowers] = useState();
 
     const [user, setUser] = useState({})
 
@@ -51,6 +53,16 @@ const Publisher = ({navigation} : any) => {
                 setUser(userData.data.getUser);
               }
               console.log(userData.data.getUser);
+              const getFollowers = await API.graphql(graphqlOperation(
+                listFollowingConns, {
+                    filter: {
+                        authorID: {
+                            eq: userData.data.getUser.id
+                        }
+                    }
+                }
+            ))
+            setNumFollowers(getFollowers.data.listFollowingConns.items.length)
           } catch (e) {
             console.log(e);
           }
@@ -113,7 +125,7 @@ const Publisher = ({navigation} : any) => {
                                 Followers
                             </Text>
                             <Text style={styles.textcounter}>
-                                {user?.following ? user?.following?.length : '0'}
+                                {numFollowers}
                             </Text>
                         </View>
                     </TouchableWithoutFeedback>

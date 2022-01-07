@@ -6,7 +6,7 @@ import {StatusBar} from 'expo-status-bar';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 import { API, graphqlOperation, Auth } from "aws-amplify";
-import { getUser } from '../src/graphql/queries';
+import { getUser, listFollowingConns } from '../src/graphql/queries';
 
 import { useNavigation } from '@react-navigation/native';
 
@@ -14,6 +14,8 @@ import { useNavigation } from '@react-navigation/native';
 const ProfileScreen = ({navigation} : any) => {
 
     //const navigation = useNavigation();
+
+    const [numFollowers, setNumFollowers] = useState();
 
     const [user, setUser] = useState();
 
@@ -30,6 +32,17 @@ const ProfileScreen = ({navigation} : any) => {
               setUser(userData.data.getUser);
             }
             console.log(userData.data.getUser);
+
+            const getFollowers = await API.graphql(graphqlOperation(
+                listFollowingConns, {
+                    filter: {
+                        authorID: {
+                            eq: userData.data.getUser.id
+                        }
+                    }
+                }
+            ))
+            setNumFollowers(getFollowers.data.listFollowingConns.items.length)
         } catch (e) {
           console.log(e);
         }
@@ -77,7 +90,7 @@ const ProfileScreen = ({navigation} : any) => {
                         <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                                 <View style={{ alignItems: 'center', margin: 20}}>
                                     <Text style={{ color: 'cyan', opacity: .5}}>
-                                        {user?.following ? user?.following.length : 0}
+                                        {user?.followers ? user?.followers.items.length : 0}
                                     </Text>
                                     <Text style={{ color: '#ffffffa5', fontWeight: 'bold'}}>
                                         Following
@@ -87,7 +100,7 @@ const ProfileScreen = ({navigation} : any) => {
                                 {user?.isPublisher === true ? (
                                     <View style={{ alignItems: 'center', margin: 20}}>
                                         <Text style={{ color: 'cyan', opacity: .5}}>
-                                            {user?.following ? user?.following.length : 0}
+                                            {numFollowers}
                                         </Text>
                                         <Text style={{ color: '#ffffffa5', fontWeight: 'bold'}}>
                                             Followers

@@ -9,7 +9,8 @@ type User @model @auth(rules: [{ allow: public}]) {
   imageUri: String
   bio: String
   following: [ID]
-  authored: [Story] @hasMany
+  authored: [Story] @hasMany(indexName: "byUser", fields: "id")
+  numAuthored: Int
   pseudonym: String
   birthdate: String
   isPublisher: Boolean
@@ -33,9 +34,9 @@ type Story @model @auth(rules: [{ allow: public}])
   imageUri: String
   audioUri: String!
   genre: String!
-  userID: ID
-  author: User @hasOne
-  writer: String!
+  user: User @hasOne (fields: ["userID"])
+  userID: ID @index(name: "byUser", sortKeyFields: ["id"])
+  author: String
   narrator: String
   time: Int 
   description: String!

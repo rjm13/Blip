@@ -22,17 +22,16 @@ export const createUser = /* GraphQL */ `
           audioUri
           genre
           userID
-          writer
+          author
           narrator
           time
           description
           createdAt
           updatedAt
-          userAuthoredId
-          storyAuthorId
         }
         nextToken
       }
+      numAuthored
       pseudonym
       birthdate
       isPublisher
@@ -71,17 +70,16 @@ export const updateUser = /* GraphQL */ `
           audioUri
           genre
           userID
-          writer
+          author
           narrator
           time
           description
           createdAt
           updatedAt
-          userAuthoredId
-          storyAuthorId
         }
         nextToken
       }
+      numAuthored
       pseudonym
       birthdate
       isPublisher
@@ -120,17 +118,16 @@ export const deleteUser = /* GraphQL */ `
           audioUri
           genre
           userID
-          writer
+          author
           narrator
           time
           description
           createdAt
           updatedAt
-          userAuthoredId
-          storyAuthorId
         }
         nextToken
       }
+      numAuthored
       pseudonym
       birthdate
       isPublisher
@@ -168,6 +165,7 @@ export const createFollowingConn = /* GraphQL */ `
         authored {
           nextToken
         }
+        numAuthored
         pseudonym
         birthdate
         isPublisher
@@ -187,6 +185,7 @@ export const createFollowingConn = /* GraphQL */ `
         authored {
           nextToken
         }
+        numAuthored
         pseudonym
         birthdate
         isPublisher
@@ -220,6 +219,7 @@ export const updateFollowingConn = /* GraphQL */ `
         authored {
           nextToken
         }
+        numAuthored
         pseudonym
         birthdate
         isPublisher
@@ -239,6 +239,7 @@ export const updateFollowingConn = /* GraphQL */ `
         authored {
           nextToken
         }
+        numAuthored
         pseudonym
         birthdate
         isPublisher
@@ -272,6 +273,7 @@ export const deleteFollowingConn = /* GraphQL */ `
         authored {
           nextToken
         }
+        numAuthored
         pseudonym
         birthdate
         isPublisher
@@ -291,6 +293,7 @@ export const deleteFollowingConn = /* GraphQL */ `
         authored {
           nextToken
         }
+        numAuthored
         pseudonym
         birthdate
         isPublisher
@@ -316,8 +319,7 @@ export const createStory = /* GraphQL */ `
       imageUri
       audioUri
       genre
-      userID
-      author {
+      user {
         id
         name
         email
@@ -327,6 +329,7 @@ export const createStory = /* GraphQL */ `
         authored {
           nextToken
         }
+        numAuthored
         pseudonym
         birthdate
         isPublisher
@@ -336,7 +339,8 @@ export const createStory = /* GraphQL */ `
         createdAt
         updatedAt
       }
-      writer
+      userID
+      author
       narrator
       time
       description
@@ -354,8 +358,6 @@ export const createStory = /* GraphQL */ `
       }
       createdAt
       updatedAt
-      userAuthoredId
-      storyAuthorId
     }
   }
 `;
@@ -370,8 +372,7 @@ export const updateStory = /* GraphQL */ `
       imageUri
       audioUri
       genre
-      userID
-      author {
+      user {
         id
         name
         email
@@ -381,6 +382,7 @@ export const updateStory = /* GraphQL */ `
         authored {
           nextToken
         }
+        numAuthored
         pseudonym
         birthdate
         isPublisher
@@ -390,7 +392,8 @@ export const updateStory = /* GraphQL */ `
         createdAt
         updatedAt
       }
-      writer
+      userID
+      author
       narrator
       time
       description
@@ -408,8 +411,6 @@ export const updateStory = /* GraphQL */ `
       }
       createdAt
       updatedAt
-      userAuthoredId
-      storyAuthorId
     }
   }
 `;
@@ -424,8 +425,7 @@ export const deleteStory = /* GraphQL */ `
       imageUri
       audioUri
       genre
-      userID
-      author {
+      user {
         id
         name
         email
@@ -435,6 +435,7 @@ export const deleteStory = /* GraphQL */ `
         authored {
           nextToken
         }
+        numAuthored
         pseudonym
         birthdate
         isPublisher
@@ -444,7 +445,8 @@ export const deleteStory = /* GraphQL */ `
         createdAt
         updatedAt
       }
-      writer
+      userID
+      author
       narrator
       time
       description
@@ -462,8 +464,6 @@ export const deleteStory = /* GraphQL */ `
       }
       createdAt
       updatedAt
-      userAuthoredId
-      storyAuthorId
     }
   }
 `;
@@ -481,21 +481,22 @@ export const createComment = /* GraphQL */ `
         imageUri
         audioUri
         genre
-        userID
-        author {
+        user {
           id
           name
           email
           imageUri
           bio
           following
+          numAuthored
           pseudonym
           birthdate
           isPublisher
           createdAt
           updatedAt
         }
-        writer
+        userID
+        author
         narrator
         time
         description
@@ -504,8 +505,6 @@ export const createComment = /* GraphQL */ `
         }
         createdAt
         updatedAt
-        userAuthoredId
-        storyAuthorId
       }
       content
       createdAt
@@ -529,21 +528,22 @@ export const updateComment = /* GraphQL */ `
         imageUri
         audioUri
         genre
-        userID
-        author {
+        user {
           id
           name
           email
           imageUri
           bio
           following
+          numAuthored
           pseudonym
           birthdate
           isPublisher
           createdAt
           updatedAt
         }
-        writer
+        userID
+        author
         narrator
         time
         description
@@ -552,8 +552,6 @@ export const updateComment = /* GraphQL */ `
         }
         createdAt
         updatedAt
-        userAuthoredId
-        storyAuthorId
       }
       content
       createdAt
@@ -577,21 +575,22 @@ export const deleteComment = /* GraphQL */ `
         imageUri
         audioUri
         genre
-        userID
-        author {
+        user {
           id
           name
           email
           imageUri
           bio
           following
+          numAuthored
           pseudonym
           birthdate
           isPublisher
           createdAt
           updatedAt
         }
-        writer
+        userID
+        author
         narrator
         time
         description
@@ -600,8 +599,6 @@ export const deleteComment = /* GraphQL */ `
         }
         createdAt
         updatedAt
-        userAuthoredId
-        storyAuthorId
       }
       content
       createdAt
