@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { 
     View, 
+    ScrollView,
     Text, 
     Image, 
     TouchableOpacity, 
@@ -344,11 +345,9 @@ const handleUpdatePassword = async () => {
                             onPress={handleUpdateName}>
                             <View style={styles.savebutton} >
                                 {isUploading ? (
-                                        <ActivityIndicator size="small" color="#0000ff"/>
-                                    ) : 
-                                        <TouchableOpacity onPress={PublishAvatar}>
-                                            <Text style={{color: '#000', paddingVertical: 5, paddingHorizontal: 20}}>Submit</Text>
-                                        </TouchableOpacity> 
+                                    <ActivityIndicator size="small" color="#0000ff"/>
+                                ) : 
+                                    <Text style={{color: '#000', paddingVertical: 5, paddingHorizontal: 20}}>Submit</Text> 
                                 } 
                             </View>
                         </TouchableOpacity>
@@ -463,9 +462,9 @@ const handleUpdatePassword = async () => {
                         fontSize: 16,
                         color: '#fff'
                     }}>
-                        Update bio
+                        Update Bio
                     </Text>
-                    <View style={{ borderWidth: 0.2, borderColor: '#363636a5', width: '100%', alignItems: 'center', borderRadius: 8}}>
+                    <View style={{ marginTop: 10, borderWidth: 0.2, borderColor: '#363636a5', width: '100%', alignItems: 'center', borderRadius: 8}}>
                         <View style={styles.statuscontainermodal }> 
                             <TextInput 
                                 placeholder={user?.bio || 'Say something about yourself'}
@@ -481,7 +480,7 @@ const handleUpdatePassword = async () => {
                     </View>
 
                     <View style={styles.button}>
-                        <TouchableOpacity
+                        <TouchableWithoutFeedback
                             onPress={handleUpdateBio}>
                             <View style={styles.savebutton} >
                                 {isUploading ? (
@@ -490,7 +489,7 @@ const handleUpdatePassword = async () => {
                                     <Text style={{color: '#000', paddingVertical: 5, paddingHorizontal: 20}}>Submit</Text>
                                 } 
                             </View>
-                        </TouchableOpacity>
+                        </TouchableWithoutFeedback>
                     </View>
                 </View>
             </Modal>
@@ -551,7 +550,7 @@ const handleUpdatePassword = async () => {
                 </Modal>
 
 {/* //Reset password modal */}
-                <Modal visible={visible6} onDismiss={hidePassModal} contentContainerStyle={containerStyle}>
+            <Modal visible={visible6} onDismiss={hidePassModal} contentContainerStyle={containerStyle}>
                 <View style={{ alignItems: 'center'}}>
                     <Text style={{
                         fontSize: 16,
@@ -659,24 +658,24 @@ const handleUpdatePassword = async () => {
                     </View>
                 </TouchableWithoutFeedback> 
 
-                <TouchableOpacity onPress={showEmailModal}>
+                <TouchableWithoutFeedback onPress={showEmailModal}>
                     <View style={styles.emailcontainer }> 
                         <Text style={ styles.words }>Email</Text>
                         <Text style={ styles.placeholdertext }>{user?.email}</Text>
                     </View>
-                </TouchableOpacity>
+                </TouchableWithoutFeedback>
 
-                <TouchableOpacity onPress={showPassModal}>
+                <TouchableWithoutFeedback onPress={showPassModal}>
                     <View style={styles.smallcontainer }>
                         <Text style={ styles.words }>Reset Password</Text>
                     </View>
-                </TouchableOpacity>
+                </TouchableWithoutFeedback>
 
-                <TouchableOpacity onPress={showSignOutModal}>
+                <TouchableWithoutFeedback onPress={showSignOutModal}>
                     <View style={styles.smallcontainer }>
                         <Text style={ styles.words }>Log Out</Text>
                     </View>
-                </TouchableOpacity>
+                </TouchableWithoutFeedback>
             </View>
             <StatusBar style="light" />
         </View>            
@@ -714,6 +713,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         borderRadius: 15,
         marginVertical: 10,
+        height: 140
     },
     statuscontainermodal: {
         backgroundColor: '#303030',
