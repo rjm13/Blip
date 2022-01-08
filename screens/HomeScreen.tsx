@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { StyleSheet, Dimensions, ScrollView } from 'react-native';
+import { StyleSheet, Dimensions, ScrollView, TouchableWithoutFeedback } from 'react-native';
 import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
 import { Searchbar } from 'react-native-paper';
@@ -37,15 +37,18 @@ const AudioStoryHome = ({navigation} : any) => {
                     </Text>
                 
             </View>
-            <View style={{ flexDirection: 'row'}}>
-                <FontAwesome
-                    name='user'
-                    size={20}
-                    color='#fff'
-                    style={{ paddingLeft: 30, marginRight: 0, }}
-                    onPress={() => navigation.navigate('ProfileScreen')}
-                />
+            <TouchableWithoutFeedback onPress={() => navigation.navigate('ProfileScreen')}>
+                <View style={{ backgroundColor: 'transparent', padding: 30, margin: -30, justifyContent: 'center'}}>
+                    <FontAwesome
+                        name='user'
+                        size={20}
+                        color='#fff'
+                        style={{ paddingLeft: 0, marginRight: 0, }}
+                        
+                    />
             </View>
+            </TouchableWithoutFeedback>
+            
           </View>
 
           <View>

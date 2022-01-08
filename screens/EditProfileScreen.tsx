@@ -1,42 +1,56 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, TouchableWithoutFeedback, TextInput, Platform, ActivityIndicator } from 'react-native';
+import { 
+    View, 
+    Text, 
+    Image, 
+    TouchableOpacity, 
+    StyleSheet, 
+    TouchableWithoutFeedback, 
+    TextInput, 
+    Platform, 
+    ActivityIndicator 
+} from 'react-native';
 
-import { LinearGradient } from 'expo-linear-gradient';
-import { StatusBar } from 'expo-status-bar';
-
-import { Modal, Portal, Button, Provider } from 'react-native-paper';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import { useRoute } from '@react-navigation/native';
 
 import { API, graphqlOperation, Auth, Storage } from "aws-amplify";
 import { updateUser } from '../src/graphql/mutations';
 import { getUser } from '../src/graphql/queries';
 
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { StatusBar } from 'expo-status-bar';
 import * as ImagePicker from 'expo-image-picker';
+
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+
+import { Modal, Portal, Provider } from 'react-native-paper';
 import uuid from 'react-native-uuid';
 
-//import uploadImageOnS3 from '../components/functions/imagepicker';
+import uploadImageOnS3 from '../components/functions/imagepicker';
 
 
 const EditProfile = ({navigation} : any) => {
 
+
+//on render, request permission for camera roll
     useEffect(() => {
         (async () => {
-          if (Platform.OS !== 'web') {
-            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (status !== 'granted') {
-              alert('Sorry, we need camera roll permissions to make this work!');
+            if (Platform.OS !== 'web') {
+                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                if (status !== 'granted') {
+                    alert('Sorry, we need camera roll permissions to make this work!');
+                }
             }
-          }
         })();
-      }, []);
+    }, []);
 
-      const pickImage = async () => {
+//pick the image from the camera roll
+    const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.All,
-          allowsEditing: true,
-          aspect: [4, 3],
-          quality: 1,
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
         });
     
         console.log(result);
@@ -46,48 +60,47 @@ const EditProfile = ({navigation} : any) => {
         }
       };
 
-    //const navigation = useNavigation();
-
-    const [user, setUser] = useState({})
-
+    //set the current user's id via route params
     const route = useRoute();
     const {User} = route.params
 
+    //the current authenticated user object
+    const [user, setUser] = useState(User)
+
+    //determines if the user object updated. If it did, pull the info
     const [update, didUpdate] = useState(false);
 
-    useEffect(() => {
-        setUser(User);
-    }, [])
-
+//when didUpdate is called, pull the user attributes from AWS
     useEffect(() => {
         const fetchUser = async () => {
           const userInfo = await Auth.currentAuthenticatedUser();
-            if (!userInfo) {
-              return;
+
+            if (!userInfo) {return;}
+
+            try {
+                const userData = await API.graphql(graphqlOperation(
+                    getUser, {id: userInfo.attributes.sub}
+                ))
+
+                if (userData) {setUser(userData.data.getUser);}
+
+                console.log(userData.data.getUser);
+
+            } catch (e) {
+                console.log(e);
             }
-          try {
-            const userData = await API.graphql(graphqlOperation(
-              getUser, {id: userInfo.attributes.sub}))
-              if (userData) {
-                setUser(userData.data.getUser);
-              }
-              console.log(userData.data.getUser);
-          } catch (e) {
-            console.log(e);
-          }
         }
         fetchUser();
       }, [update])
 
-    
-    
-
+//sign out function
     async function signOut() {
         try {
             await Auth.signOut()
             .then(() => navigation.navigate('SignIn'))
         } catch (error) {
             console.log('error signing out: ', error);
+            alert("error signing out")
         }
     }
 
@@ -127,9 +140,12 @@ const [visible6, setVisible6] = useState(false);
 const showPassModal = () => setVisible6(true);
 const hidePassModal = () => setVisible6(false);
 
+//pseudonym Modal
+const [visible7, setVisible7] = useState(false);
+const showPseudModal = () => setVisible7(true);
+const hidePseudModal = () => setVisible7(false);
 
-
-//Attribute state
+//Attribute states
 const [ Name, setName ] = useState('');
 const [ Email, setEmail ] = useState('');
 const [ Bio, setBio ] = useState('');
@@ -137,11 +153,15 @@ const [ confirmCode, setConfirmCode] = useState('');
 const [ Password, setPassword] = useState('');
 const [ oldPassword, setOldPassword] = useState('');
 const [image, setImage] = useState('');
+const [Pseudonym, setPseudonym] = useState('');
 
 const [avatarKey, setAvatarKey] = useState('');
+
+//if true, s3 is performing an action. also used to determine if anything is updating
 const [isUploading, setIsUploading ] = useState(false);
 
 
+//to send the profile image to the s3 bucket, this sets file and retrieves the avatar key
 const handleUpdateImage = async ()=> {
 
     try {
@@ -149,20 +169,18 @@ const handleUpdateImage = async ()=> {
 
         const blob = await response.blob();
 
-        const filename =  uuid.v4();
+        const filename =  uuid.v4().toString();
 
         const s3Response = await Storage.put(filename, blob);
 
         setAvatarKey(s3Response.key);
-
-        //console.log(s3Response.key);
-        
 
     } catch (e) {
         console.error(e);
     }
 }
 
+//using the avatar key, get and update the imageuri for the user
 const PublishAvatar = async () => {
 
     setIsUploading(true);
@@ -170,62 +188,90 @@ const PublishAvatar = async () => {
     await handleUpdateImage();
 
     if ( avatarKey !== '' ) {
-        const userInfo = await Auth.currentAuthenticatedUser();
 
         const response = await Storage.get(avatarKey);
   
-        const updatedUser = { id: userInfo.attributes.sub, imageUri: response }
+        const updatedUser = { id: user.id, imageUri: response }
   
-        if (userInfo) {
-            let result = await API.graphql(
-            graphqlOperation(updateUser, { input: updatedUser }))
+        let result = await API.graphql(graphqlOperation(
+            updateUser, { input: updatedUser }
+            ))
         console.log(result);
-
         
         }
-    }
     setIsUploading(false);
     hideModal();
 };
 
-
-
+//update the users name
 const handleUpdateName = async () => {
-      //get authenticated user from Auth
+
+    setIsUploading(true);
+
     if ( Name.length !== 0 ) {
-        const userInfo = await Auth.currentAuthenticatedUser();
 
-        const updatedUser = { id: userInfo.attributes.sub, name: Name }
+        const updatedUser = { id: user.id, name: Name }
 
-        if (userInfo) {
-            let result = await API.graphql(
-            graphqlOperation(updateUser, { input: updatedUser }))
+        let result = await API.graphql(graphqlOperation(
+            updateUser, { input: updatedUser }
+        
+            ))
         console.log(result);
-        hideNameModal();
-        }
+
+    setIsUploading(false);
+    hideNameModal();
     }
 }
 
+//update the author's pseudonym
+const handleUpdatePseudonym = async () => {
+
+    setIsUploading(true);
+
+    if ( Pseudonym.length !== 0 ) {
+
+        const updatedUser = { id: user.id, name: Pseudonym }
+
+        let result = await API.graphql(graphqlOperation(
+            updateUser, { input: updatedUser }
+        
+            ))
+        console.log(result);
+
+    setIsUploading(false);
+    hidePseudModal();
+    }
+}
+
+//update the users bio text
 const handleUpdateBio = async () => {
-    //get authenticated user from Auth
-  if ( Bio.length !== 0 ) {
-      const userInfo = await Auth.currentAuthenticatedUser();
 
-      const updatedUser = { id: userInfo.attributes.sub, bio: Bio }
+    setIsUploading(true);
 
-      if (userInfo) {
-          let result = await API.graphql(
-          graphqlOperation(updateUser, { input: updatedUser }))
+    if ( Bio.length !== 0 ) {
+
+        const updatedUser = { id: user.id, bio: Bio }
+
+        let result = await API.graphql(graphqlOperation(
+            updateUser, { input: updatedUser }
+        
+        ))
+
       console.log(result);
+      
+      setIsUploading(false);
       hideBioModal();
       didUpdate(!update);
-      }
   }
 }
 
+//update the users email address as a user attribute in cognito
 const handleUpdateEmail = async () => {
-    //get authenticated user from Auth
+
+    setIsUploading(true);
+
   if ( Email.length !== 0 ) {
+      
       const userInfo = await Auth.currentAuthenticatedUser();
 
       if (userInfo) {
@@ -235,37 +281,43 @@ const handleUpdateEmail = async () => {
           alert('Error: Please enter a different email or try again later.')
       }
   }
+
+  setIsUploading(false);
 }
 
+//verify with a confirmation code
 const handleConfirmCode = async () => {
 
-    const userInfo = await Auth.currentAuthenticatedUser();
+    setIsUploading(true);
 
     let result = await Auth.verifyCurrentUserAttributeSubmit(
         'email',
         confirmCode,
         );
-    console.log(result); // SUCCESS   
+    console.log(result); // SUCCESS  
+
+    setIsUploading(false);
     hideEmailModal();
 }
 
-
+//update the users password
 const handleUpdatePassword = async () => {
 
+    setIsUploading(true);
     const userInfo = await Auth.currentAuthenticatedUser();
 
     let result = await Auth.changePassword(userInfo, oldPassword, Password);
-    console.log(result); // SUCCESS   
+    console.log(result); // SUCCESS  
+    setIsUploading(false); 
     hidePassModal();
 }
 
-
+//render the page
     return (
-        <Provider>
-           
-            <View style={styles.container } >
 
-            <Portal>
+    <Provider>   
+    <View style={styles.container } >
+        <Portal>
 {/* //Update name  */}
             <Modal visible={visible3} onDismiss={hideNameModal} contentContainerStyle={containerStyle}>
                 <View style={{ alignItems: 'center'}}>
@@ -273,12 +325,13 @@ const handleUpdatePassword = async () => {
                         fontSize: 16,
                         paddingVertical: 16,
                         color: '#fff'
-                        }}>Enter a new pseudonym
+                    }}>
+                        Enter a new name
                     </Text>
                     <View style={{ borderWidth: 0.3, borderColor: '#ffffffa5', width: '100%', alignItems: 'center', borderRadius: 8}}>
                         <TextInput
                             placeholder={user?.name}
-                            placeholderTextColor='#00ffffa5'
+                            placeholderTextColor='gray'
                             style={styles.nametext}
                             maxLength={20}
                             multiline={false}
@@ -289,52 +342,96 @@ const handleUpdatePassword = async () => {
                     <View style={styles.button}>
                         <TouchableOpacity
                             onPress={handleUpdateName}>
-                            <LinearGradient
-                                colors={['cyan', 'cyan']}
-                                style={styles.savebutton} >
-                                <Text style={{color: '#000', paddingVertical: 5, paddingHorizontal: 20}}>Submit</Text>
-                            </LinearGradient>
+                            <View style={styles.savebutton} >
+                                {isUploading ? (
+                                        <ActivityIndicator size="small" color="#0000ff"/>
+                                    ) : 
+                                        <TouchableOpacity onPress={PublishAvatar}>
+                                            <Text style={{color: '#000', paddingVertical: 5, paddingHorizontal: 20}}>Submit</Text>
+                                        </TouchableOpacity> 
+                                } 
+                            </View>
                         </TouchableOpacity>
                     </View>
                 </View>
             </Modal>
-{/* //Update Email Address */}
-            <Modal visible={visible4} onDismiss={hideEmailModal} contentContainerStyle={containerStyle}>
-                <View style={{ alignItems: 'center'}}>
 
+{/* //Update pseudonym  */}
+            <Modal visible={visible7} onDismiss={hidePseudModal} contentContainerStyle={containerStyle}>
+                <View style={{ alignItems: 'center'}}>
                     <Text style={{
                         fontSize: 16,
                         paddingVertical: 16,
                         color: '#fff'
-                        }}>Enter a new email
+                    }}>
+                        Enter a new pseudonym
+                    </Text>
+                    <View style={{ borderWidth: 0.3, borderColor: '#ffffffa5', width: '100%', alignItems: 'center', borderRadius: 8}}>
+                        <TextInput
+                            placeholder={user?.pseudonym}
+                            placeholderTextColor='gray'
+                            style={styles.nametext}
+                            maxLength={20}
+                            multiline={false}
+                            onChangeText={val => setPseudonym(val)}
+                        />
+                    </View>
+                    <View style={styles.button}>
+                        <TouchableOpacity
+                            onPress={handleUpdatePseudonym}>
+                            <View style={styles.savebutton} >
+                                {isUploading ? (
+                                     <ActivityIndicator size="small" color="#0000ff"/>
+                                ) : 
+                                    <Text style={{color: '#000', paddingVertical: 5, paddingHorizontal: 20}}>Submit</Text>   
+                                } 
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+{/* //Update Email Address */}
+            <Modal visible={visible4} onDismiss={hideEmailModal} contentContainerStyle={containerStyle}>
+                <View style={{ alignItems: 'center'}}>
+                    <Text style={{
+                        fontSize: 16,
+                        paddingVertical: 16,
+                        color: '#fff'
+                    }}>
+                            Enter a new email
                     </Text>
                     <View style={{ borderWidth: 0.3, borderColor: '#ffffffa5', width: '100%', alignItems: 'center', borderRadius: 8}}>
                         <TextInput
                             placeholder={user?.email}
-                            placeholderTextColor='#00ffffa5'
+                            placeholderTextColor='gray'
                             style={styles.nametext}
                             maxLength={40}
                             multiline={false}
                             onChangeText={val => setEmail(val)}
-                            //defaultValue={user?.name}
                         />
                     </View>
                     
                     <View style={styles.button}>
                         <TouchableOpacity onPress={handleUpdateEmail} >
-                            <LinearGradient
-                                colors={['cyan', 'cyan']}
-                                style={styles.savebutton} >
-                                <Text style={{color: '#000', paddingVertical: 5, paddingHorizontal: 20}}>Send Code</Text>
-                            </LinearGradient>
+                            <View style={styles.savebutton} >
+                                {isUploading ? (
+                                    <ActivityIndicator size="small" color="#0000ff"/>
+                                ) : 
+                                    <Text style={{color: '#000', paddingVertical: 5, paddingHorizontal: 20}}>Send Code</Text>
+                                } 
+                            </View>
                         </TouchableOpacity>
                     </View>
+
                     <Text style={{
                         fontSize: 16,
                         paddingVertical: 16,
                         color: '#fff'
-                        }}>Enter confirmation code
+                    }}>
+                        Enter confirmation code
                     </Text>
+
                     <View style={{ borderWidth: 0.3, borderColor: '#ffffffa5', width: '100%', alignItems: 'center', borderRadius: 8}}>
                         <TextInput
                             placeholder='- - - - - -'
@@ -342,54 +439,62 @@ const handleUpdatePassword = async () => {
                             style={styles.nametext}
                             maxLength={6}
                             onChangeText={val => setConfirmCode(val)}
-                            //defaultValue={user?.name}
                         />
-                    </View>        
+                    </View>   
+
                     <View style={styles.button}>
                         <TouchableOpacity onPress={handleConfirmCode} >
-                            <LinearGradient
-                                colors={['cyan', 'cyan']}
-                                style={styles.savebutton} >
-                                <Text style={{color: '#000', paddingVertical: 5, paddingHorizontal: 20}}>Submit</Text>
-                            </LinearGradient>
+                            <View style={styles.savebutton} >
+                                {isUploading ? (
+                                    <ActivityIndicator size="small" color="#0000ff"/>
+                                ) : 
+                                    <Text style={{color: '#000', paddingVertical: 5, paddingHorizontal: 20}}>Submit</Text>
+                                } 
+                            </View>
                         </TouchableOpacity>
                     </View>
                 </View>
             </Modal>
+
 {/* //Update about me blurb */}
             <Modal visible={visible5} onDismiss={hideBioModal} contentContainerStyle={containerStyle}>
                 <View style={{ alignItems: 'center'}}>
                     <Text style={{
                         fontSize: 16,
                         color: '#fff'
-                        }}>Update bio
+                    }}>
+                        Update bio
                     </Text>
                     <View style={{ borderWidth: 0.2, borderColor: '#363636a5', width: '100%', alignItems: 'center', borderRadius: 8}}>
-                    <View style={styles.statuscontainermodal }> 
-                        <TextInput 
-                            placeholder={user?.bio || 'Say something about yourself'}
-                            placeholderTextColor='#ffFFFFa5'
-                            style={styles.textInput}
-                            maxLength={250}
-                            multiline={true}
-                            numberOfLines={10}
-                            onChangeText={val => setBio(val)}
-                            defaultValue={user?.bio || ''}
-                        />
-                </View>
+                        <View style={styles.statuscontainermodal }> 
+                            <TextInput 
+                                placeholder={user?.bio || 'Say something about yourself'}
+                                placeholderTextColor='#ffFFFFa5'
+                                style={styles.textInput}
+                                maxLength={250}
+                                multiline={true}
+                                numberOfLines={10}
+                                onChangeText={val => setBio(val)}
+                                defaultValue={user?.bio || ''}
+                            />
+                        </View>
                     </View>
+
                     <View style={styles.button}>
                         <TouchableOpacity
                             onPress={handleUpdateBio}>
-                            <LinearGradient
-                                colors={['cyan', 'cyan']}
-                                style={styles.savebutton} >
-                                <Text style={{color: '#000', paddingVertical: 5, paddingHorizontal: 20}}>Submit</Text>
-                            </LinearGradient>
+                            <View style={styles.savebutton} >
+                                {isUploading ? (
+                                    <ActivityIndicator size="small" color="#0000ff"/>
+                                ) : 
+                                    <Text style={{color: '#000', paddingVertical: 5, paddingHorizontal: 20}}>Submit</Text>
+                                } 
+                            </View>
                         </TouchableOpacity>
                     </View>
                 </View>
             </Modal>
+
 {/* //Update Image modal */}
             <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
                 <View style={{ alignItems: 'center'}}>
@@ -403,24 +508,23 @@ const handleUpdatePassword = async () => {
                         fontSize: 16,
                         paddingVertical: 16,
                         color: '#fff'
-                        }}>Upload new picture
+                    }}>
+                        Select a new profile image
                     </Text>
                     <View style={styles.button}>
-                            <LinearGradient
-                                colors={['cyan', 'cyan']}
-                                style={styles.savebutton} >
-                                {
-                                isUploading ? (
+                            <View style={styles.savebutton} >
+                                {isUploading ? (
                                     <ActivityIndicator size="small" color="#0000ff"/>
                                 ) : 
                                     <TouchableOpacity onPress={PublishAvatar}>
                                         <Text style={{color: '#000', paddingVertical: 5, paddingHorizontal: 20}}>Submit</Text>
                                     </TouchableOpacity> 
                                 }   
-                            </LinearGradient>
+                            </View>
                     </View>
                 </View>
             </Modal>
+
 {/* //Sign Out modal */}
                 <Modal visible={visible2} onDismiss={hideSignOutModal} contentContainerStyle={containerStyle}>
                     <View style={{ alignItems: 'center'}}>
@@ -428,21 +532,24 @@ const handleUpdatePassword = async () => {
                             fontSize: 16,
                             paddingVertical: 16,
                             color: '#fff'
-                            }}>Are you sure you want to log out?
+                        }}>
+                            Are you sure you want to log out?
                         </Text>
                         
                         <View style={styles.button}>
-                            <TouchableOpacity
-                                onPress={signOut}>
-                                <LinearGradient
-                                    colors={['cyan', 'cyan']}
-                                    style={styles.savebutton} >
-                                    <Text style={{color: '#000', paddingVertical: 5, paddingHorizontal: 20}}>Log Out</Text>
-                                </LinearGradient>
+                            <TouchableOpacity onPress={signOut}>
+                                <View style={styles.savebutton} >
+                                    {isUploading ? (
+                                        <ActivityIndicator size="small" color="#0000ff"/>
+                                    ) : 
+                                        <Text style={{color: '#000', paddingVertical: 5, paddingHorizontal: 20}}>Log Out</Text> 
+                                    } 
+                                </View>
                             </TouchableOpacity>
                         </View>
                     </View>
                 </Modal>
+
 {/* //Reset password modal */}
                 <Modal visible={visible6} onDismiss={hidePassModal} contentContainerStyle={containerStyle}>
                 <View style={{ alignItems: 'center'}}>
@@ -450,10 +557,12 @@ const handleUpdatePassword = async () => {
                         fontSize: 16,
                         paddingVertical: 16,
                         color: '#fff'
-                        }}>Enter new password
+                    }}>
+                        Enter new password
                     </Text>
+
                     <View style={{ borderWidth: 0.3, borderColor: '#ffffffa5', width: '100%', alignItems: 'center', borderRadius: 8}}>  
-                    <TextInput
+                        <TextInput
                             placeholder='Minimum 8 of characters'
                             placeholderTextColor='#00ffffa5'
                             style={styles.nametext}
@@ -463,69 +572,82 @@ const handleUpdatePassword = async () => {
                             //defaultValue={user?.name}
                         />
                     </View>
+
                     <Text style={{
                         fontSize: 16,
                         paddingVertical: 16,
                         color: '#fff'
-                        }}>Enter old password
+                    }}>
+                        Enter old password
                     </Text>
+
                     <View style={{ borderWidth: 0.3, borderColor: '#ffffffa5', width: '100%', alignItems: 'center', borderRadius: 8}}>  
-                    <TextInput
+                        <TextInput
                             placeholder=''
-                            placeholderTextColor='#00ffffa5'
+                            placeholderTextColor='gray'
                             style={styles.nametext}
                             maxLength={16}
                             onChangeText={val => setOldPassword(val)}
                             secureTextEntry={true}
-                            //defaultValue={user?.name}
                         />
                     </View>
+
                     <View style={styles.button}>
                         <TouchableOpacity onPress={handleUpdatePassword}>
-                            <LinearGradient
-                                colors={['cyan', 'cyan']}
-                                style={styles.savebutton} >
-                                <Text style={{color: '#000', paddingVertical: 5, paddingHorizontal: 20}}>Submit</Text>
-                            </LinearGradient>
+                            <View style={styles.savebutton} >
+                                {isUploading ? (
+                                    <ActivityIndicator size="small" color="#0000ff"/>
+                                ) :
+                                        <Text style={{color: '#000', paddingVertical: 5, paddingHorizontal: 20}}>Submit</Text>                               
+                                } 
+                            </View>
                         </TouchableOpacity>
                     </View>
                 </View>
             </Modal>
         </Portal>
 
+{/* primary visible content */}
             <View>
                 <View style={{  alignItems: 'center', flexDirection: 'row', marginTop: 50, marginBottom: 20, marginHorizontal: 20,}}>
-                    <FontAwesome5 
-                        name='chevron-left'
-                        color='#fff'
-                        size={20}
-                        onPress={() => navigation.goBack()}
-                    />
+                    <TouchableWithoutFeedback onPress={() => navigation.goBack()}>
+                        <View style={{padding: 30, margin: -30}}>
+                            <FontAwesome5 
+                                name='chevron-left'
+                                color='#fff'
+                                size={20}
+                            />
+                        </View>
+                    </TouchableWithoutFeedback>
+                    
                     <Text style={{color: '#fff', fontSize: 22, fontWeight: 'bold', marginHorizontal: 40}}>
                         Edit Profile
                     </Text>
                 </View>
 
-                <TouchableOpacity onPress={showNameModal}>
+                <TouchableWithoutFeedback onPress={showNameModal}>
                     <View style={styles.emailcontainer }> 
                         <Text style={ styles.words }>Name</Text>
                         <Text style={ styles.placeholdertext }>{user?.name}</Text>
                     </View>
-                </TouchableOpacity>
+                </TouchableWithoutFeedback>
 
                 {user?.isPublisher === true ? (
-                    <View style={styles.emailcontainer }> 
-                        <Text style={ styles.words }>Pseudonym</Text>
-                        <Text style={ styles.placeholdertext }>{user?.pseudonym || 'annonymous'}</Text>
-                    </View>
+                    <TouchableWithoutFeedback onPress={showPseudModal}>
+                        <View style={styles.emailcontainer }> 
+                            <Text style={ styles.words }>Pseudonym</Text>
+                            <Text style={ styles.placeholdertext }>{user?.pseudonym || 'annonymous'}</Text>
+                        </View>
+                    </TouchableWithoutFeedback>
                 ) : null}
                    
-                <TouchableOpacity onPress={showBioModal}>
+                <TouchableWithoutFeedback onPress={showBioModal}>
                     <View style={styles.statuscontainer}> 
-                        <Text style={{fontSize: 14, color: '#ffffffa5', padding: 10}}>{user?.bio || 'Say something about yourself'}</Text>
+                        <Text style={{fontSize: 14, color: '#ffffffa5', padding: 10}}>
+                            {user?.bio || 'Say something about yourself'}
+                        </Text>
                     </View>
-                </TouchableOpacity>
-                
+                </TouchableWithoutFeedback>
 
                 <TouchableWithoutFeedback onPress={showModal}>
                     <View style={styles.photocontainer }>
@@ -544,35 +666,21 @@ const handleUpdatePassword = async () => {
                     </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                    onPress={showPassModal}>
+                <TouchableOpacity onPress={showPassModal}>
                     <View style={styles.smallcontainer }>
                         <Text style={ styles.words }>Reset Password</Text>
                     </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                    onPress={showSignOutModal}>
+                <TouchableOpacity onPress={showSignOutModal}>
                     <View style={styles.smallcontainer }>
                         <Text style={ styles.words }>Log Out</Text>
                     </View>
                 </TouchableOpacity>
             </View>
-
-                
-                <StatusBar style="light" />
-            </View>
-
-                {/* <View style={styles.deletecontainer }>
-                    <View>
-                        <TouchableOpacity 
-                            onPress={() => alert('This will permenantly delete your account. Are you sure you want to continue?')}>
-                                <Text style={ styles.deletewords }>Delete Account</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View> */}
-            
-        </Provider> 
+            <StatusBar style="light" />
+        </View>            
+    </Provider> 
 );}
 
 export default EditProfile;
@@ -673,6 +781,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 30,
+        backgroundColor: 'cyan'
     },
     savewords: {
         fontSize: 14,

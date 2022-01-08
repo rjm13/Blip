@@ -1,5 +1,13 @@
 import React, {useState, useEffect} from 'react';
-import { View, Text, StyleSheet, Dimensions, ScrollView, TouchableWithoutFeedback, TouchableOpacity,  Image } from 'react-native';
+import { 
+    View, 
+    Text, 
+    StyleSheet,
+    ScrollView, 
+    TouchableWithoutFeedback,  
+    Image 
+} from 'react-native';
+
 import { LinearGradient } from 'expo-linear-gradient';
 import {StatusBar} from 'expo-status-bar';
 
@@ -8,17 +16,17 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { API, graphqlOperation, Auth } from "aws-amplify";
 import { getUser, listFollowingConns } from '../src/graphql/queries';
 
-import { useNavigation } from '@react-navigation/native';
 
 
 const ProfileScreen = ({navigation} : any) => {
 
-    //const navigation = useNavigation();
-
+    //the number of followers an author has, set by listing the followingconns
     const [numFollowers, setNumFollowers] = useState();
 
+    //the current authenticated user
     const [user, setUser] = useState();
 
+    //on render, set the current user and get the list of followers an author has
     useEffect(() => {
       const fetchUser = async () => {
         const userInfo = await Auth.currentAuthenticatedUser();
@@ -26,12 +34,11 @@ const ProfileScreen = ({navigation} : any) => {
             return;
           }
         try {
-          const userData = await API.graphql(graphqlOperation(
-            getUser, {id: userInfo.attributes.sub}))
-            if (userData) {
-              setUser(userData.data.getUser);
-            }
-            console.log(userData.data.getUser);
+            const userData = await API.graphql(graphqlOperation(
+                getUser, {id: userInfo.attributes.sub}
+            ))
+
+            if (userData) {setUser(userData.data.getUser);}
 
             const getFollowers = await API.graphql(graphqlOperation(
                 listFollowingConns, {
@@ -42,7 +49,9 @@ const ProfileScreen = ({navigation} : any) => {
                     }
                 }
             ))
+
             setNumFollowers(getFollowers.data.listFollowingConns.items.length)
+
         } catch (e) {
           console.log(e);
         }
@@ -55,18 +64,20 @@ const ProfileScreen = ({navigation} : any) => {
             
             <LinearGradient
                 colors={['#363636a5', '#363636a5', 'black']}
-                //style={styles.container}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
             >
                 
                 <View style={{ flexDirection: 'row', marginTop: 30, marginLeft: 20, alignItems: 'center'}}>
-                    <FontAwesome5 
-                        name='chevron-left'
-                        color='#fff'
-                        size={20}
-                        onPress={() => navigation.goBack()}
-                    />
+                    <TouchableWithoutFeedback onPress={() => navigation.goBack()}>
+                        <View style={{padding: 30, margin: -30}}>
+                            <FontAwesome5 
+                                name='chevron-left'
+                                color='#fff'
+                                size={20}
+                            />
+                        </View>
+                    </TouchableWithoutFeedback>
                     <Text style={styles.header}>
                         Account
                     </Text>
@@ -90,7 +101,7 @@ const ProfileScreen = ({navigation} : any) => {
                         <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                                 <View style={{ alignItems: 'center', margin: 20}}>
                                     <Text style={{ color: 'cyan', opacity: .5}}>
-                                        {user?.followers ? user?.followers.items.length : 0}
+                                        {user?.followers.items.length}
                                     </Text>
                                     <Text style={{ color: '#ffffffa5', fontWeight: 'bold'}}>
                                         Following
@@ -113,12 +124,12 @@ const ProfileScreen = ({navigation} : any) => {
 
                     <View>
                         <Text style={styles.header}>
-                        {!!user ? user.name : 'Cognito User'}
+                        {user?.name}
                         </Text>
                     </View>
 
                     <TouchableWithoutFeedback onPress={() => navigation.navigate('EditProfileScreen', {user: user})}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 40, marginVertical: 20}}>
+                        <View style={styles.tile}>
                             <Text style={{ color: '#fff', fontSize: 16}}>
                                 Profile
                             </Text>
@@ -131,7 +142,7 @@ const ProfileScreen = ({navigation} : any) => {
                     </TouchableWithoutFeedback>
 
                     <TouchableWithoutFeedback onPress={ () => navigation.navigate('History')}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 40, marginVertical: 20}}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 40, paddingVertical: 20}}>
                             <Text style={{ color: '#fff', fontSize: 16}}>
                                 History
                             </Text>
@@ -144,10 +155,9 @@ const ProfileScreen = ({navigation} : any) => {
                     </TouchableWithoutFeedback>
 
                     <TouchableWithoutFeedback 
-                        //onPress={ () => navigation.navigate('Publishing', {user: user})}
-                        onPress={ () => navigation.navigate( user.isPublisher === true ? 'Publisher' : 'Publishing', {user: user})}
+                        onPress={ () => navigation.navigate( user?.isPublisher === true ? 'Publisher' : 'Publishing', {user: user})}
                     >
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 40, marginVertical: 20}}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 40, paddingVertical: 20}}>
                             <Text style={{ color: '#fff', fontSize: 16}}>
                                 Publishing
                             </Text>
@@ -199,19 +209,9 @@ const ProfileScreen = ({navigation} : any) => {
                     </TouchableWithoutFeedback>
 
                     <TouchableWithoutFeedback>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 40, marginVertical: 20}}>
-                            
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 40, marginVertical: 20}}> 
                         </View>
                     </TouchableWithoutFeedback>
-                    
-
-                    {/* <TouchableOpacity onPress={() => navigation.navigate('NotificationSetting')}>
-                        <View style={{ alignItems: 'center', marginHorizontal: 40, marginVertical: 10}}>
-                            <Text style={{ color: '#fff', fontSize: 16, borderRadius: 20, borderColor: '#fff', paddingHorizontal: 20, paddingVertical: 5, borderWidth: .5}}>
-                                Settings
-                            </Text>
-                        </View>
-                    </TouchableOpacity> */}
                     
                 </ScrollView>  
             </LinearGradient>
@@ -222,7 +222,7 @@ const ProfileScreen = ({navigation} : any) => {
 
 const styles = StyleSheet.create ({
     container: {
-        //flex: 1
+        flex: 1
     },
     header: {
         color: '#fff',
@@ -231,6 +231,12 @@ const styles = StyleSheet.create ({
         marginHorizontal: 40,
         marginVertical: 20,
     },
+    tile: {
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        marginHorizontal: 40, 
+        marginVertical: 20
+    }
 });
 
 export default ProfileScreen;
