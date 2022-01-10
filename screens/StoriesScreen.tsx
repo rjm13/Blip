@@ -320,8 +320,8 @@ box: {
     color: 'cyan',
     fontSize: 14,
     backgroundColor: '#1A4851a5',
-    borderColor: 'cyan',
-    borderWidth: 1,
+    borderColor: '#00ffffa5',
+    borderWidth: 0.5,
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 20
