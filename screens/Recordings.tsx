@@ -1,12 +1,22 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {View, Text, StyleSheet, ScrollView, Dimensions, TouchableWithoutFeedback, FlatList, RefreshControl} from 'react-native';
+import {
+    View, 
+    Text, 
+    StyleSheet, 
+    Dimensions, 
+    TouchableWithoutFeedback, 
+    FlatList, 
+    RefreshControl} 
+from 'react-native';
+
 import { Audio } from 'expo-av';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { LinearGradient } from 'expo-linear-gradient';
+
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Modal, Portal, Provider } from 'react-native-paper';
 import Slider from '@react-native-community/slider';
-
 import { format, parseISO } from "date-fns";
 
 import { useRoute } from '@react-navigation/native';
@@ -14,7 +24,11 @@ import { useRoute } from '@react-navigation/native';
 import { API, graphqlOperation, Auth } from "aws-amplify";
 import { getUser } from '../src/graphql/queries';
 
-const useInterval = (callback, delay) => {
+//this contains the modal audio player. Could not get it to work right because of useInterval 
+//causing the flatlist to rerender every second
+
+//function to get the timer for the slider
+const useInterval = (callback : any, delay : any) => {
     const savedCallback = useRef();
     
     // Remember the latest callback.
@@ -36,38 +50,12 @@ const useInterval = (callback, delay) => {
 
 const Publisher = ({navigation} : any) => {
 
-    const [user, setUser] = useState({})
-
     const route = useRoute();
     const {User} = route.params
 
     const [update, didUpdate] = useState(false);
 
-    // useEffect(() => {
-    //     setUser(User);
-    // }, [])
-
-    // useEffect(() => {
-    //     const fetchUser = async () => {
-    //       const userInfo = await Auth.currentAuthenticatedUser();
-    //         if (!userInfo) {
-    //           return;
-    //         }
-    //       try {
-    //         const userData = await API.graphql(graphqlOperation(
-    //           getUser, {id: userInfo.attributes.sub}))
-    //           if (userData) {
-    //             setUser(userData.data.getUser);
-    //           }
-    //           console.log(userData.data.getUser);
-    //       } catch (e) {
-    //         console.log(e);
-    //       }
-    //     }
-    //     fetchUser();
-    //   }, [])
-
-      const [SavedAudio, setSavedAudio] = useState([''])
+      const [SavedAudio, setSavedAudio] = useState([])
 
       const [isSaved, setIsSaved] = useState(false);
 
@@ -79,18 +67,52 @@ const Publisher = ({navigation} : any) => {
           audioUri: ''
       });
 
+      const [userID, setUserID] = useState()
+
       useEffect(() => {
+        const fetchUser = async () => {
+
+            const userInfo = await Auth.currentAuthenticatedUser();
+  
+              if (!userInfo) {return;}
+
+            setUserID(userInfo.attributes.sub)
+
+            } 
+          fetchUser();
+      }, [])
+
+      //get the async storage keys on render
+      useEffect(() => {
+
         const LoadKeys = async () => {
+            
+            const userInfo = await Auth.currentAuthenticatedUser();
+
             let saved = await AsyncStorage.getAllKeys();
     
             if (saved != null) {
-                let result = saved.filter((item) => item.includes("recording"));
+                let result = saved.filter((item) => item.includes("recording" + userInfo.attributes.sub));
                 setSavedAudio(result);
             } 
+
+            console.log('this ran')
+            console.log(SavedAudio)
+            console.log(userID)
         }
         LoadKeys();
     
     }, [isSaved])
+
+    //call the function on refresh
+    const LoadKeys = async () => {
+        let saved = await AsyncStorage.getAllKeys();
+
+        if (saved != null) {
+            let result = saved.filter((item) => item.includes("recording" + userID));
+            setSavedAudio(result);
+        } 
+    }
 
 //set the player modal state
         const [visiblePlayModal, setVisiblePlayModal] = useState(false);
@@ -126,6 +148,7 @@ const Publisher = ({navigation} : any) => {
         catch(e) {
             // read error
         }
+        
         setIsSaved(!isSaved);
         hideRemoveModal();
     }
@@ -141,6 +164,7 @@ const Publisher = ({navigation} : any) => {
             audio: null,
         })
 
+        //get the item from async storage
         useEffect(() => {
             let componentMounted = true;
             const fetchData = async () => {
@@ -215,12 +239,13 @@ const Publisher = ({navigation} : any) => {
       const [isFetching, setIsFetching] = useState(false);
 
         const onRefresh = () => {
+            
             setIsFetching(true);
             setIsSaved(!isSaved)
-            //fetchStorys();
-            setTimeout(() => {
+            //LoadKeys();
+            //setTimeout(() => {
                 setIsFetching(false);
-            }, 2000);
+            //}, 2000);
         }
 
 //Audio player
@@ -283,6 +308,7 @@ const convertToTime = () => {
         }    
     }
 
+    //set the position of the slider to change every second
     useInterval(() => {
         if (isPlaying === true && position < slideLength) {
         setPosition(position + 1000);
@@ -293,6 +319,7 @@ const convertToTime = () => {
         }
       }, 1000);
 
+      //unload the old sound when a new sound is selected
       useEffect(() => {
         return sound
         ? () => {
@@ -389,14 +416,19 @@ const convertToTime = () => {
             >
                 <View style={{marginHorizontal: 20, marginTop: 50}}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <View style={{flexDirection: 'row'}}>
-                                <FontAwesome5 
-                                    name='chevron-left'
-                                    color="#fff"
-                                    size={20}
-                                    style={{alignSelf: 'center'}}
-                                    onPress={() => navigation.goBack()}
-                                />
+                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                <TouchableWithoutFeedback onPress={() => navigation.goBack()}>
+                                    <View style={{padding: 30, margin: -30}}>
+                                        <FontAwesome5 
+                                            name='chevron-left'
+                                            color="#fff"
+                                            size={20}
+                                            style={{alignSelf: 'center'}}
+                                        />
+                                    </View>
+                                </TouchableWithoutFeedback>
+                                
+                                
                                 <Text style={styles.header}>
                                     My Recordings
                                 </Text>
@@ -428,9 +460,19 @@ const convertToTime = () => {
                         data={SavedAudio}
                         renderItem={renderItem}
                         keyExtractor={item => item}
-                        //extraData={isSaved}
+                        extraData={SavedAudio}
                         style={{height: '57%'}}
-                        //scrollEnabled={false}
+                        initialNumToRender={10}
+                        ListEmptyComponent={() => {
+                            return(
+                                <View style={{alignItems: 'center', margin: 30}}>
+                                    <Text style={{color: '#fff'}}>
+                                        There is nothing here.
+                                    </Text>
+                                </View>
+                            )
+                            
+                        }}
                         refreshControl={
                             <RefreshControl
                             refreshing={isFetching}

@@ -1,5 +1,17 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, TouchableWithoutFeedback, ActivityIndicator, Platform, Dimensions, TouchableOpacity, TextInput, ScrollView} from 'react-native';
+import React, {useState} from 'react';
+import {
+    View, 
+    Text, 
+    StyleSheet, 
+    TouchableWithoutFeedback, 
+    ActivityIndicator, 
+    Dimensions, 
+    TouchableOpacity, 
+    TextInput, 
+    ScrollView
+} from 'react-native';
+
+import { useRoute } from '@react-navigation/native';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -8,43 +20,12 @@ import { API, graphqlOperation, Auth, Storage } from "aws-amplify";
 import { updateUser } from '../src/graphql/mutations';
 import { getUser } from '../src/graphql/queries';
 
-import { useRoute } from '@react-navigation/native';
-
-
 const PublishingSetup = ({navigation} : any) => {
 
-    const [user, setUser] = useState({})
+    //const [user, setUser] = useState({})
 
     const route = useRoute();
     const {User} = route.params
-
-    const [update, didUpdate] = useState(false);
-
-    useEffect(() => {
-        setUser(User);
-    }, [])
-
-    useEffect(() => {
-        const fetchUser = async () => {
-          const userInfo = await Auth.currentAuthenticatedUser();
-            if (!userInfo) {
-              return;
-            }
-          try {
-            const userData = await API.graphql(graphqlOperation(
-              getUser, {id: userInfo.attributes.sub}))
-              if (userData) {
-                setUser(userData.data.getUser);
-              }
-              console.log(userData.data.getUser);
-          } catch (e) {
-            console.log(e);
-          }
-        }
-        fetchUser();
-      }, [update])
-
-    const delay = ms => new Promise(res => setTimeout(res, ms));
 
     const [agree, setAgree] = useState(false);
 
@@ -55,6 +36,35 @@ const PublishingSetup = ({navigation} : any) => {
         publisher: false, 
     });
 
+    //const [update, didUpdate] = useState(false);
+
+    // useEffect(() => {
+    //     setUser(User);
+    // }, [])
+
+    // useEffect(() => {
+    //     const fetchUser = async () => {
+    //       const userInfo = await Auth.currentAuthenticatedUser();
+    //         if (!userInfo) {
+    //           return;
+    //         }
+    //       try {
+    //         const userData = await API.graphql(graphqlOperation(
+    //           getUser, {id: userInfo.attributes.sub}))
+    //           if (userData) {
+    //             setUser(userData.data.getUser);
+    //           }
+    //           console.log(userData.data.getUser);
+    //       } catch (e) {
+    //         console.log(e);
+    //       }
+    //     }
+    //     fetchUser();
+    //   }, [update])
+
+    //const delay = ms => new Promise(res => setTimeout(res, ms));
+
+//function for the text input
     const textInputChange = (val : any) => {
         if( val.length !== 0 ) {
             setData({
@@ -70,22 +80,22 @@ const PublishingSetup = ({navigation} : any) => {
     }
 
     const handleUpdateAttributes = async () => {
-        //get authenticated user from Auth
-      if ( data.pseudonym.length !== 0 ) {
-          const userInfo = await Auth.currentAuthenticatedUser();
-  
-          const updatedUser = { id: userInfo.attributes.sub, pseudonym: data.pseudonym, isPublisher: true }
-  
-          if (userInfo) {
-              let result = await API.graphql(
-              graphqlOperation(updateUser, { input: updatedUser }))
-          console.log(result);
 
-          if (result) {
-            navigation.navigate('Publisher', {user: user})
-        }
+        if ( data.pseudonym.length !== 0 ) {
+          //const userInfo = await Auth.currentAuthenticatedUser();
+  
+            const updatedUser = { id: User.id, pseudonym: data.pseudonym, isPublisher: true }
+  
+          //if (userInfo) {
+            let result = await API.graphql(
+                graphqlOperation(updateUser, { input: updatedUser }
+            ))
+            
+            console.log(result);
+
+          if (result) {navigation.navigate('Publisher')}
           setPublishing(false);
-          }
+          //}
       }
   }
 
@@ -105,21 +115,22 @@ const PublishingSetup = ({navigation} : any) => {
             <View style={{marginHorizontal: 20, marginTop: 50}}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
                     <View style={{flexDirection: 'row'}}>
-                        <FontAwesome5 
-                            name='chevron-left'  
-                            color="#fff"
-                            size={20}
-                            style={{alignSelf: 'center'}}
-                            onPress={() => navigation.goBack()}
-                        />
+                        <TouchableWithoutFeedback onPress={() => navigation.goBack()}>
+                            <View style={{padding: 30, margin: -30}}>
+                                <FontAwesome5 
+                                    name='chevron-left'  
+                                    color="#fff"
+                                    size={20}
+                                    style={{alignSelf: 'center'}}
+                                />
+                            </View>
+                        </TouchableWithoutFeedback>
                         <Text style={styles.header}>
                             Publisher Setup
                         </Text>
                     </View>
                 </View>  
             </View>
-
-            <ScrollView>
 
                 <View style={{marginTop: 40}}>
                     <Text style={styles.inputheader}>
@@ -174,8 +185,6 @@ const PublishingSetup = ({navigation} : any) => {
                 </TouchableOpacity>
                     
                 </View>
-                
-            </ScrollView>
 
         </View>
     

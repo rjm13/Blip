@@ -5,9 +5,9 @@
     "slug": "Blip",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/shortslogo.png",
+    "icon": "./assets/images/blipicon.png",
     "splash": {
-      "image": "./assets/images/shortssplash.png",
+      "image": "./assets/images/blipsplash.png",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
@@ -22,12 +22,12 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/shortslogo.png",
+        "foregroundImage": "./assets/images/blipicon.png",
         "backgroundColor": "#000000"
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/images/blipicon.png"
     }
   }
 }

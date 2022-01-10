@@ -652,7 +652,7 @@ const handleUpdatePassword = async () => {
                     <View style={styles.photocontainer }>
                         <Text style={ styles.words }>Photo</Text>
                         <Image 
-                            source={{ uri: user?.imageUri || 'https://hieumobile.com/wp-content/uploads/avatar-among-us-2.jpg'}} 
+                            source={user?.imageUri ? { uri: user?.imageUri} : require('../assets/images/blankprofile.png')} 
                             style={styles.avatar} 
                         />
                     </View>

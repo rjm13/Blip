@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text, Dimensions, TouchableOpacity, Switch, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, Dimensions, Switch, ScrollView } from 'react-native';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 //import { Switch } from 'react-native-paper';

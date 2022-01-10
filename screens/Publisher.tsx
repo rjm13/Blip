@@ -1,59 +1,63 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, ScrollView, Dimensions, TouchableWithoutFeedback} from 'react-native';
+import {
+    View, 
+    Text, 
+    StyleSheet, 
+    ScrollView, 
+    Dimensions, 
+    TouchableWithoutFeedback
+} from 'react-native';
+
+//import { useRoute } from '@react-navigation/native';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import { useRoute } from '@react-navigation/native';
 
 import { API, graphqlOperation, Auth } from "aws-amplify";
 import { getUser, listFollowingConns } from '../src/graphql/queries';
 
 const Publisher = ({navigation} : any) => {
 
+    //the number of follows the author (current user) has
     const [numFollowers, setNumFollowers] = useState();
 
     const [user, setUser] = useState({})
 
-    const route = useRoute();
-    const {User} = route.params
-
-    const [update, didUpdate] = useState(false);
+    //const route = useRoute();
+    //const {User} = route.params
 
     const [SavedAudio, setSavedAudio] = useState([''])
 
+    //load the keys from async storage
     useEffect(() => {
         const LoadKeys = async () => {
             let saved = await AsyncStorage.getAllKeys();
     
             if (saved != null) {
-                let result = saved.filter((item) => item.includes("recording"));
+                let result = saved.filter((item) => item.includes("recording" + user.id));
                 setSavedAudio(result);
             } 
         }
         LoadKeys();
-    
     }, [])
 
-    // useEffect(() => {
-    //     setUser(User);
-    // }, [])
-
+//get the current user and list their followings and followers
     useEffect(() => {
         const fetchUser = async () => {
+
           const userInfo = await Auth.currentAuthenticatedUser();
-            if (!userInfo) {
-              return;
-            }
+
+            if (!userInfo) {return;}
+
           try {
             const userData = await API.graphql(graphqlOperation(
-              getUser, {id: userInfo.attributes.sub}))
-              if (userData) {
-                setUser(userData.data.getUser);
-              }
-              console.log(userData.data.getUser);
-              const getFollowers = await API.graphql(graphqlOperation(
+              getUser, {id: userInfo.attributes.sub}
+            ))
+
+            if (userData) {setUser(userData.data.getUser);}
+
+            const getFollowers = await API.graphql(graphqlOperation(
                 listFollowingConns, {
                     filter: {
                         authorID: {
@@ -62,7 +66,9 @@ const Publisher = ({navigation} : any) => {
                     }
                 }
             ))
+
             setNumFollowers(getFollowers.data.listFollowingConns.items.length)
+
           } catch (e) {
             console.log(e);
           }
@@ -70,28 +76,30 @@ const Publisher = ({navigation} : any) => {
         fetchUser();
       }, [])
 
+
     return (
         <View style={styles.container}>
             
             <LinearGradient
                 colors={['black', '#363636a5', 'black']}
-                style={{
-                    height: Dimensions.get('window').height,
-                    justifyContent: 'space-between'
-                }}
+                style={{height: Dimensions.get('window').height,justifyContent: 'space-between'}}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
             >
                 <View style={{marginHorizontal: 20, marginTop: 50}}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <View style={{flexDirection: 'row'}}>
-                                <FontAwesome5 
-                                    name='chevron-left'
-                                    color="#fff"
-                                    size={20}
-                                    style={{alignSelf: 'center'}}
-                                    onPress={() => navigation.navigate('ProfileScreen')}
-                                />
+                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                <TouchableWithoutFeedback onPress={() => navigation.navigate('ProfileScreen')}>
+                                    <View style={{padding: 30, margin: -30}}>
+                                        <FontAwesome5 
+                                            name='chevron-left'
+                                            color="#fff"
+                                            size={20}
+                                            style={{alignSelf: 'center'}}
+                                        />
+                                    </View>
+                                </TouchableWithoutFeedback>
+                                
                                 <Text style={styles.header}>
                                     Publisher Home
                                 </Text>
@@ -163,6 +171,7 @@ const Publisher = ({navigation} : any) => {
                         </View>
                     </TouchableWithoutFeedback>
 
+{/* line break */}
                     <View style={{marginVertical: 20, alignSelf: 'center', width: '80%', height: 1, borderColor: '#fff', borderWidth: 0.5}}>
                     </View>
 
@@ -210,10 +219,8 @@ const Publisher = ({navigation} : any) => {
 
 const styles = StyleSheet.create({
     container: {
-        //justifyContent: 'center',
         alignContent: 'center',
         width: Dimensions.get('window').width,
-        //height: Dimensions.get('window').height,
     },
     header: {
         color: '#fff',

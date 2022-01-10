@@ -1,23 +1,31 @@
-import { StackScreenProps } from '@react-navigation/stack';
+
 import React, {useState, useEffect, useRef} from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, TextInput, Dimensions, TouchableWithoutFeedback } from 'react-native';
+import { 
+    StyleSheet, 
+    Text, 
+    TouchableOpacity, 
+    View, 
+    TextInput
+} from 'react-native';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
 import Slider from '@react-native-community/slider';
 import {LinearGradient} from 'expo-linear-gradient';
+
 import { Audio } from 'expo-av';
-import { List, Modal, Portal, Provider } from 'react-native-paper';
+import { Modal, Portal, Provider } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import uuid from 'react-native-uuid';
-//import ToggleSwitch from 'toggle-switch-react-native';
-//import ModalDropdown from 'react-native-modal-dropdown';
 
+import { Auth } from "aws-amplify";
+
+import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '../types';
 import genres  from '../data/dummygenre';
 
-function useInterval(callback, delay) {
+function useInterval(callback: any, delay: any) {
   const savedCallback = useRef();
 
   // Remember the latest callback.
@@ -37,7 +45,24 @@ function useInterval(callback, delay) {
 export default function RecordAudio({
   navigation,
 }: StackScreenProps<RootStackParamList, 'RecordAudio'>) {   
+
+    //get the current user in order to create a unique ID
+    const [userID, setUserID] = useState()
   
+    useEffect(() => {
+        const fetchUser = async () => {
+
+            const userInfo = await Auth.currentAuthenticatedUser();
+
+            if (!userInfo) {return;}
+
+            setUserID(userInfo.attributes.sub)
+            
+        }
+        fetchUser();
+    }, [])
+
+
       const Genre = genres.map((item, index) => item.genre)
 
       const [time, setTime] = useState(0);
@@ -45,7 +70,7 @@ export default function RecordAudio({
       const [recTime, setRecTime] = useState(0)
 
       const [AudioData, setAudioData] = useState({
-        id: 'recording' + uuid.v4().toString(),
+        id: 'recording' + userID + uuid.v4().toString(),
         title: uuid.v4().toString(),
         time: '',
         created: 0,
@@ -73,7 +98,7 @@ export default function RecordAudio({
       const SaveToStorage = async () => {
 
         let AudioToSave = {
-            id: AudioData.id,
+            id: 'recording' + userID + uuid.v4().toString(),
             title: AudioData.title,
             time: AudioData.time,
             created: new Date(),

@@ -1,26 +1,24 @@
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, Dimensions, Image, TouchableWithoutFeedback, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
-import EditScreenInfo from '../components/EditScreenInfo';
-import { Text, View } from '../components/Themed';
-import { Searchbar } from 'react-native-paper';
+import { 
+    View,
+    Text,
+    StyleSheet, 
+    Dimensions, 
+    Image, 
+    TouchableWithoutFeedback, 
+    FlatList, RefreshControl, 
+    TouchableOpacity 
+} from 'react-native';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Ionicon from 'react-native-vector-icons/Ionicons';
-import {LinearGradient} from 'expo-linear-gradient';
 
-import AudioStoryFlatList from '../components/AudioStoryFlatList';
-import FollowingList from '../components/FollowingList';
-//import FollowersList from '../components/FollowingList';
+import {LinearGradient} from 'expo-linear-gradient';
 
 import { API, graphqlOperation, Auth } from "aws-amplify";
 import { getUser } from '../src/graphql/queries';
-import { listUsers, listFollowingConns } from '../src/graphql/queries';
+import { listFollowingConns } from '../src/graphql/queries';
 import { createFollowingConn, deleteFollowingConn } from '../src/graphql/mutations';
-
-
-import {useNavigation, useRoute} from '@react-navigation/native';
 
 
 const FollowingScreen = ({navigation} : any) => {
@@ -33,150 +31,78 @@ const FollowingScreen = ({navigation} : any) => {
 
     const [isFetching, setIsFetching] = useState(false);
 
-    const fetchUsers = async () => {
+    //function is not called
+    // const fetchUsers = async () => {
+    //     let Following = []
+    //     const followData = await API.graphql(graphqlOperation(
+    //         listFollowingConns, {
+    //             filter: {followerID: {eq: user.id}}}))
+    //         for (let i = 0; i < followData.data.listFollowingConns.items.length; i++) {
+    //             Following.push(followData.data.listFollowingConns.items[i].author) 
+    //         setUsers(Following);}}
 
-        let Following = []
-
-        const followData = await API.graphql(graphqlOperation(
-
-            listFollowingConns, {
-                filter: {
-                    followerID: {
-                        eq: user.id
-                    }
-                }
-            }))
-          //if (followData.data.listFollowingConns.items) {
-
-            for (let i = 0; i < followData.data.listFollowingConns.items.length; i++) {
-                Following.push(followData.data.listFollowingConns.items[i].author) 
-            //}
-
-            setUsers(Following);
-            //console.log(followData.data.listFollowingConns.items);
-          } 
-        }
-
+    //refresh function, does not work yet
     const onRefresh = () => {
         setIsFetching(true);
         //fetchUsers();
+        setDidUpdate(!didUpdate)
         setTimeout(() => {
           setIsFetching(false);
         }, 2000);
       }
 
+//on render, get the user and then list the following connections for that user
     useEffect(() => {
-
 
         const fetchUser = async () => {
 
-        let Following = []
+            let Following = []
 
-          const userInfo = await Auth.currentAuthenticatedUser();
-            if (!userInfo) {
-              return;
-            }
-          try {
-            const userData = await API.graphql(graphqlOperation(
-              getUser, {id: userInfo.attributes.sub}))
-              if (userData) {
-                setUser(userData.data.getUser);
-              }
-              console.log(userData.data.getUser);
+            const userInfo = await Auth.currentAuthenticatedUser();
 
-            //   for (let i = 0; i < userData.data.getUser.following.length; i++) {
-            //     try {
-            //         const response = await API.graphql(graphqlOperation(getUser, {
-            //         id: userData.data.getUser.following[i]
-            //     } ))
-            //         Following.push(response.data.getUser);
-            //     } catch (e) {
+                if (!userInfo) {return;}
 
-            //     }
+            try {
+                const userData = await API.graphql(graphqlOperation(
+                    getUser, {id: userInfo.attributes.sub}
+                ))
 
+                if (userData) {setUser(userData.data.getUser);}
 
-            const followData = await API.graphql(graphqlOperation(
-
-                listFollowingConns, {
-                    filter: {
-                        followerID: {
-                            eq: userData.data.getUser.id
+                const followData = await API.graphql(graphqlOperation(
+                    listFollowingConns, {
+                        filter: {
+                            followerID: {
+                                eq: userData.data.getUser.id
+                            }
                         }
-                    }
                 }))
-              //if (followData.data.listFollowingConns.items) {
 
                 for (let i = 0; i < followData.data.listFollowingConns.items.length; i++) {
                     Following.push(followData.data.listFollowingConns.items[i].author) 
-                //}
 
                 setUsers(Following);
-                //console.log(followData.data.listFollowingConns.items);
               } 
             } catch (e) {
             console.log(e);
           }
         }
         fetchUser();
-      }, [])
+      }, [didUpdate])
 
-
-    //   useEffect(() => {
-
-    //     const fetchUsers = async () => {
-
-    //         let Following = []
-
-    //         for (let i = 0; i < user.following.length; i++) {
-    //             try {
-    //                 const response = await API.graphql(graphqlOperation(getUser, {
-    //                 id: user.following[i]
-    //             } ))
-    //                 Following.push(response.data.getUser);
-    //             } catch (e) {
-
-    //             }
-    //         }
-    //         setUsers(Following)
-    //     };
-    //     fetchUsers();
-    // }, [])
-
-    // useEffect( () => {
-    //     const fetchUsers = async () => {
-
-    //         try {
-    //             const usersData = await API.graphql(
-    //                 graphqlOperation(
-    //                     listUsers, {
-    //                         filter: {
-    //                             id: {
-    //                                 contains: {
-                                       
-    //                                 }
-    //                             }
-    //                         }
-    //                     }
-    //                 )
-    //             )
-    //             setUsers(usersData.data.listUsers.items);
-    //         } catch (e) {
-    //             console.log(e);
-    //         }
-    //     }
-    //     fetchUsers();
-    // },[])
-
+    //legacy function for selected the state toggle between followers and following
     const [SelectedId, setSelectedId] = useState(1);
 
-    
+    //title item for the flatlist that displays the authors the user following
+    const Item = ({ numAuthored, pseudonym, imageUri, id, bio } : any) => {
 
-    const Item = ({ author, numAuthored, pseudonym, imageUri, id, bio, following, authored, isPublisher } : any) => {
-
+        //on item render, determine if the user is following them or not
         const [isFollowing, setIsFollowing] = useState(true)
 
+        //show the options menu modal on the author tile
         const [ShowModalThing, setShowModalThing] = useState(false);
         
+        //list the following connections that contain the current user and the selected author to determine if there is a following connection
         const fetchInfo = async () => {
             const getConnection = await API.graphql(graphqlOperation(
                 listFollowingConns, {
@@ -190,24 +116,23 @@ const FollowingScreen = ({navigation} : any) => {
                     }
                 }
             ))
-            console.log(user.id)
-            console.log(getConnection.data.listFollowingConns.items.length)
-            if (getConnection.data.listFollowingConns.items.length !== 1) {setIsFollowing(false)}
+           
+            if (getConnection.data.listFollowingConns.items.length !== 1) {setIsFollowing(false)};
+
             setShowModalThing(!ShowModalThing)
         }
         
         
-
+//follow a user function
         const FollowUser = async () => {
     
             let createConnection = await API.graphql(graphqlOperation(
                 createFollowingConn, {input: {followerID: user.id, authorID: id}}
             ))
-            //let followersInfo = await API.graphql(graphqlOperation(updateUser, {input: updatedUser}))
-            //console.log(followersInfo)
             console.log(createConnection)
         }
     
+//unfollow a user
         const unFollowUser = async () => {
     
             let getConnection = await API.graphql(graphqlOperation(
@@ -227,18 +152,13 @@ const FollowingScreen = ({navigation} : any) => {
             let connectionID = getConnection.data.listFollowingConns.items[0].id
             console.log(connectionID)
     
-    
             let deleteConnection = await API.graphql(graphqlOperation(
                 deleteFollowingConn, {input: {"id": connectionID}}
             ))
             console.log(deleteConnection)
-            console.log('deleted')
+
             setDidUpdate(!didUpdate)
-            
-    
         }
-    
-        
     
         return (
             <View style={styles.tile}>
@@ -246,7 +166,7 @@ const FollowingScreen = ({navigation} : any) => {
                     <TouchableWithoutFeedback onPress={() => navigation.navigate('UserScreen', {userID: id})}>
                         <View style={{ flexDirection: 'row'}}>
                             <Image 
-                                source={{ uri: imageUri}}
+                                source={ imageUri ? { uri: imageUri} : require('../assets/images/blankprofile.png')}
                                 style={{
                                     width: 50,
                                     height: 50,
@@ -286,7 +206,7 @@ const FollowingScreen = ({navigation} : any) => {
                     </TouchableWithoutFeedback>    
     
                     <TouchableWithoutFeedback onPress={fetchInfo}>
-                        <View style={{ backgroundColor: 'transparent', width: 40, alignItems: 'flex-end' }}>
+                        <View style={{ backgroundColor: 'transparent', padding: 30, margin: -30, alignItems: 'flex-end' }}>
                             <AntDesign
                                 name={'ellipsis1'}
                                 size={20}
@@ -295,8 +215,6 @@ const FollowingScreen = ({navigation} : any) => {
                         </View>
                     </TouchableWithoutFeedback>
                 </View>    
-    
-                    
     
                 <View style={{marginTop: 10, marginHorizontal: 5}}>
                     <Text style={{color: "#fff", fontSize: 12, }}>
@@ -325,7 +243,7 @@ const FollowingScreen = ({navigation} : any) => {
         );
     }
     
-    const renderItem = ({ item }) => (
+    const renderItem = ({ item } : any) => (
     
         <Item 
             author={item}
@@ -333,7 +251,6 @@ const FollowingScreen = ({navigation} : any) => {
             id={item.id}
             pseudonym={item.pseudonym}
             imageUri={item.imageUri}
-            //narrations={item.narrations.length}
             authored={item.authored}
             bio={item.bio}
             following={item.following}
@@ -343,22 +260,25 @@ const FollowingScreen = ({navigation} : any) => {
       );
 
     return (
-        <View >
+    <View >
         <LinearGradient
         colors={['#363636', 'black', 'black']}
-        //style={styles.container}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-          
           <View>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 60, marginHorizontal: 20}}>
-                  <FontAwesome5 
-                    name='chevron-left'
-                    color='#fff'
-                    size={20}
-                    onPress={ () => navigation.goBack()}
-                  />
+                  <TouchableWithoutFeedback onPress={ () => navigation.goBack()}>
+                      <View style={{padding: 30, margin: -30}}>
+                        <FontAwesome5 
+                            name='chevron-left'
+                            color='#fff'
+                            size={20}
+                        />
+                    </View>
+                  </TouchableWithoutFeedback>
+                  
+                  
 
               
             <View style={{ 
@@ -426,31 +346,38 @@ const FollowingScreen = ({navigation} : any) => {
             {/* <View>
                 {renderElement()}
             </View> */}
-            {SelectedId === 1 ? (
+            {/* {SelectedId === 1 ? ( */}
                 <View style={{ alignItems: 'center', marginTop: 20, height: '86%'}}>
                     <FlatList
                         style={{ width: '100%' }}
                         data={users}
+                        extraData={users}
                         renderItem={renderItem}
                         keyExtractor={(item) => item.id}
+                        initialNumToRender={20}
                         refreshControl={
                             <RefreshControl
-                             refreshing={isFetching}
-                             onRefresh={onRefresh}
+                                refreshing={isFetching}
+                                onRefresh={onRefresh}
                             />
-                          }
-                        //extraData={didUpdate}
+                        }
+                        ListEmptyComponent={() => {
+                            return (
+                                <View style={{margin: 40, alignItems: 'center', justifyContent: 'center'}}>
+                                    <Text style={{color: '#fff'}}>
+                                        There is nothing here.
+                                    </Text>
+                                </View>
+                            )
+                        }}
                     />
                 </View>
-            ) : SelectedId === 2 && user?.isPublisher === true ? (
+            {/* ) : SelectedId === 2 && user?.isPublisher === true ? (
                 <View style={{ alignItems: 'center', marginTop: 20, height: '86%'}}>
-                    {/* <FollowersList /> */}
+                    <FollowersList />
                 </View>
-            ) : null}
-            
-           
-            
-        
+            ) : null} */}
+
         </LinearGradient>
         </View>
     );

@@ -1,5 +1,12 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, Dimensions, TouchableOpacity} from 'react-native';
+import {
+    View, 
+    Text, 
+    StyleSheet, 
+    Dimensions, 
+    TouchableOpacity, 
+    TouchableWithoutFeedback
+} from 'react-native';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -20,17 +27,20 @@ const PublishingMain = ({navigation} : any) => {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
             >
-
                 <View style={{marginHorizontal: 20, marginTop: 50}}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
                         <View style={{flexDirection: 'row'}}>
-                            <FontAwesome5 
-                                name='chevron-left'
-                                color="#fff"
-                                size={20}
-                                style={{alignSelf: 'center'}}
-                                onPress={() => navigation.goBack()}
-                            />
+                            <TouchableWithoutFeedback onPress={() => navigation.goBack()}>
+                                <View style={{padding: 30, margin: -30}}>
+                                    <FontAwesome5 
+                                        name='chevron-left'
+                                        color="#fff"
+                                        size={20}
+                                        style={{alignSelf: 'center'}}
+                                    />
+                                </View>
+                            </TouchableWithoutFeedback>
+                            
                             <Text style={styles.header}>
                                 Publishing
                             </Text>
@@ -112,7 +122,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignContent: 'center',
         width: Dimensions.get('window').width,
-        //height: Dimensions.get('window').height,
     },
     header: {
         color: '#fff',
