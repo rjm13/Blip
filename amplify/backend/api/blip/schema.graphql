@@ -33,7 +33,7 @@ type Story @model @auth(rules: [{ allow: public}])
   title: String!
   imageUri: String
   audioUri: String!
-  genre: Genre @hasOne
+  genre: String
   user: User @hasOne (fields: ["userID"])
   userID: ID @index(name: "byUser", sortKeyFields: ["id"])
   author: String
@@ -59,11 +59,4 @@ type Tag @model @auth(rules: [{ allow: public}])
     id: ID!
     tagName: String!
     stories: [Story] @hasMany
-  }
-
-  type Genre @model @auth(rules: [{ allow: public}])
-  {
-    id: ID!
-    genreName: String!
-    stories: [Story]
   }
