@@ -25,12 +25,15 @@ const ProfileScreen = ({navigation} : any) => {
             >
                 
                 <View style={{ flexDirection: 'row', marginTop: 30, marginLeft: 20, alignItems: 'center'}}>
-                    <FontAwesome5 
-                        name='chevron-left'
-                        color='#fff'
-                        size={20}
-                        onPress={() => navigation.goBack()}
-                    />
+                    <TouchableWithoutFeedback onPress={() => navigation.goBack()}>
+                            <View style={{padding: 30, margin:-30}}>
+                                <FontAwesome5 
+                                    name='chevron-left'
+                                    color='#fff'
+                                    size={20}
+                                />
+                            </View>
+                        </TouchableWithoutFeedback>
                     <Text style={styles.header}>
                         About
                     </Text>

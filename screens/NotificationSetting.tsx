@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text, Dimensions, Switch, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, Dimensions, Switch, ScrollView, TouchableWithoutFeedback } from 'react-native';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 //import { Switch } from 'react-native-paper';
@@ -38,12 +38,15 @@ const Settings = ({navigation} : any) => {
         <View style={styles.container}>
         <ScrollView>
             <View style={{ flexDirection: 'row', marginTop: 30, marginLeft: 20, alignItems: 'center'}}>
-                <FontAwesome5 
-                    name='chevron-left'
-                    color='#fff'
-                    size={20}
-                    onPress={() => navigation.goBack()}
-                />
+                <TouchableWithoutFeedback onPress={() => navigation.goBack()}>
+                    <View style={{padding: 30, margin:-30}}>
+                        <FontAwesome5 
+                            name='chevron-left'
+                            color='#fff'
+                            size={20}
+                        />
+                    </View>
+                    </TouchableWithoutFeedback>
                 <Text style={styles.headertop}>
                     Settings
                 </Text>

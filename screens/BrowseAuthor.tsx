@@ -1,79 +1,206 @@
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, Dimensions, Image, TouchableWithoutFeedback, FlatList } from 'react-native';
-import EditScreenInfo from '../components/EditScreenInfo';
-import { Text, View } from '../components/Themed';
-import { Searchbar } from 'react-native-paper';
+import { 
+    View,
+    Text,
+    StyleSheet, 
+    Dimensions, 
+    Image, 
+    TouchableWithoutFeedback, 
+    FlatList, 
+    RefreshControl, 
+    TouchableOpacity 
+} from 'react-native';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Ionicon from 'react-native-vector-icons/Ionicons';
-import {LinearGradient} from 'expo-linear-gradient';
 
-import AudioStoryFlatList from '../components/AudioStoryFlatList';
-import FollowingList from '../components/FollowingList';
-//import FollowersList from '../components/FollowingList';
+import { Searchbar } from 'react-native-paper';
+
+import {LinearGradient} from 'expo-linear-gradient';
 
 import { API, graphqlOperation, Auth } from "aws-amplify";
 import { getUser } from '../src/graphql/queries';
-import { listUsers } from '../src/graphql/queries';
+import { listFollowingConns, listUsers } from '../src/graphql/queries';
+import { createFollowingConn, deleteFollowingConn } from '../src/graphql/mutations';
 
-import {useNavigation, useRoute} from '@react-navigation/native';
 
-
-const BrowseAuthors = ({navigation} : any) => {
+const FollowingScreen = ({navigation} : any) => {
 
     const [ users, setUsers ] = useState([]);
 
-    useEffect( () => {
-        const fetchUsers = async () => {
+    const [user, setUser] = useState({})
+
+    const [didUpdate, setDidUpdate] = useState(false);
+
+    const [isFetching, setIsFetching] = useState(false);
+
+    const [searchQ, setSearchQ] = useState('');
+
+    //function is not called
+    // const fetchUsers = async () => {
+    //     let Following = []
+    //     const followData = await API.graphql(graphqlOperation(
+    //         listFollowingConns, {
+    //             filter: {followerID: {eq: user.id}}}))
+    //         for (let i = 0; i < followData.data.listFollowingConns.items.length; i++) {
+    //             Following.push(followData.data.listFollowingConns.items[i].author) 
+    //         setUsers(Following);}}
+
+    //refresh function, does not work yet
+    const onRefresh = () => {
+        setIsFetching(true);
+        //fetchUsers();
+        setDidUpdate(!didUpdate)
+        setTimeout(() => {
+          setIsFetching(false);
+        }, 2000);
+      }
+
+//on render, get the user and then list the following connections for that user
+    useEffect(() => {
+
+        const fetchUser = async () => {
+
+            let Following = []
 
             const userInfo = await Auth.currentAuthenticatedUser();
 
+                if (!userInfo) {return;}
 
             try {
-                const usersData = await API.graphql(
-                    graphqlOperation(
-                        listUsers
-                    )
-                )
-                setUsers(usersData.data.listUsers.items);
+                const userData = await API.graphql(graphqlOperation(
+                    getUser, {id: userInfo.attributes.sub}
+                ))
+
+                if (userData) {setUser(userData.data.getUser);}
+
+                const followData = await API.graphql(graphqlOperation(
+                    listUsers, {
+                        filter: {
+                            isPublisher: {
+                                eq: true
+                            },
+                            pseudonym: {
+                                contains: searchQ
+                            }
+                        }
+                }))
+
+                // for (let i = 0; i < followData.data.listFollowingConns.items.length; i++) {
+                //     Following.push(followData.data.listFollowingConns.items[i].author) 
+
+                setUsers(followData.data.listUsers.items);
             } catch (e) {
-                console.log(e);
-            }
-        }
-        fetchUsers();
-    },[])
-
-    const [user, setUser] = useState({})
-
-    useEffect(() => {
-        const fetchUser = async () => {
-          const userInfo = await Auth.currentAuthenticatedUser();
-            if (!userInfo) {
-              return;
-            }
-          try {
-            const userData = await API.graphql(graphqlOperation(
-              getUser, {id: userInfo.attributes.sub}))
-              if (userData) {
-                setUser(userData.data.getUser);
-              }
-              console.log(userData.data.getUser);
-          } catch (e) {
             console.log(e);
           }
         }
         fetchUser();
-      }, [])
+      }, [didUpdate])
 
+      //search bar
+
+      
+      function SearchBar () {
+
+        const [searchQuery, setSearchQuery] = useState(searchQ);
+      
+        const onChangeSearch = query  => setSearchQuery(query);
+      
+        return (
+          <View>
+            <Searchbar
+              placeholder={'Search Authors'}
+              placeholderTextColor='#000000a5'
+              onChangeText={onChangeSearch}
+              value={searchQuery}
+              iconColor='#000000a5'
+              onIconPress={() => {setSearchQ(searchQuery); setDidUpdate(!didUpdate);}}
+              onSubmitEditing={() => {setSearchQ(searchQuery); setDidUpdate(!didUpdate);}}
+              //onClear={() => {setSearchQ(searchQuery); setDidUpdate(!didUpdate);}}
+              style={{
+                height: 35,
+                marginLeft: 40,
+                borderRadius: 8,
+                backgroundColor: '#e0e0e0',
+                width: Dimensions.get('window').width - 100
+              }}
+              inputStyle={{fontSize: 16,}}
+            />
+          </View>
+        );
+      };
+
+    //legacy function for selected the state toggle between followers and following
     const [SelectedId, setSelectedId] = useState(1);
 
-    const Item = ({ pseudonym, imageUri, id, bio, following, authored, isPublisher } : any) => {
+    //title item for the flatlist that displays the authors the user following
+    const Item = ({ numAuthored, pseudonym, imageUri, id, bio } : any) => {
 
-        //const navigation = useNavigation();
-    
+        //on item render, determine if the user is following them or not
+        const [isFollowing, setIsFollowing] = useState(true)
+
+        //show the options menu modal on the author tile
         const [ShowModalThing, setShowModalThing] = useState(false);
+        
+        //list the following connections that contain the current user and the selected author to determine if there is a following connection
+        const fetchInfo = async () => {
+            const getConnection = await API.graphql(graphqlOperation(
+                listFollowingConns, {
+                    filter: {
+                        authorID: {
+                            eq: id
+                        },
+                        followerID: {
+                            eq: user.id
+                        }
+                    }
+                }
+            ))
+           
+            if (getConnection.data.listFollowingConns.items.length !== 1) {setIsFollowing(false)};
+
+            setShowModalThing(!ShowModalThing)
+        }
+        
+        
+//follow a user function
+        const FollowUser = async () => {
+    
+            let createConnection = await API.graphql(graphqlOperation(
+                createFollowingConn, {input: {followerID: user.id, authorID: id}}
+            ))
+            console.log(createConnection)
+        }
+    
+//unfollow a user
+        const unFollowUser = async () => {
+    
+            let getConnection = await API.graphql(graphqlOperation(
+                listFollowingConns, {
+                    filter: {
+                        authorID: {
+                            eq: id
+                        },
+                        followerID: {
+                            eq: user.id
+                        }
+                    }
+                }
+            ))
+            console.log(getConnection)
+            
+            let connectionID = getConnection.data.listFollowingConns.items[0].id
+            console.log(connectionID)
+    
+            let deleteConnection = await API.graphql(graphqlOperation(
+                deleteFollowingConn, {input: {"id": connectionID}}
+            ))
+            console.log(deleteConnection)
+
+            setDidUpdate(!didUpdate)
+        }
+
+        
     
         return (
             <View style={styles.tile}>
@@ -81,7 +208,7 @@ const BrowseAuthors = ({navigation} : any) => {
                     <TouchableWithoutFeedback onPress={() => navigation.navigate('UserScreen', {userID: id})}>
                         <View style={{ flexDirection: 'row'}}>
                             <Image 
-                                source={{ uri: imageUri}}
+                                source={ imageUri ? { uri: imageUri} : require('../assets/images/blankprofile.png')}
                                 style={{
                                     width: 50,
                                     height: 50,
@@ -113,15 +240,15 @@ const BrowseAuthors = ({navigation} : any) => {
                                         style={{ marginRight: 5}}
                                     />
                                     <Text style={styles.userId}>
-                                        {authored.length ? authored.length : 0}
+                                        {numAuthored === null ? 0 : numAuthored}
                                     </Text> 
                                 </View> 
                             </View>
                         </View>
                     </TouchableWithoutFeedback>    
     
-                    <TouchableWithoutFeedback onPress={() => {setShowModalThing(!ShowModalThing)}}>
-                        <View style={{ backgroundColor: 'transparent', width: 40, alignItems: 'flex-end' }}>
+                    <TouchableWithoutFeedback onPress={fetchInfo}>
+                        <View style={{ backgroundColor: 'transparent', padding: 30, margin: -30, alignItems: 'flex-end' }}>
                             <AntDesign
                                 name={'ellipsis1'}
                                 size={20}
@@ -130,8 +257,6 @@ const BrowseAuthors = ({navigation} : any) => {
                         </View>
                     </TouchableWithoutFeedback>
                 </View>    
-    
-                    
     
                 <View style={{marginTop: 10, marginHorizontal: 5}}>
                     <Text style={{color: "#fff", fontSize: 12, }}>
@@ -142,16 +267,16 @@ const BrowseAuthors = ({navigation} : any) => {
                 {ShowModalThing === true ? (
                         
                         <View style={{ backgroundColor: '#484848', borderColor: 'black', borderRadius: 5, borderWidth: 0, position: 'absolute', right: 40, top: 30, alignSelf: 'flex-end'}}>
-                            <TouchableWithoutFeedback onPress={() => {}} >
+                            <TouchableOpacity onPress={isFollowing === true ? unFollowUser : FollowUser} >
                                 <Text style={{color: '#fff', padding: 10}}>
-                                    Unfollow
+                                    {isFollowing === true ? 'Unfollow' : 'Follow'}
                                 </Text>
-                            </TouchableWithoutFeedback>
-                            <TouchableWithoutFeedback onPress={() => {}} >
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => {navigation.navigate('UserScreen', {userID: id})}} >
                                 <Text style={{color: '#fff', padding: 10}}>
                                     View Profile
                                 </Text>
-                            </TouchableWithoutFeedback>
+                            </TouchableOpacity>
                         </View>
                     
                 ) : null}
@@ -160,125 +285,84 @@ const BrowseAuthors = ({navigation} : any) => {
         );
     }
     
-    const renderItem = ({ item }) => (
+    const renderItem = ({ item } : any) => (
     
         <Item 
-            //user={item}
+            author={item}
             name={item.name}
             id={item.id}
             pseudonym={item.pseudonym}
             imageUri={item.imageUri}
-            //narrations={item.narrations.length}
             authored={item.authored}
             bio={item.bio}
             following={item.following}
             isPublisher={item.isPublisher}
+            numAuthored={item.numAuthored}
         />
       );
 
     return (
-        <View >
+    <View >
         <LinearGradient
-        colors={['#363636','#2f217966', '#000']}
-        //style={styles.container}
+        colors={['#363636', 'black', 'black']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-          
           <View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 60, marginHorizontal: 20}}>
-                  <FontAwesome5 
-                    name='chevron-left'
-                    color='#fff'
-                    size={20}
-                    onPress={ () => navigation.goBack()}
-                  />
-
-              
-            <View style={{ 
-                flexDirection: 'row', 
-                justifyContent: 'flex-start', 
-                width: '100%', 
-                alignItems: 'flex-end',
-                marginHorizontal: 20,
-                //height: 50,
-                }}>
-        
-                <TouchableWithoutFeedback onPress={() => setSelectedId(1)}>
-                    <Text style={{ 
-                        color: SelectedId ===  1 ? '#fff' : '#ffffffa5',
-                        marginHorizontal: 15, 
-                        fontSize: SelectedId ===  1 ? 22 : 17,
-                        fontWeight: SelectedId === 1 ? 'bold' : 'normal',
-                        borderBottomColor: '#fff',
-                        //borderBottomWidth: SelectedId ===  1 ? 1 : 0,
-                    }}>
-                        Browse Authors
-                    </Text>
-                </TouchableWithoutFeedback>
-
-                {/* {user?.isPublisher === true ? (
-                    <TouchableWithoutFeedback onPress={() => setSelectedId(2)}>
-                        <Text style={{ 
-                            color: SelectedId ===  2 ? '#fff' : '#ffffffa5',
-                            marginHorizontal: 15, 
-                            fontSize: SelectedId ===  2 ? 22 : 17,
-                            fontWeight: SelectedId === 2 ? 'bold' : 'normal'
-                        }}>
-                            Followers
-                        </Text>
+                <View style={{ width: Dimensions.get('window').width, flexDirection: 'row', alignItems: 'center', marginTop: 60, marginHorizontal: 20}}>
+                    <TouchableWithoutFeedback onPress={ () => navigation.goBack()}>
+                        <View style={{padding: 30, margin: -30}}>
+                            <FontAwesome5 
+                                name='chevron-left'
+                                color='#fff'
+                                size={20}
+                            />
+                        </View>
                     </TouchableWithoutFeedback>
-                ) : null} */}
-                
+                  
+                    <SearchBar />
 
-                {/* <TouchableWithoutFeedback onPress={() => setSelectedId(3)}>
-                    <Text style={{ 
-                        color: SelectedId ===  3 ? '#fff' : '#ffffffa5',
-                        marginHorizontal: 15, 
-                        fontSize: SelectedId ===  3 ? 22 : 17,
-                        fontWeight: SelectedId === 3 ? 'bold' : 'normal'
-                    }}>
-                        
-                    </Text>
-                </TouchableWithoutFeedback> */}
-
-                {/* <TouchableWithoutFeedback onPress={() => setSelectedId(4)}>
-                    <Text style={{ 
-                        color: SelectedId ===  4 ? '#fff' : '#ffffffa5',
-                        marginHorizontal: 15, 
-                        fontSize: SelectedId ===  4 ? 22 : 17,
-                        fontWeight: SelectedId === 4 ? 'bold' : 'normal'
-                    }}>                        
-                        
-                    </Text>
-                </TouchableWithoutFeedback> */}
-            </View>
-            </View>
+                </View>
             
           </View>
-        
-            {/* <View>
-                {renderElement()}
-            </View> */}
-            {SelectedId === 1 ? (
-                <View style={{ alignItems: 'center', marginTop: 20, height: '86%'}}>
+                <View style={{ alignItems: 'center', marginTop: 20, height: '84%'}}>
                     <FlatList
                         style={{ width: '100%' }}
                         data={users}
+                        extraData={users}
                         renderItem={renderItem}
                         keyExtractor={(item) => item.id}
-                        //extraData={true}
+                        initialNumToRender={20}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={isFetching}
+                                onRefresh={onRefresh}
+                            />
+                        }
+                        ListEmptyComponent={() => {
+                            return (
+                                <View style={{margin: 40, alignItems: 'center', justifyContent: 'center'}}>
+                                    <Text style={{color: '#fff'}}>
+                                        There is nothing here. Check your connection.
+                                    </Text>
+                                </View>
+                            )
+                        }}
+                        ListFooterComponent={() => {
+                            return (
+                                <View style={{margin: 40, alignItems: 'center', justifyContent: 'center'}}>
+                                    
+                                </View>
+                            )
+                        }}
                     />
                 </View>
-            ) : SelectedId === 2 && user?.isPublisher === true ? (
+            {/* ) : SelectedId === 2 && user?.isPublisher === true ? (
                 <View style={{ alignItems: 'center', marginTop: 20, height: '86%'}}>
-                    {/* <FollowersList /> */}
+                    <FollowersList />
                 </View>
-            ) : null}
-            
-           
-            
-        
+            ) : null} */}
+
         </LinearGradient>
         </View>
     );
@@ -335,4 +419,4 @@ const styles = StyleSheet.create({
      },
 });
 
-export default BrowseAuthors;
+export default FollowingScreen;

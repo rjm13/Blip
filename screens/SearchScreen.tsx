@@ -1,7 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
-import { StyleSheet, Dimensions } from 'react-native';
-import EditScreenInfo from '../components/EditScreenInfo';
-import { Text, View } from '../components/Themed';
+import { StyleSheet, Dimensions, TouchableWithoutFeedback, View, Text } from 'react-native';
 import { Searchbar } from 'react-native-paper';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
@@ -11,20 +9,13 @@ import {LinearGradient} from 'expo-linear-gradient';
 
 import AudioStoryFlatList from '../components/AudioStoryFlatList';
 
-import {useRoute} from '@react-navigation/native';
-
 const SearchScreen = ({navigation} : any) => {
 
-    const route = useRoute();
-
-    const {searchQ} = route.params;
-
-    const [newSearch, setNewSearch] = useState(searchQ);
+    const [newSearch, setNewSearch] = useState('');
 
 
     function SearchBar () {
 
-        
         const [searchQuery, setSearchQuery] = useState('');
 
         const onChangeSearch = query => setSearchQuery(query);
@@ -32,18 +23,25 @@ const SearchScreen = ({navigation} : any) => {
         return (
           <View>
             <Searchbar
-              placeholder="Search"
+              placeholder="Search Stories"
               placeholderTextColor='#000000a5'
               onChangeText={onChangeSearch}
               onIconPress={() => setNewSearch(searchQuery)}
               value={searchQuery}
+              autoFocus={true}
+              icon={() => {return(
+                <FontAwesome5 
+                  name='search'
+                  color='#000000a5'
+                  size={18}
+                />)}}
               iconColor='#000000a5'
-              defaultValue={newSearch}
               style={{
                 height: 35,
-                marginHorizontal: 20,
+                marginLeft: 40,
                 borderRadius: 8,
                 backgroundColor: '#e0e0e0',
+                width: Dimensions.get('window').width - 100 
               }}
               inputStyle={{fontSize: 16,}}
             />
@@ -54,32 +52,30 @@ const SearchScreen = ({navigation} : any) => {
 
     return (
         <View >
-        <LinearGradient
-        colors={['#363636','#2f217966', '#000']}
-        //style={styles.container}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
-          
-          <View style={{    flexDirection: 'row', justifyContent: 'space-between', 
-                            marginTop: 60, marginBottom: 20, marginHorizontal: 20}}>
-            <View style={{ flexDirection: 'row'}}>
-                <FontAwesome5 
-                    name='chevron-left'
-                    color='#fff'
-                    size={20}
-                    onPress={() => navigation.goBack()}
-                />
+          <LinearGradient
+          colors={['#363636','#2f217966', '#000']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <View style={{marginTop: 60, marginBottom: 20, marginHorizontal: 20}}>
+            <View style={{ flexDirection: 'row', alignItems: 'center'}}>
+                <TouchableWithoutFeedback onPress={() => navigation.goBack()}>
+                  <View style={{padding: 30, margin: -30}}>
+                    <FontAwesome5 
+                        name='chevron-left'
+                        color='#fff'
+                        size={20}
+                    />
+                  </View>
+                </TouchableWithoutFeedback>
+                
+                <SearchBar />
                 
             </View>
             <View style={{ flexDirection: 'row'}}>
             
             </View>
           </View>
-        
-            <View style={{ marginBottom: 20}}>
-                <SearchBar />
-            </View>
 
             
 

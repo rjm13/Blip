@@ -32,10 +32,13 @@ const Publisher = ({navigation} : any) => {
     //load the keys from async storage
     useEffect(() => {
         const LoadKeys = async () => {
+
+            const userInfo = await Auth.currentAuthenticatedUser();
+
             let saved = await AsyncStorage.getAllKeys();
     
             if (saved != null) {
-                let result = saved.filter((item) => item.includes("recording" + user.id));
+                let result = saved.filter((item) => item.includes("recording" + userInfo.attributes.sub));
                 setSavedAudio(result);
             } 
         }

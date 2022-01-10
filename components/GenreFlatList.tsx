@@ -58,11 +58,11 @@ const Item = ({genre, icon, iconcolor, boxcolor, source} : any) => {
     );
 }
 
-const GenreFlatList = () => {
+const GenreFlatList = (navigation: any) => {
 
-    const navigation = useNavigation();
+    //const navigation = useNavigation();
    
-    const renderItem = ({ item }) => (
+    const renderItem = ({ item } : any) => (
 
         <Item 
             genre={item.genre}
