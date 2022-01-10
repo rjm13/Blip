@@ -2,7 +2,8 @@ import React, {useState} from 'react';
 import { 
   StyleSheet, 
   Dimensions, 
-  TouchableWithoutFeedback, 
+  TouchableWithoutFeedback,
+  TouchableOpacity, 
   View, 
   Text, 
   Image,
@@ -84,25 +85,65 @@ const AudioStoryHome = ({navigation} : any) => {
     />
   );
 
+  const tags = [
+    {
+      id: 1,
+      tag: '#HarryPotter'
+    },
+    {
+      id: 2,
+      tag: "#ShakespeareSpinOf"
+    },
+    {
+      id: 3,
+      tag: "#1920s"
+    },
+    {
+      id: 4,
+      tag: "#Martians"
+    },
+    {
+      id: 5,
+      tag: "#Explorers"
+    }
+  ]
+
+  const Tag = ({id, tag}: any) => {
+    return (
+      <View style={{marginTop: 14}}>
+        <TouchableOpacity onPress={() => navigation.navigate('BrowseAuthor')}>
+            <View style={[styles.tagbox]}>
+                <Text style={styles.tagtext}>
+                    {tag}
+                </Text>
+            </View>
+        </TouchableOpacity>
+      </View>
+    )
+  }
+
+  const renderTag = ({ item } : any) => (
+
+    <Tag 
+        id={item.id}
+        tag={item.tag}
+    />
+  );
+
+
     return (
         <View >
           <LinearGradient
             colors={['#363636','#2f217966', '#000']}
-            //style={styles.container}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
         >
           <ScrollView>
-          <View style={{    flexDirection: 'row', justifyContent: 'space-between', 
-                            marginTop: 60, marginBottom: 20, marginHorizontal: 20}}>
-            <View style={{ flexDirection: 'row'}}>
-        
-                <Text style={{ color: 'white', marginHorizontal: 0, fontSize: 22, fontWeight: 'bold'}}>
-                    Discover Stories
-                </Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 60, marginBottom: 20, marginHorizontal: 20}}>
+                  <Text style={{ color: 'white', marginHorizontal: 0, fontSize: 22, fontWeight: 'bold'}}>
+                      Discover Stories
+                  </Text>
             </View>
-            
-          </View>
         
             <View style={{ marginBottom: 20, marginHorizontal: 20, alignItems: 'center'}}>
                 <TouchableWithoutFeedback onPress={() => navigation.navigate('SearchScreen')}>
@@ -128,37 +169,94 @@ const AudioStoryHome = ({navigation} : any) => {
 
                         return (
                             <View style={{ marginTop: 20}}>
-                                <Text style={styles.header}>
-                                    Browse
-                                </Text>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 20}}>
+                                <View>
+                                  <Text style={styles.header}>
+                                      Authors
+                                  </Text>
+                                  <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 20}}>
 
-                                    <TouchableWithoutFeedback onPress={() => navigation.navigate('BrowseAuthor')}>
-                                        <View style={[styles.box, { backgroundColor: '#15c7ca'}]}>
-                                            <FontAwesome5 
-                                            name='book-open'
-                                            color='#000000'
-                                            size={30}
-                                            />
-                                            <Text style={styles.title}>
-                                                Author
-                                            </Text>
-                                        </View>
-                                    </TouchableWithoutFeedback>
+                                      <TouchableWithoutFeedback onPress={() => navigation.navigate('BrowseAuthor')}>
+                                          <View style={[styles.box, { backgroundColor: '#15c7ca'}]}>
+                                              <FontAwesome5 
+                                              name='book-reader'
+                                              color='#000000'
+                                              size={30}
+                                              />
+                                              <Text style={styles.title}>
+                                                  Browse
+                                              </Text>
+                                          </View>
+                                      </TouchableWithoutFeedback>
 
-                                    <TouchableWithoutFeedback onPress={() => navigation.navigate('BrowseNarrator')}>
-                                        <View style={[styles.box, { backgroundColor: 'pink'}]}>
-                                            <FontAwesome5 
-                                                name='book-reader'
-                                                color='#000000'
-                                                size={30}
-                                            />
-                                            <Text style={styles.title}>
-                                            Narrator
-                                            </Text>
-                                        </View>
-                                    </TouchableWithoutFeedback>
+                                      <TouchableWithoutFeedback onPress={() => navigation.navigate('BrowseNarrator')}>
+                                          <View style={[styles.box, { backgroundColor: 'pink'}]}>
+                                              <FontAwesome5 
+                                                  name='book-reader'
+                                                  color='#000000'
+                                                  size={30}
+                                              />
+                                              <Text style={styles.title}>
+                                              Featured
+                                              </Text>
+                                          </View>
+                                      </TouchableWithoutFeedback>
+                                  </View>
+                                </View>
 
+                                <View>
+                                  <Text style={styles.header}>
+                                      Popular Tags
+                                  </Text>
+                                  <View>
+                                    <FlatList 
+                                      data={tags}
+                                      renderItem={renderTag}
+                                      keyExtractor={item => item.id}
+                                      scrollEnabled={false}
+                                      maxToRenderPerBatch={6}
+                                      showsVerticalScrollIndicator={false}
+                                      style={{flexDirection: 'row', flexWrap: 'wrap', width: Dimensions.get('window').width - 40, marginBottom: 20}}
+                                    />
+
+
+
+                                    {/* <View style={{ flexDirection: 'row',  marginBottom: 10, marginTop: 10}}>
+
+                                        <TouchableOpacity onPress={() => navigation.navigate('BrowseAuthor')}>
+                                            <View style={[styles.tagbox]}>
+                                                <Text style={styles.tagtext}>
+                                                    Browse
+                                                </Text>
+                                            </View>
+                                        </TouchableOpacity>
+
+                                        <TouchableOpacity onPress={() => navigation.navigate('BrowseNarrator')}>
+                                            <View style={[styles.tagbox]}>
+                                                <Text style={styles.tagtext}>
+                                                Featured
+                                                </Text>
+                                            </View>
+                                        </TouchableOpacity>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', marginBottom: 20}}>
+
+                                        <TouchableOpacity onPress={() => navigation.navigate('BrowseAuthor')}>
+                                            <View style={[styles.tagbox]}>
+                                                <Text style={styles.tagtext}>
+                                                    Browse
+                                                </Text>
+                                            </View>
+                                        </TouchableOpacity>
+
+                                        <TouchableOpacity onPress={() => navigation.navigate('BrowseNarrator')}>
+                                            <View style={[styles.tagbox]}>
+                                                <Text style={styles.tagtext}>
+                                                Featured
+                                                </Text>
+                                            </View>
+                                        </TouchableOpacity>
+                                    </View> */}
+                                  </View>
                                 </View>
 
                                 <Text style={styles.header}>
@@ -212,6 +310,19 @@ box: {
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
+  tagbox: {
+    marginRight: 10   
+  },
+  tagtext: {
+    color: 'cyan',
+    fontSize: 14,
+    backgroundColor: '#1A4851a5',
+    borderColor: 'cyan',
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 20
+},
   genrebox: {
     height: 60,
     borderRadius: 15,
