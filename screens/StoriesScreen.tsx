@@ -203,7 +203,7 @@ const AudioStoryHome = ({navigation} : any) => {
                                   </View>
                                 </View>
 
-                                <View>
+                                <View style={{marginTop: 20}}>
                                   <Text style={styles.header}>
                                       Popular Tags
                                   </Text>
@@ -259,9 +259,12 @@ const AudioStoryHome = ({navigation} : any) => {
                                   </View>
                                 </View>
 
-                                <Text style={styles.header}>
-                                    Genres
-                                </Text>
+                                <View style={{marginTop: 20}}>
+                                  <Text style={styles.header}>
+                                      Genres
+                                  </Text>
+                                </View>
+                                
                             </View>                           
                         );
                     }}
